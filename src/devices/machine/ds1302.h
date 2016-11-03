@@ -19,6 +19,7 @@
 #define __DS1302_H__
 
 #include "emu.h"
+#include "dirtc.h"
 
 
 
@@ -43,7 +44,7 @@ class ds1302_device :  public device_t,
 {
 public:
 	// construction/destruction
-	ds1302_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	ds1302_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	DECLARE_WRITE_LINE_MEMBER( ce_w );
 	DECLARE_WRITE_LINE_MEMBER( sclk_w );
@@ -52,18 +53,18 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	// device_nvram_interface overrides
-	virtual void nvram_default();
-	virtual void nvram_read(emu_file &file);
-	virtual void nvram_write(emu_file &file);
+	virtual void nvram_default() override;
+	virtual void nvram_read(emu_file &file) override;
+	virtual void nvram_write(emu_file &file) override;
 
 	// device_rtc_interface overrides
-	virtual void rtc_clock_updated(int year, int month, int day, int day_of_week, int hour, int minute, int second);
-	virtual bool rtc_feature_leap_year() { return true; }
+	virtual void rtc_clock_updated(int year, int month, int day, int day_of_week, int hour, int minute, int second) override;
+	virtual bool rtc_feature_leap_year() const override { return true; }
 
 private:
 	void load_shift_register();
@@ -75,13 +76,13 @@ private:
 	int m_io;
 	int m_state;
 	int m_bits;
-	UINT8 m_cmd;
-	UINT8 m_data;
+	uint8_t m_cmd;
+	uint8_t m_data;
 	int m_addr;
 
-	UINT8 m_reg[9];
-	UINT8 m_user[9];
-	UINT8 m_ram[0x20];
+	uint8_t m_reg[9];
+	uint8_t m_user[9];
+	uint8_t m_ram[0x20];
 
 	// timers
 	emu_timer *m_clock_timer;

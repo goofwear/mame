@@ -77,12 +77,12 @@ public:
 	// construction/destruction
 	device_isbx_card_interface(const machine_config &mconfig, device_t &device);
 
-	virtual UINT8 mcs0_r(address_space &space, offs_t offset) { return 0xff; }
-	virtual void mcs0_w(address_space &space, offs_t offset, UINT8 data) { }
-	virtual UINT8 mcs1_r(address_space &space, offs_t offset) { return 0xff; }
-	virtual void mcs1_w(address_space &space, offs_t offset, UINT8 data) { }
-	virtual UINT8 mdack_r(address_space &space, offs_t offset) { return 0xff; }
-	virtual void mdack_w(address_space &space, offs_t offset, UINT8 data) { }
+	virtual uint8_t mcs0_r(address_space &space, offs_t offset) { return 0xff; }
+	virtual void mcs0_w(address_space &space, offs_t offset, uint8_t data) { }
+	virtual uint8_t mcs1_r(address_space &space, offs_t offset) { return 0xff; }
+	virtual void mcs1_w(address_space &space, offs_t offset, uint8_t data) { }
+	virtual uint8_t mdack_r(address_space &space, offs_t offset) { return 0xff; }
+	virtual void mdack_w(address_space &space, offs_t offset, uint8_t data) { }
 	virtual int opt0_r() { return 1; }
 	virtual void opt0_w(int state) { }
 	virtual int opt1_r() { return 1; }
@@ -102,7 +102,7 @@ class isbx_slot_device : public device_t,
 {
 public:
 	// construction/destruction
-	isbx_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	isbx_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _mintr0> void set_mintr0_callback(_mintr0 mintr0) { m_write_mintr0.set_callback(mintr0); }
 	template<class _mintr1> void set_mintr1_callback(_mintr1 mintr1) { m_write_mintr1.set_callback(mintr1); }
@@ -116,7 +116,7 @@ public:
 	DECLARE_WRITE8_MEMBER( mcs1_w ) { if (m_card) m_card->mcs1_w(space, offset, data); }
 	DECLARE_READ8_MEMBER( mdack_r ) { return m_card ? m_card->mdack_r(space, offset) : 0xff; }
 	DECLARE_WRITE8_MEMBER( mdack_w ) { if (m_card) m_card->mdack_w(space, offset, data); }
-	DECLARE_READ_LINE_MEMBER( mpst_r ) { return m_card == NULL; }
+	DECLARE_READ_LINE_MEMBER( mpst_r ) { return m_card == nullptr; }
 	DECLARE_READ_LINE_MEMBER( opt0_r ) { return m_card ? m_card->opt0_r() : 1; }
 	DECLARE_WRITE_LINE_MEMBER( opt0_w ) { if (m_card) m_card->opt0_w(state); }
 	DECLARE_READ_LINE_MEMBER( opt1_r ) { return m_card ? m_card->opt1_r() : 1; }
@@ -132,8 +132,8 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset() { if (m_card) get_card_device()->reset(); }
+	virtual void device_start() override;
+	virtual void device_reset() override { if (m_card) get_card_device()->reset(); }
 
 	devcb_write_line   m_write_mintr0;
 	devcb_write_line   m_write_mintr1;

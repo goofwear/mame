@@ -34,18 +34,18 @@ class rsp_frontend : public drc_frontend
 {
 public:
 	// construction/destruction
-	rsp_frontend(rsp_device &rsp, UINT32 window_start, UINT32 window_end, UINT32 max_sequence);
+	rsp_frontend(rsp_device &rsp, uint32_t window_start, uint32_t window_end, uint32_t max_sequence);
 
 protected:
 	// required overrides
-	virtual bool describe(opcode_desc &desc, const opcode_desc *prev);
+	virtual bool describe(opcode_desc &desc, const opcode_desc *prev) override;
 
 private:
 	// internal helpers
-	bool describe_special(UINT32 op, opcode_desc &desc);
-	bool describe_regimm(UINT32 op, opcode_desc &desc);
-	bool describe_cop0(UINT32 op, opcode_desc &desc);
-	bool describe_cop2(UINT32 op, opcode_desc &desc);
+	bool describe_special(uint32_t op, opcode_desc &desc);
+	bool describe_regimm(uint32_t op, opcode_desc &desc);
+	bool describe_cop0(uint32_t op, opcode_desc &desc);
+	bool describe_cop2(uint32_t op, opcode_desc &desc);
 
 	// internal state
 	rsp_device &m_rsp;

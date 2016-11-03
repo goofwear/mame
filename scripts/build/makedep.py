@@ -10,7 +10,7 @@ import sys
 
 files_included = ['src/emu/emu.h']
 
-include_dirs = ['src/emu/', 'src/devices/', 'src/mame/']
+include_dirs = ['src/emu/', 'src/devices/', 'src/mame/', 'src/lib/']
 
 mappings = dict()
 
@@ -27,7 +27,7 @@ def file_exists(root, srcfile, folder, inc_dir):
     includes.extend(inc_dir)
     for line in includes:
         try:
-            fp = open(root + line + srcfile, 'rb')
+            fp = open(root + line + srcfile, 'r')
             fp.close()
             return line + srcfile
         except IOError:
@@ -36,7 +36,7 @@ def file_exists(root, srcfile, folder, inc_dir):
 
 def add_c_if_exists(root, fullname):
     try:
-        fp = open(root + fullname, 'rb')
+        fp = open(root + fullname, 'r')
         fp.close()
         deps_files_included.append(fullname)
     except IOError:
@@ -45,7 +45,7 @@ def add_c_if_exists(root, fullname):
 def add_rest_if_exists(root, srcfile,folder):
     t = srcfile.rsplit('/', 2)
     if t[1]=='includes':
-        t[2] = t[2].replace('.h','.c')
+        t[2] = t[2].replace('.h','.cpp')
         t[1] = 'drivers'     
         add_c_if_exists(root,"/".join(t))
         parse_file_for_deps(root, "/".join(t), folder)
@@ -61,7 +61,7 @@ def add_rest_if_exists(root, srcfile,folder):
 
 def parse_file_for_deps(root, srcfile, folder):
     try:
-        fp = open(root + srcfile, 'rb')
+        fp = open(root + srcfile, 'r')
     except IOError:
         return 1
     in_comment = 0
@@ -73,11 +73,11 @@ def parse_file_for_deps(root, srcfile, folder):
         while srcptr < len(line):
             c = line[srcptr]
             srcptr+=1
-            if c==13 or c==10:
-                if c==13 and line[srcptr]==10:
+            if ord(c)==13 or ord(c)==10:
+                if ord(c)==13 and ord(line[srcptr])==10:
                     srcptr+=1
                 continue
-            if c==' ' or c==9:
+            if c==' ' or ord(c)==9:
                 continue
             if in_comment==1 and c=='*' and line[srcptr]=='/' :
                 srcptr+=1
@@ -102,7 +102,7 @@ def parse_file_for_deps(root, srcfile, folder):
                    continue
                if fullname!='':
                    deps_files_included.append(fullname)
-                   add_c_if_exists(root, fullname.replace('.h','.c'))
+                   add_c_if_exists(root, fullname.replace('.h','.cpp'))
                    add_rest_if_exists(root, fullname,folder)
                    newfolder = fullname.rsplit('/', 1)[0] + '/'
                    parse_file_for_deps(root, fullname, newfolder)
@@ -112,7 +112,7 @@ def parse_file_for_deps(root, srcfile, folder):
 
 def parse_file(root, srcfile, folder):
     try:
-        fp = open(root + srcfile, 'rb')
+        fp = open(root + srcfile, 'r')
     except IOError:
         return 1
     in_comment = 0
@@ -124,11 +124,11 @@ def parse_file(root, srcfile, folder):
         while srcptr < len(line):
             c = line[srcptr]
             srcptr+=1
-            if c==13 or c==10:
-                if c==13 and line[srcptr]==10:
+            if ord(c)==13 or ord(c)==10:
+                if ord(c)==13 and ord(line[srcptr])==10:
                     srcptr+=1
                 continue
-            if c==' ' or c==9:
+            if c==' ' or ord(c)==9:
                 continue
             if in_comment==1 and c=='*' and line[srcptr]=='/' :
                 srcptr+=1
@@ -160,56 +160,24 @@ def parse_file(root, srcfile, folder):
                    files_included.append(fullname)
                    newfolder = fullname.rsplit('/', 1)[0] + '/'
                    parse_file(root, fullname, newfolder)
-                   if (fullname.endswith('.h')):
-                       parse_file(root, fullname.replace('.h','.c'), newfolder)
+                   if (fullname.endswith('.h') and not("src/emu" in fullname) and not("src/devices" in fullname) and not("src/lib" in fullname) and not("src/osd" in fullname)):
+                       parse_file_for_deps(root, fullname.replace('.h','.cpp'), newfolder)
+                   elif fullname.endswith('.h'):
+                       parse_file(root, fullname.replace('.h','.cpp'), newfolder)
                continue
     fp.close()
     return 0
 
 def parse_file_for_drivers(root, srcfile):
-    try:
-        fp = open(root + srcfile, 'rb')
-    except IOError:
-        sys.stderr.write("Unable to open source file '%s'\n" % srcfile)
-        return 1
-    in_comment = 0
-    linenum = 0
-    for line in fp.readlines():
-        content = ''
-        linenum+=1
-        srcptr = 0
-        while srcptr < len(line):
-            c = line[srcptr]
-            srcptr+=1
-            if c==13 or c==10:
-                if c==13 and line[srcptr]==10:
-                    srcptr+=1
-                continue
-            if c==' ' or c==9:
-                continue
-            if in_comment==1 and c=='*' and line[srcptr]=='/' :
-                srcptr+=1
-                in_comment = 0
-                continue
-            if in_comment:
-                continue
-            if c=='/' and line[srcptr]=='*' :
-                srcptr+=1
-                in_comment = 1
-                continue
-            if c=='/' and line[srcptr]=='/' :
-                break
-            content += c
-        content = content.strip()
-        if len(content)>0:
-            if content.startswith('COMP') or content.startswith('CONS') or content.startswith('GAME') or content.startswith('SYST')  or content.startswith('GAMEL'):
-               name = content[4:]
-               drivers.append(name.rsplit(',', 14)[1])
+    srcfile = srcfile.replace('\\','/')
+    if srcfile.startswith('src/mame/drivers'):
+       splitname = srcfile.split('/', 4)
+       drivers.append(splitname[3])
     return 0
 
 def parse_lua_file(srcfile):
     try:
-        fp = open(srcfile, 'rb')
+        fp = open(srcfile, 'r')
     except IOError:
         sys.stderr.write("Unable to open source file '%s'\n" % srcfile)
         return 1
@@ -233,6 +201,7 @@ parse_lua_file(root +'scripts/src/cpu.lua')
 parse_lua_file(root +'scripts/src/machine.lua')
 parse_lua_file(root +'scripts/src/sound.lua')
 parse_lua_file(root +'scripts/src/video.lua')
+parse_lua_file(root +'scripts/src/formats.lua')
 
 for filename in sys.argv[2].rsplit(',') :
     deps_files_included.append(filename.replace('\\','/'))
@@ -244,31 +213,12 @@ for filename in deps_files_included:
 for filename in sys.argv[2].rsplit(',') :
     parse_file_for_drivers(root,filename)
 
-
 # display output
 if sys.argv[3]=='drivers':
-    # add a reference to the ___empty driver
-    drivers.append("___empty")
-
-    # start with a header
-    print('#include "emu.h"\n')
-    print('#include "drivenum.h"\n')
-
     #output the list of externs first
     for drv in sorted(drivers):
-        print("GAME_EXTERN(%s);" % drv)
+        print(drv)
     print("")
-
-    # then output the array
-    print("const game_driver * const driver_list::s_drivers_sorted[%d] =" % len(drivers))
-    print("{")
-    for drv in sorted(drivers):
-        print("\t&GAME_NAME(%s)," % drv)
-    print("};")
-    print("")
-
-    # also output a global count
-    print("int driver_list::s_driver_count = %d;\n" % len(drivers))
 
 if sys.argv[3]=='target':
     for line in components:
@@ -280,10 +230,6 @@ if sys.argv[3]=='target':
     sys.stdout.write('    kind (LIBTYPE)\n')
     sys.stdout.write('    uuid (os.uuid("drv-mame-%s"))\n' % sys.argv[4])
     sys.stdout.write('    \n')
-    sys.stdout.write('    options {\n')
-    sys.stdout.write('        "ForceCPP",\n')
-    sys.stdout.write('    }\n')
-    sys.stdout.write('    \n')
     sys.stdout.write('    includedirs {\n')
     sys.stdout.write('        MAME_DIR .. "src/osd",\n')
     sys.stdout.write('        MAME_DIR .. "src/emu",\n')
@@ -291,15 +237,12 @@ if sys.argv[3]=='target':
     sys.stdout.write('        MAME_DIR .. "src/mame",\n')
     sys.stdout.write('        MAME_DIR .. "src/lib",\n')
     sys.stdout.write('        MAME_DIR .. "src/lib/util",\n')
+    sys.stdout.write('        MAME_DIR .. "src/lib/netlist",\n')
     sys.stdout.write('        MAME_DIR .. "3rdparty",\n')
     sys.stdout.write('        GEN_DIR  .. "mame/layout",\n')
-    sys.stdout.write('        GEN_DIR  .. "mess/layout",\n')
+    sys.stdout.write('        ext_includedir("zlib"),\n')
+    sys.stdout.write('        ext_includedir("flac"),\n')
     sys.stdout.write('    }\n')
-    sys.stdout.write('    if _OPTIONS["with-bundled-zlib"] then\n')
-    sys.stdout.write('        includedirs {\n')
-    sys.stdout.write('            MAME_DIR .. "3rdparty/zlib",\n')
-    sys.stdout.write('        }\n')
-    sys.stdout.write('    end\n')
     sys.stdout.write('\n')
     sys.stdout.write('    files{\n')
     for line in deps_files_included:

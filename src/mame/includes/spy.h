@@ -25,9 +25,9 @@ public:
 		m_palette(*this, "palette") { }
 
 	/* memory pointers */
-	required_shared_ptr<UINT8> m_ram;
-	UINT8      m_pmcram[0x800];
-	std::vector<UINT8> m_paletteram;
+	required_shared_ptr<uint8_t> m_ram;
+	uint8_t      m_pmcram[0x800];
+	std::vector<uint8_t> m_paletteram;
 
 	/* misc */
 	int        m_rambank;
@@ -51,9 +51,9 @@ public:
 	DECLARE_WRITE8_MEMBER(sound_bank_w);
 	DECLARE_READ8_MEMBER(k052109_051960_r);
 	DECLARE_WRITE8_MEMBER(k052109_051960_w);
-	virtual void machine_start();
-	virtual void machine_reset();
-	UINT32 screen_update_spy(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	uint32_t screen_update_spy(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(spy_interrupt);
 	void spy_collision(  );
 	DECLARE_WRITE8_MEMBER(volume_callback0);

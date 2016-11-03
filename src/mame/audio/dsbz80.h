@@ -22,10 +22,10 @@ class dsbz80_device : public device_t, public device_sound_interface
 {
 public:
 	// construction/destruction
-	dsbz80_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	dsbz80_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// optional information overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 	DECLARE_WRITE8_MEMBER(latch_w);
 
@@ -42,19 +42,18 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 private:
 	mpeg_audio *decoder;
-	INT16 audio_buf[1152*2];
-	UINT8 m_dsb_latch;
-	UINT32 mp_start, mp_end, mp_vol, mp_pan, mp_state, lp_start, lp_end, start, end;
+	int16_t audio_buf[1152*2];
+	uint8_t m_dsb_latch;
+	uint32_t mp_start, mp_end, mp_vol, mp_pan, mp_state, lp_start, lp_end, start, end;
 	int mp_pos, audio_pos, audio_avail;
 	int status;
-	int getbit();
 };
 
 

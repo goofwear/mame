@@ -61,16 +61,16 @@ public:
 	required_device<smc37c78_device> m_smc37c78;
 	required_device<fujitsu_29f016a_device> m_flash;
 	required_device<pci_bus_device> m_pcibus;
-	UINT32 m_cpu_imask[2];
-	UINT32 m_interrupts;
-	UINT32 m_crossproc_interrupts;
+	uint32_t m_cpu_imask[2];
+	uint32_t m_interrupts;
+	uint32_t m_crossproc_interrupts;
 	int m_dma_channel;
-	UINT16 m_dma_offset[2][4];
-	UINT8 m_at_pages[0x10];
-	UINT32 m_scsi53c810_data[0x100 / 4];
+	uint16_t m_dma_offset[2][4];
+	uint8_t m_at_pages[0x10];
+	uint32_t m_scsi53c810_data[0x100 / 4];
 	DECLARE_DRIVER_INIT(bebox);
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 	DECLARE_WRITE_LINE_MEMBER(bebox_pic8259_master_set_int_line);
 	DECLARE_WRITE_LINE_MEMBER(bebox_pic8259_slave_set_int_line);
 	DECLARE_READ8_MEMBER(get_slave_ack);
@@ -96,8 +96,6 @@ public:
 	DECLARE_WRITE64_MEMBER(bebox_cpu1_imask_w);
 	DECLARE_WRITE64_MEMBER(bebox_crossproc_interrupts_w);
 	DECLARE_WRITE64_MEMBER(bebox_processor_resets_w);
-	DECLARE_WRITE8_MEMBER(bebox_800001F0_w);
-	DECLARE_WRITE64_MEMBER(bebox_800003F0_w);
 	DECLARE_WRITE8_MEMBER(bebox_page_w);
 	DECLARE_WRITE8_MEMBER(bebox_80000480_w);
 	DECLARE_WRITE8_MEMBER(bebox_flash_w);
@@ -124,13 +122,13 @@ public:
 	void bebox_update_interrupts();
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };
 
 
 /*----------- defined in machine/bebox.c -----------*/
 
-UINT32 scsi53c810_pci_read(device_t *busdevice, device_t *device, int function, int offset, UINT32 mem_mask);
-void scsi53c810_pci_write(device_t *busdevice, device_t *device, int function, int offset, UINT32 data, UINT32 mem_mask);
+uint32_t scsi53c810_pci_read(device_t *busdevice, device_t *device, int function, int offset, uint32_t mem_mask);
+void scsi53c810_pci_write(device_t *busdevice, device_t *device, int function, int offset, uint32_t data, uint32_t mem_mask);
 
 #endif /* BEBOX_H_ */

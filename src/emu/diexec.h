@@ -23,14 +23,14 @@
 //**************************************************************************
 
 // suspension reasons for executing devices
-const UINT32 SUSPEND_REASON_HALT        = 0x0001;   // HALT line set (or equivalent)
-const UINT32 SUSPEND_REASON_RESET       = 0x0002;   // RESET line set (or equivalent)
-const UINT32 SUSPEND_REASON_SPIN        = 0x0004;   // currently spinning
-const UINT32 SUSPEND_REASON_TRIGGER     = 0x0008;   // waiting for a trigger
-const UINT32 SUSPEND_REASON_DISABLE     = 0x0010;   // disabled (due to disable flag)
-const UINT32 SUSPEND_REASON_TIMESLICE   = 0x0020;   // waiting for the next timeslice
-const UINT32 SUSPEND_REASON_CLOCK       = 0x0040;   // currently not clocked
-const UINT32 SUSPEND_ANY_REASON         = ~0;       // all of the above
+const uint32_t SUSPEND_REASON_HALT        = 0x0001;   // HALT line set (or equivalent)
+const uint32_t SUSPEND_REASON_RESET       = 0x0002;   // RESET line set (or equivalent)
+const uint32_t SUSPEND_REASON_SPIN        = 0x0004;   // currently spinning
+const uint32_t SUSPEND_REASON_TRIGGER     = 0x0008;   // waiting for a trigger
+const uint32_t SUSPEND_REASON_DISABLE     = 0x0010;   // disabled (due to disable flag)
+const uint32_t SUSPEND_REASON_TIMESLICE   = 0x0020;   // waiting for the next timeslice
+const uint32_t SUSPEND_REASON_CLOCK       = 0x0040;   // currently not clocked
+const uint32_t SUSPEND_ANY_REASON         = ~0;       // all of the above
 
 
 // I/O line states
@@ -71,12 +71,12 @@ enum
 //  MACROS
 //**************************************************************************
 
+#define TIMER_CALLBACK_MEMBER(name)     void name(void *ptr, int32_t param)
+
 // IRQ callback to be called by device implementations when an IRQ is actually taken
-#define IRQ_CALLBACK(func)              int func(device_t *device, int irqline)
 #define IRQ_CALLBACK_MEMBER(func)       int func(device_t &device, int irqline)
 
 // interrupt generator callback called as a VBLANK or periodic interrupt
-#define INTERRUPT_GEN(func)             void func(device_t *device)
 #define INTERRUPT_GEN_MEMBER(func)      void func(device_t &device)
 
 
@@ -88,21 +88,21 @@ enum
 #define MCFG_DEVICE_DISABLE() \
 	device_execute_interface::static_set_disable(*device);
 #define MCFG_DEVICE_VBLANK_INT_DRIVER(_tag, _class, _func) \
-	device_execute_interface::static_set_vblank_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, DEVICE_SELF, (_class *)0), _tag);
+	device_execute_interface::static_set_vblank_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, DEVICE_SELF, (_class *)nullptr), _tag);
 #define MCFG_DEVICE_VBLANK_INT_DEVICE(_tag, _devtag, _class, _func) \
-	device_execute_interface::static_set_vblank_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, _devtag, (_class *)0), _tag);
+	device_execute_interface::static_set_vblank_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, _devtag, (_class *)nullptr), _tag);
 #define MCFG_DEVICE_VBLANK_INT_REMOVE()  \
-	device_execute_interface::static_set_vblank_int(*device, device_interrupt_delegate(), NULL);
+	device_execute_interface::static_set_vblank_int(*device, device_interrupt_delegate(), nullptr);
 #define MCFG_DEVICE_PERIODIC_INT_DRIVER(_class, _func, _rate) \
-	device_execute_interface::static_set_periodic_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, DEVICE_SELF, (_class *)0), attotime::from_hz(_rate));
+	device_execute_interface::static_set_periodic_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, DEVICE_SELF, (_class *)nullptr), attotime::from_hz(_rate));
 #define MCFG_DEVICE_PERIODIC_INT_DEVICE(_devtag, _class, _func, _rate) \
-	device_execute_interface::static_set_periodic_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, _devtag, (_class *)0), attotime::from_hz(_rate));
+	device_execute_interface::static_set_periodic_int(*device, device_interrupt_delegate(&_class::_func, #_class "::" #_func, _devtag, (_class *)nullptr), attotime::from_hz(_rate));
 #define MCFG_DEVICE_PERIODIC_INT_REMOVE()  \
 	device_execute_interface::static_set_periodic_int(*device, device_interrupt_delegate(), attotime());
 #define MCFG_DEVICE_IRQ_ACKNOWLEDGE_DRIVER(_class, _func) \
-	device_execute_interface::static_set_irq_acknowledge_callback(*device, device_irq_acknowledge_delegate(&_class::_func, #_class "::" #_func, DEVICE_SELF, (_class *)0));
+	device_execute_interface::static_set_irq_acknowledge_callback(*device, device_irq_acknowledge_delegate(&_class::_func, #_class "::" #_func, DEVICE_SELF, (_class *)nullptr));
 #define MCFG_DEVICE_IRQ_ACKNOWLEDGE_DEVICE(_devtag, _class, _func) \
-	device_execute_interface::static_set_irq_acknowledge_callback(*device, device_irq_acknowledge_delegate(&_class::_func, #_class "::" #_func, _devtag, (_class *)0));
+	device_execute_interface::static_set_irq_acknowledge_callback(*device, device_irq_acknowledge_delegate(&_class::_func, #_class "::" #_func, _devtag, (_class *)nullptr));
 #define MCFG_DEVICE_IRQ_ACKNOWLEDGE_REMOVE()  \
 	device_execute_interface::static_set_irq_acknowledge_callback(*device, device_irq_acknowledge_delegate());
 
@@ -138,15 +138,14 @@ public:
 
 	// configuration access
 	bool disabled() const { return m_disabled; }
-	UINT64 clocks_to_cycles(UINT64 clocks) const { return execute_clocks_to_cycles(clocks); }
-	UINT64 cycles_to_clocks(UINT64 cycles) const { return execute_cycles_to_clocks(cycles); }
-	UINT32 min_cycles() const { return execute_min_cycles(); }
-	UINT32 max_cycles() const { return execute_max_cycles(); }
-	attotime cycles_to_attotime(UINT64 cycles) const { return device().clocks_to_attotime(cycles_to_clocks(cycles)); }
-	UINT64 attotime_to_cycles(const attotime &duration) const { return clocks_to_cycles(device().attotime_to_clocks(duration)); }
-	UINT32 input_lines() const { return execute_input_lines(); }
-	UINT32 default_irq_vector() const { return execute_default_irq_vector(); }
-	bool is_octal() const { return m_is_octal; }
+	uint64_t clocks_to_cycles(uint64_t clocks) const { return execute_clocks_to_cycles(clocks); }
+	uint64_t cycles_to_clocks(uint64_t cycles) const { return execute_cycles_to_clocks(cycles); }
+	uint32_t min_cycles() const { return execute_min_cycles(); }
+	uint32_t max_cycles() const { return execute_max_cycles(); }
+	attotime cycles_to_attotime(uint64_t cycles) const { return device().clocks_to_attotime(cycles_to_clocks(cycles)); }
+	uint64_t attotime_to_cycles(const attotime &duration) const { return clocks_to_cycles(device().attotime_to_clocks(duration)); }
+	uint32_t input_lines() const { return execute_input_lines(); }
+	uint32_t default_irq_vector() const { return execute_default_irq_vector(); }
 
 	// static inline configuration helpers
 	static void static_set_disable(device_t &device);
@@ -155,9 +154,9 @@ public:
 	static void static_set_irq_acknowledge_callback(device_t &device, device_irq_acknowledge_delegate callback);
 
 	// execution management
-	device_scheduler &scheduler() const { assert(m_scheduler != NULL); return *m_scheduler; }
+	device_scheduler &scheduler() const { assert(m_scheduler != nullptr); return *m_scheduler; }
 	bool executing() const;
-	INT32 cycles_remaining() const;
+	int32_t cycles_remaining() const;
 	void eat_cycles(int cycles);
 	void adjust_icount(int delta);
 	void abort_timeslice();
@@ -166,12 +165,12 @@ public:
 	void set_input_line(int linenum, int state) { m_input[linenum].set_state_synced(state); }
 	void set_input_line_vector(int linenum, int vector) { m_input[linenum].set_vector(vector); }
 	void set_input_line_and_vector(int linenum, int state, int vector) { m_input[linenum].set_state_synced(state, vector); }
-	int input_state(int linenum) { return m_input[linenum].m_curstate; }
+	int input_state(int linenum) const { return m_input[linenum].m_curstate; }
 
 	// suspend/resume
-	void suspend(UINT32 reason, bool eatcycles);
-	void resume(UINT32 reason);
-	bool suspended(UINT32 reason = SUSPEND_ANY_REASON) { return (m_nextsuspend & reason) != 0; }
+	void suspend(uint32_t reason, bool eatcycles);
+	void resume(uint32_t reason);
+	bool suspended(uint32_t reason = SUSPEND_ANY_REASON) const { return (m_nextsuspend & reason) != 0; }
 	void yield() { suspend(SUSPEND_REASON_TIMESLICE, false); }
 	void spin() { suspend(SUSPEND_REASON_TIMESLICE, true); }
 	void spin_until_trigger(int trigid) { suspend_until_trigger(trigid, true); }
@@ -185,7 +184,7 @@ public:
 
 	// time and cycle accounting
 	attotime local_time() const;
-	UINT64 total_cycles() const;
+	uint64_t total_cycles() const;
 
 	// required operation overrides
 	void run() { execute_run(); }
@@ -195,31 +194,28 @@ public:
 	device_execute_interface &execute() { return *this; }
 
 protected:
-	// internal helpers
-	void run_thread_wrapper();
-
 	// clock and cycle information getters
-	virtual UINT64 execute_clocks_to_cycles(UINT64 clocks) const;
-	virtual UINT64 execute_cycles_to_clocks(UINT64 cycles) const;
-	virtual UINT32 execute_min_cycles() const;
-	virtual UINT32 execute_max_cycles() const;
+	virtual uint64_t execute_clocks_to_cycles(uint64_t clocks) const;
+	virtual uint64_t execute_cycles_to_clocks(uint64_t cycles) const;
+	virtual uint32_t execute_min_cycles() const;
+	virtual uint32_t execute_max_cycles() const;
 
 	// input line information getters
-	virtual UINT32 execute_input_lines() const;
-	virtual UINT32 execute_default_irq_vector() const;
+	virtual uint32_t execute_input_lines() const;
+	virtual uint32_t execute_default_irq_vector() const;
 
 	// optional operation overrides
 	virtual void execute_run() = 0;
-	virtual void execute_burn(INT32 cycles);
+	virtual void execute_burn(int32_t cycles);
 	virtual void execute_set_input(int linenum, int state);
 
 	// interface-level overrides
-	virtual void interface_validity_check(validity_checker &valid) const;
-	virtual void interface_pre_start();
-	virtual void interface_post_start();
-	virtual void interface_pre_reset();
-	virtual void interface_post_reset();
-	virtual void interface_clock_changed();
+	virtual void interface_validity_check(validity_checker &valid) const override;
+	virtual void interface_pre_start() override;
+	virtual void interface_post_start() override;
+	virtual void interface_pre_reset() override;
+	virtual void interface_post_reset() override;
+	virtual void interface_clock_changed() override;
 
 	// for use by devcpu for now...
 	IRQ_CALLBACK_MEMBER(standard_irq_callback_member);
@@ -243,15 +239,14 @@ protected:
 		device_execute_interface *m_execute;// pointer to the execute interface
 		int             m_linenum;          // which input line we are
 
-		INT32           m_stored_vector;    // most recently written vector
-		INT32           m_curvector;        // most recently processed vector
-		UINT8           m_curstate;         // most recently processed state
-		INT32           m_queue[32];        // queue of pending events
+		int32_t           m_stored_vector;    // most recently written vector
+		int32_t           m_curvector;        // most recently processed vector
+		uint8_t           m_curstate;         // most recently processed state
+		int32_t           m_queue[32];        // queue of pending events
 		int             m_qindex;           // index within the queue
 
 	private:
-		static void static_empty_event_queue(running_machine &machine, void *ptr, int param);
-		void empty_event_queue();
+		TIMER_CALLBACK_MEMBER(empty_event_queue);
 	};
 
 	// scheduler
@@ -263,7 +258,6 @@ protected:
 	const char *            m_vblank_interrupt_screen;  // the screen that causes the VBLANK interrupt
 	device_interrupt_delegate m_timed_interrupt;        // for interrupts not tied to VBLANK
 	attotime                m_timed_interrupt_period;   // period for periodic interrupts
-	bool                    m_is_octal;                 // to determine if messages/debugger will show octal or hex
 
 	// execution lists
 	device_execute_interface *m_nextexec;               // pointer to the next device to execute, in order
@@ -280,29 +274,28 @@ protected:
 	int                     m_cycles_stolen;            // number of cycles we artificially stole
 
 	// suspend states
-	UINT32                  m_suspend;                  // suspend reason mask (0 = not suspended)
-	UINT32                  m_nextsuspend;              // pending suspend reason mask
-	UINT8                   m_eatcycles;                // true if we eat cycles while suspended
-	UINT8                   m_nexteatcycles;            // pending value
-	INT32                   m_trigger;                  // pending trigger to release a trigger suspension
-	INT32                   m_inttrigger;               // interrupt trigger index
+	uint32_t                  m_suspend;                  // suspend reason mask (0 = not suspended)
+	uint32_t                  m_nextsuspend;              // pending suspend reason mask
+	uint8_t                   m_eatcycles;                // true if we eat cycles while suspended
+	uint8_t                   m_nexteatcycles;            // pending value
+	int32_t                   m_trigger;                  // pending trigger to release a trigger suspension
+	int32_t                   m_inttrigger;               // interrupt trigger index
 
 	// clock and timing information
-	UINT64                  m_totalcycles;              // total device cycles executed
+	uint64_t                  m_totalcycles;              // total device cycles executed
 	attotime                m_localtime;                // local time, relative to the timer system's global time
-	INT32                   m_divisor;                  // 32-bit attoseconds_per_cycle divisor
-	UINT8                   m_divshift;                 // right shift amount to fit the divisor into 32 bits
-	UINT32                  m_cycles_per_second;        // cycles per second, adjusted for multipliers
+	int32_t                   m_divisor;                  // 32-bit attoseconds_per_cycle divisor
+	uint8_t                   m_divshift;                 // right shift amount to fit the divisor into 32 bits
+	uint32_t                  m_cycles_per_second;        // cycles per second, adjusted for multipliers
 	attoseconds_t           m_attoseconds_per_cycle;    // attoseconds per adjusted clock cycle
 
 private:
 	// callbacks
-	static void static_timed_trigger_callback(running_machine &machine, void *ptr, int param);
+	TIMER_CALLBACK_MEMBER(timed_trigger_callback);
 
 	void on_vblank(screen_device &screen, bool vblank_state);
 
-	static void static_trigger_periodic_interrupt(running_machine &machine, void *ptr, int param);
-	void trigger_periodic_interrupt();
+	TIMER_CALLBACK_MEMBER(trigger_periodic_interrupt);
 	void suspend_resume_changed();
 
 	attoseconds_t minimum_quantum() const;

@@ -27,17 +27,17 @@ public:
 		m_gfxdecode(*this, "gfxdecode"),
 		m_palette(*this, "palette")  { }
 
-	UINT8 *m_videoram;
+	uint8_t *m_videoram;
 	int m_laser_latch;
 	char m_laser_frame_message[64+1];
 	int m_laser_frame_time;
-	UINT8 *m_mem;
+	uint8_t *m_mem;
 	int m_laser_bank_mask;
 	int m_laser_bank[4];
 	int m_laser_video_bank;
-	UINT8 m_laser_track_x2[2];
-	UINT8 m_laser_fdc_status;
-	UINT8 m_laser_fdc_data[TRKSIZE_FM];
+	uint8_t m_laser_track_x2[2];
+	uint8_t m_laser_fdc_status;
+	uint8_t m_laser_fdc_data[TRKSIZE_FM];
 	int m_laser_data;
 	int m_laser_fdc_edge;
 	int m_laser_fdc_bits;
@@ -60,12 +60,12 @@ public:
 	DECLARE_WRITE8_MEMBER(laser_two_color_w);
 	DECLARE_READ8_MEMBER(laser_fdc_r);
 	DECLARE_DRIVER_INIT(laser);
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(vtech2);
 	DECLARE_MACHINE_RESET(laser500);
 	DECLARE_MACHINE_RESET(laser700);
-	UINT32 screen_update_laser(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_laser(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(vtech2_interrupt);
 
 	int mra_bank(int bank, int offs);

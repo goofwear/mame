@@ -28,14 +28,14 @@ class mie_jvs_device;
 class mie_device : public maple_device
 {
 public:
-	mie_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	mie_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	static void static_set_gpio_name(device_t &device, int entry, const char *name);
 	static void static_set_jvs_name(device_t &device, const char *name);
 
 	// optional information overrides
-	virtual const rom_entry *device_rom_region() const;
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual const tiny_rom_entry *device_rom_region() const override;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 	DECLARE_READ8_MEMBER(control_r);
 	DECLARE_WRITE8_MEMBER(control_w);
@@ -71,17 +71,17 @@ public:
 
 	IRQ_CALLBACK_MEMBER(irq_callback);
 
-	void maple_w(const UINT32 *data, UINT32 in_size);
-	virtual void maple_reset();
+	void maple_w(const uint32_t *data, uint32_t in_size) override;
+	virtual void maple_reset() override;
 
 protected:
 	const char *gpio_name[8];
 	const char *jvs_name;
 
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
 	enum { TBUF_SIZE = 8 };
@@ -105,12 +105,12 @@ private:
 	mie_jvs_device *jvs;
 	ioport_port *gpio_port[8];
 
-	UINT32 tbuf[TBUF_SIZE];
-	UINT32 control, lreg, jvs_rpos;
-	UINT8 gpiodir, gpio_val[8];
-	UINT8 irq_enable, irq_pending, maple_irqlevel;
-	UINT8 jvs_control, jvs_dest;
-	UINT8 jvs_lcr;
+	uint32_t tbuf[TBUF_SIZE];
+	uint32_t control, lreg, jvs_rpos;
+	uint8_t gpiodir, gpio_val[8];
+	uint8_t irq_enable, irq_pending, maple_irqlevel;
+	uint8_t jvs_control, jvs_dest;
+	uint8_t jvs_lcr;
 
 	void raise_irq(int level);
 	void recalc_irq();
@@ -123,7 +123,7 @@ public:
 	friend class mie_device;
 
 	// construction/destruction
-	mie_jvs_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	mie_jvs_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 };
 
 

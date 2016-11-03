@@ -30,22 +30,22 @@ class coco_multipak_device :
 {
 public:
 	// construction/destruction
-	coco_multipak_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	coco_multipak_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// optional information overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
-	virtual UINT8* get_cart_base();
+	virtual uint8_t* get_cart_base() override;
 
 	DECLARE_WRITE_LINE_MEMBER(multi_cart_w);
 	DECLARE_WRITE_LINE_MEMBER(multi_nmi_w);
 	DECLARE_WRITE_LINE_MEMBER(multi_halt_w);
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual DECLARE_READ8_MEMBER(read);
-	virtual DECLARE_WRITE8_MEMBER(write);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual DECLARE_READ8_MEMBER(read) override;
+	virtual DECLARE_WRITE8_MEMBER(write) override;
 
 private:
 	// device references
@@ -53,13 +53,13 @@ private:
 	cococart_slot_device *m_slots[4];
 
 	// internal state
-	UINT8 m_select;
+	uint8_t m_select;
 
 	// methods
 	DECLARE_WRITE8_MEMBER(ff7f_write);
 	cococart_slot_device *active_scs_slot(void);
 	cococart_slot_device *active_cts_slot(void);
-	void set_select(UINT8 new_select);
+	void set_select(uint8_t new_select);
 };
 
 

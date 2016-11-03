@@ -7,7 +7,7 @@
 ******************************************************************************/
 
 #include "cpu/z80/tmpz84c011.h"
-#include "sound/dac.h"
+#include "machine/gen_latch.h"
 
 #define VRAM_MAX    2
 
@@ -26,20 +26,18 @@ public:
 	nbmj9195_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag) ,
 		m_maincpu(*this, "maincpu"),
-		m_dac1(*this, "dac1"),
-		m_dac2(*this, "dac2"),
 		m_screen(*this, "screen"),
 		m_palette(*this, "palette"),
+		m_soundlatch(*this, "soundlatch"),
 		m_palette_ptr(*this, "paletteram")
 	{ }
 
 	required_device<tmpz84c011_device> m_maincpu;
-	required_device<dac_device> m_dac1;
-	required_device<dac_device> m_dac2;
 	required_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
+	required_device<generic_latch_8_device> m_soundlatch;
 
-	optional_shared_ptr<UINT8> m_palette_ptr; //shabdama doesn't use it at least for now
+	optional_shared_ptr<uint8_t> m_palette_ptr; //shabdama doesn't use it at least for now
 
 	int m_inputport;
 	int m_dipswbitsel;
@@ -67,9 +65,9 @@ public:
 	int m_nb19010_busyctr;
 	int m_nb19010_busyflag;
 	bitmap_ind16 m_tmpbitmap[VRAM_MAX];
-	UINT16 *m_videoram[VRAM_MAX];
-	UINT16 *m_videoworkram[VRAM_MAX];
-	UINT8 *m_clut[VRAM_MAX];
+	std::unique_ptr<uint16_t[]> m_videoram[VRAM_MAX];
+	std::unique_ptr<uint16_t[]> m_videoworkram[VRAM_MAX];
+	std::unique_ptr<uint8_t[]> m_clut[VRAM_MAX];
 	int m_flipscreen_old[VRAM_MAX];
 	emu_timer *m_blitter_timer;
 
@@ -98,15 +96,15 @@ public:
 	DECLARE_WRITE8_MEMBER(mscoutm_inputportsel_w);
 
 	DECLARE_DRIVER_INIT(nbmj9195);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_VIDEO_START(_1layer);
 	DECLARE_VIDEO_START(nb22090);
 
 	INTERRUPT_GEN_MEMBER(ctc0_trg1);
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	int blitter_r(int offset, int vram);
 	void blitter_w(int offset, int data, int vram);
 	void clut_w(int offset, int data, int vram);
@@ -117,5 +115,5 @@ public:
 	void postload();
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };

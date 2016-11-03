@@ -25,13 +25,13 @@ class address_map_bank_device :
 {
 public:
 	// construction/destruction
-	address_map_bank_device( const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock );
+	address_map_bank_device( const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock );
 
 	// static configuration helpers
 	static void set_endianness(device_t &device, endianness_t endianness) { downcast<address_map_bank_device &>(device).m_endianness = endianness; }
-	static void set_databus_width(device_t &device, UINT8 databus_width) { downcast<address_map_bank_device &>(device).m_databus_width = databus_width; }
-	static void set_addrbus_width(device_t &device, UINT8 addrbus_width) { downcast<address_map_bank_device &>(device).m_addrbus_width = addrbus_width; }
-	static void set_stride(device_t &device, UINT32 stride) { downcast<address_map_bank_device &>(device).m_stride = stride; }
+	static void set_databus_width(device_t &device, uint8_t databus_width) { downcast<address_map_bank_device &>(device).m_databus_width = databus_width; }
+	static void set_addrbus_width(device_t &device, uint8_t addrbus_width) { downcast<address_map_bank_device &>(device).m_addrbus_width = addrbus_width; }
+	static void set_stride(device_t &device, uint32_t stride) { downcast<address_map_bank_device &>(device).m_stride = stride; }
 
 	DECLARE_ADDRESS_MAP(amap8, 8);
 	DECLARE_ADDRESS_MAP(amap16, 16);
@@ -51,18 +51,18 @@ public:
 	void set_bank(offs_t offset);
 
 protected:
-	virtual void device_start();
-	virtual void device_config_complete();
+	virtual void device_start() override;
+	virtual void device_config_complete() override;
 
 	// device_memory_interface overrides
-	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : NULL; }
+	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const override { return (spacenum == AS_PROGRAM) ? &m_program_config : nullptr; }
 
 private:
 	// internal state
 	endianness_t m_endianness;
-	UINT8 m_databus_width;
-	UINT8 m_addrbus_width;
-	UINT32 m_stride;
+	uint8_t m_databus_width;
+	uint8_t m_addrbus_width;
+	uint32_t m_stride;
 	address_space_config m_program_config;
 	address_space *m_program;
 	offs_t m_offset;

@@ -38,11 +38,11 @@ public:
 		m_line5(*this, "LINE5"),
 		m_line6(*this, "LINE6") { }
 
-	required_shared_ptr<UINT8> m_video_ram;
-	UINT8 *m_FNT;
-	UINT8 m_intr;
-	UINT8 m_last_code;
-	UINT8 m_int_vector;
+	required_shared_ptr<uint8_t> m_video_ram;
+	uint8_t *m_FNT;
+	uint8_t m_intr;
+	uint8_t m_last_code;
+	uint8_t m_int_vector;
 	emu_timer * m_cassette_timer;
 	emu_timer * m_usart_timer;
 	int m_previous_level;
@@ -52,9 +52,9 @@ public:
 	DECLARE_READ8_MEMBER(poly88_keyboard_r);
 	DECLARE_WRITE8_MEMBER(poly88_intr_w);
 	DECLARE_DRIVER_INIT(poly88);
-	virtual void machine_reset();
-	virtual void video_start();
-	UINT32 screen_update_poly88(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	virtual void machine_reset() override;
+	virtual void video_start() override;
+	uint32_t screen_update_poly88(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(poly88_interrupt);
 	TIMER_CALLBACK_MEMBER(poly88_usart_timer_callback);
 	TIMER_CALLBACK_MEMBER(keyboard_callback);
@@ -76,8 +76,8 @@ protected:
 	required_ioport m_line4;
 	required_ioport m_line5;
 	required_ioport m_line6;
-	UINT8 row_number(UINT8 code);
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	uint8_t row_number(uint8_t code);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	int m_cas_tx;
 };

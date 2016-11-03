@@ -27,7 +27,7 @@
 
 #include "cpu/z80/z80.h"
 #include "sound/3812intf.h"
-#include "sound/2151intf.h"
+#include "sound/ym2151.h"
 #include "sound/2203intf.h"
 #include "sound/okim6295.h"
 
@@ -43,7 +43,7 @@ ADDRESS_MAP_EXTERN(seibu3_adpcm_sound_map, 8);
 class seibu_sound_device : public device_t
 {
 public:
-	seibu_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	seibu_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	~seibu_sound_device() {}
 
 	DECLARE_READ16_MEMBER( main_word_r );
@@ -60,28 +60,29 @@ public:
 	DECLARE_WRITE8_MEMBER( main_data_w );
 	DECLARE_WRITE8_MEMBER( pending_w );
 
-	static void apply_decrypt(UINT8 *rom, UINT8 *opcodes, int length);
+	static void apply_decrypt(uint8_t *rom, uint8_t *opcodes, int length);
 	void set_encryption(int mode);
-	UINT8 *get_custom_decrypt();
+	uint8_t *get_custom_decrypt();
 	void update_irq_lines(int param);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	private:
 	int m_encryption_mode;
-	UINT8 *m_decrypted_opcodes;
+	std::unique_ptr<uint8_t[]> m_decrypted_opcodes;
 
 	// internal state
 	device_t *m_sound_cpu;
-	UINT8 m_main2sub[2];
-	UINT8 m_sub2main[2];
+	required_region_ptr<uint8_t> m_sound_rom;
+	uint8_t m_main2sub[2];
+	uint8_t m_sub2main[2];
 	int m_main2sub_pending;
 	int m_sub2main_pending;
-	UINT8 m_rst10_irq;
-	UINT8 m_rst18_irq;
+	uint8_t m_rst10_irq;
+	uint8_t m_rst18_irq;
 
 	enum
 	{
@@ -102,40 +103,34 @@ class seibu_adpcm_device : public device_t,
 									public device_sound_interface
 {
 public:
-	seibu_adpcm_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	seibu_adpcm_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	~seibu_adpcm_device() {}
 
-	static void set_adpcm_rom_tag(device_t &device, const char *tag) { downcast<seibu_adpcm_device &>(device).m_rom_tag = tag; }
-
-	void decrypt(const char *region);
+	void decrypt();
 	DECLARE_WRITE8_MEMBER( adr_w );
 	DECLARE_WRITE8_MEMBER( ctl_w );
 
 protected:
 	// device-level overrides
-	virtual void device_start();
+	virtual void device_start() override;
 
 	// sound stream update overrides
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 	private:
 	// internal state
 	oki_adpcm_state m_adpcm;
 	sound_stream *m_stream;
-	UINT32 m_current;
-	UINT32 m_end;
-	UINT8 m_nibble;
-	UINT8 m_playing;
-	const char *m_rom_tag;
-	UINT8 *m_base;
+	uint32_t m_current;
+	uint32_t m_end;
+	uint8_t m_nibble;
+	uint8_t m_playing;
+	required_region_ptr<uint8_t> m_base;
 };
 
 extern const device_type SEIBU_ADPCM;
 
 /**************************************************************************/
-
-#define MCFG_SEIBU_ADPCM_ROMREGION(_tag) \
-	seibu_adpcm_device::set_adpcm_rom_tag(*device, _tag);
 
 #define SEIBU_COIN_INPUTS                                           \
 	PORT_START("COIN")                                              \
@@ -278,11 +273,9 @@ extern const device_type SEIBU_ADPCM;
 
 #define SEIBU_SOUND_SYSTEM_ADPCM_INTERFACE                          \
 	MCFG_SOUND_ADD("adpcm1", SEIBU_ADPCM, 8000)                     \
-	MCFG_SEIBU_ADPCM_ROMREGION("adpcm1")                            \
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.40)                     \
 																	\
 	MCFG_SOUND_ADD("adpcm2", SEIBU_ADPCM, 8000)                     \
-	MCFG_SEIBU_ADPCM_ROMREGION("adpcm2")                            \
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.40)
 
 /**************************************************************************/

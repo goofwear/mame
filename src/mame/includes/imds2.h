@@ -16,6 +16,8 @@
 #include "machine/i8271.h"
 #include "imagedev/flopdrv.h"
 #include "bus/centronics/ctronics.h"
+#include "machine/i8251.h"
+#include "bus/rs232/rs232.h"
 
 class imds2_state : public driver_device
 {
@@ -30,6 +32,8 @@ class imds2_state : public driver_device
 	DECLARE_READ8_MEMBER(imds2_ipclocpic_r);
 	DECLARE_WRITE8_MEMBER(imds2_ipcsyspic_w);
 	DECLARE_WRITE8_MEMBER(imds2_ipclocpic_w);
+	DECLARE_WRITE_LINE_MEMBER(imds2_baud_clk_0_w);
+	DECLARE_WRITE_LINE_MEMBER(imds2_baud_clk_1_w);
 
 	DECLARE_WRITE8_MEMBER(imds2_miscout_w);
 	DECLARE_READ8_MEMBER(imds2_miscin_r);
@@ -64,15 +68,20 @@ class imds2_state : public driver_device
 
 	I8275_DRAW_CHARACTER_MEMBER(crtc_display_pixels);
 
-	virtual void driver_start();
-	virtual void machine_start();
-	virtual void video_start();
-	virtual void machine_reset();
+	virtual void driver_start() override;
+	virtual void machine_start() override;
+	virtual void video_start() override;
+	virtual void machine_reset() override;
 
 	private:
 	required_device<i8085a_cpu_device> m_ipccpu;
 	required_device<pic8259_device> m_ipcsyspic;
 	required_device<pic8259_device> m_ipclocpic;
+	required_device<pit8253_device> m_ipctimer;
+		required_device<i8251_device> m_ipcusart0;
+		required_device<i8251_device> m_ipcusart1;
+	required_device<rs232_port_device> m_serial0;
+	required_device<rs232_port_device> m_serial1;
 	required_device<i8080a_cpu_device> m_ioccpu;
 	required_device<i8257_device> m_iocdma;
 	required_device<i8275_device> m_ioccrtc;
@@ -95,7 +104,7 @@ class imds2_state : public driver_device
 	required_ioport m_io_key7;
 	required_ioport m_ioc_options;
 
-	std::vector<UINT8> m_ipc_ram;
+	std::vector<uint8_t> m_ipc_ram;
 
 	bool imds2_in_ipc_rom(offs_t offset) const;
 
@@ -103,40 +112,40 @@ class imds2_state : public driver_device
 	void imds2_update_printer(void);
 
 	// IPC control port
-	UINT8 m_ipc_control;
+	uint8_t m_ipc_control;
 
 	// IPC ROM content
-	const UINT8 *m_ipc_rom;
+	const uint8_t *m_ipc_rom;
 
 	// Character generator
-	const UINT8 *m_chargen;
+	const uint8_t *m_chargen;
 
 	// MISCOUT state
-	UINT8 m_miscout;
+	uint8_t m_miscout;
 
 	// Beeper timer line
 	int m_beeper_timer;
 
 	// Keyboard state
-	UINT8 m_kb_p1;
+	uint8_t m_kb_p1;
 
 	// IPC to IOC buffer
-	UINT8 m_ioc_ibf;
+	uint8_t m_ioc_ibf;
 
 	// IOC to IPC buffer
-	UINT8 m_ioc_obf;
+	uint8_t m_ioc_obf;
 
 	// IPC/IOC status
-	UINT8 m_ipc_ioc_status;
+	uint8_t m_ipc_ioc_status;
 
 	// PIO port 1
-	UINT8 m_pio_port1;
+	uint8_t m_pio_port1;
 
 	// PIO port 2
-	UINT8 m_pio_port2;
+	uint8_t m_pio_port2;
 
 	// PIO device status byte
-	UINT8 m_device_status_byte;
+	uint8_t m_device_status_byte;
 };
 
 #endif /* _IMDS2_H_ */

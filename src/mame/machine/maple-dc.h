@@ -15,7 +15,7 @@ class maple_device;
 class maple_dc_device : public device_t
 {
 public:
-	maple_dc_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	maple_dc_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	static void static_set_maincpu_tag(device_t &device, const char *maincpu_tag);
 	static void static_set_irq_cb(device_t &device, void (*irq_cb)(running_machine &));
 
@@ -39,9 +39,9 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
 	enum {
@@ -60,10 +60,10 @@ private:
 	sh4_device *cpu;
 	emu_timer *timer;
 
-	UINT32 mdstar, mden, mdst, msys;
-	UINT32 mdtsel;
+	uint32_t mdstar, mden, mdst, msys;
+	uint32_t mdtsel;
 
-	UINT32 dma_state, dma_adr, dma_port, dma_dest;
+	uint32_t dma_state, dma_adr, dma_port, dma_dest;
 	bool dma_endflag;
 	void (*irq_cb)(running_machine &);
 

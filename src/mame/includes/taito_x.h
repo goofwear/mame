@@ -1,5 +1,6 @@
-// license:???
-// copyright-holders:Richard Bush, Howie Cohen, Yochizo
+// license:BSD-3-Clause
+// copyright-holders:Howie Cohen, Yochizo
+// thanks-to:Richard Bush
 #include "includes/seta.h"
 
 class taitox_state : public seta_state
@@ -16,11 +17,10 @@ public:
 	DECLARE_DRIVER_INIT(kyustrkr);
 	DECLARE_MACHINE_START(taitox);
 	DECLARE_MACHINE_START(superman);
-	DECLARE_WRITE_LINE_MEMBER(irqhandler);
 
 	// superman c-chip
-	UINT16 m_current_bank;
-	UINT8 m_cc_port;
+	uint16_t m_current_bank;
+	uint8_t m_cc_port;
 	DECLARE_READ16_MEMBER( cchip1_ctrl_r );
 	DECLARE_READ16_MEMBER( cchip1_ram_r );
 	DECLARE_WRITE16_MEMBER( cchip1_ctrl_w );

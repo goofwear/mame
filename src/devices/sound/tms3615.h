@@ -31,15 +31,15 @@ class tms3615_device : public device_t,
 						public device_sound_interface
 {
 public:
-	tms3615_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	tms3615_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	~tms3615_device() { }
 
 protected:
 	// device-level overrides
-	virtual void device_start();
+	virtual void device_start() override;
 
 	// sound stream update overrides
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 public:
 	void enable_w(int enable);
@@ -55,7 +55,8 @@ private:
 	int m_enable;                   /* mask which tones to play */
 };
 
-extern ATTR_DEPRECATED const device_type TMS3615;
+[[deprecated("Use TMS36XX instead")]]
+extern const device_type TMS3615;
 
 
 #endif /* __TMS3615_H__ */

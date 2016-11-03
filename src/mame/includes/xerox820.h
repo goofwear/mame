@@ -65,10 +65,10 @@ public:
 		m_400_460(0)
 	{ }
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
-	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 	required_device<cpu_device> m_maincpu;
 	required_device<z80pio_device> m_kbpio;
@@ -82,7 +82,7 @@ public:
 	required_device<xerox_820_keyboard_t> m_kb;
 	required_memory_region m_rom;
 	required_memory_region m_char_rom;
-	required_shared_ptr<UINT8> m_video_ram;
+	required_shared_ptr<uint8_t> m_video_ram;
 
 	DECLARE_READ8_MEMBER( fdc_r );
 	DECLARE_WRITE8_MEMBER( fdc_w );
@@ -91,8 +91,6 @@ public:
 	DECLARE_READ8_MEMBER( kbpio_pa_r );
 	DECLARE_WRITE8_MEMBER( kbpio_pa_w );
 	DECLARE_READ8_MEMBER( kbpio_pb_r );
-	DECLARE_WRITE_LINE_MEMBER( intrq_w );
-	DECLARE_WRITE_LINE_MEMBER( drq_w );
 	DECLARE_WRITE_LINE_MEMBER( fr_w );
 	DECLARE_WRITE_LINE_MEMBER( fdc_intrq_w );
 	DECLARE_WRITE_LINE_MEMBER( fdc_drq_w );
@@ -101,8 +99,8 @@ public:
 	void update_nmi();
 
 	/* video state */
-	UINT8 m_scroll;                     /* vertical scroll */
-	UINT8 m_framecnt;
+	uint8_t m_scroll;                     /* vertical scroll */
+	uint8_t m_framecnt;
 	int m_ncset2;                       /* national character set */
 	int m_vatt;                         /* X120 video attribute */
 	int m_lowlite;                      /* low light attribute */
@@ -127,7 +125,7 @@ public:
 
 	required_device<beep_device> m_beeper;
 
-	virtual void machine_reset();
+	virtual void machine_reset() override;
 
 	DECLARE_WRITE8_MEMBER( kbpio_pa_w );
 
@@ -149,7 +147,7 @@ public:
 	required_device<speaker_sound_device> m_speaker;
 	required_device<SCSI_PORT_DEVICE> m_sasibus;
 
-	virtual void machine_reset();
+	virtual void machine_reset() override;
 
 	DECLARE_WRITE8_MEMBER( bell_w );
 	DECLARE_WRITE8_MEMBER( slden_w );
@@ -160,7 +158,7 @@ public:
 	DECLARE_WRITE8_MEMBER( rdpio_pb_w );
 	DECLARE_WRITE_LINE_MEMBER( rdpio_pardy_w );
 
-	void bankswitch(int bank);
+	void bankswitch(int bank) override;
 };
 
 #endif

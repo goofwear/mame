@@ -1,4 +1,4 @@
-// license:???
+// license:BSD-3-Clause
 // copyright-holders:Richard Davies
 /*************************************************************************
 
@@ -25,11 +25,11 @@ public:
 
 	/* memory pointers */
 	required_device<buffered_spriteram8_device> m_spriteram;
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_colorram;
-	required_shared_ptr<UINT8> m_nbg_yscroll;
-	required_shared_ptr<UINT8> m_nbg_xscroll;
-	required_shared_ptr<UINT8> m_bg_scroll;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_colorram;
+	required_shared_ptr<uint8_t> m_nbg_yscroll;
+	required_shared_ptr<uint8_t> m_nbg_xscroll;
+	required_shared_ptr<uint8_t> m_bg_scroll;
 
 	/* video-related */
 	tilemap_t        *m_bg_tilemap;
@@ -49,11 +49,11 @@ public:
 	TILE_GET_INFO_MEMBER(get_tx_tile_info);
 	TILEMAP_MAPPER_MEMBER(exedexes_bg_tilemap_scan);
 	TILEMAP_MAPPER_MEMBER(exedexes_fg_tilemap_scan);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(exedexes);
-	UINT32 screen_update_exedexes(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_exedexes(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	TIMER_DEVICE_CALLBACK_MEMBER(exedexes_scanline);
 	void draw_sprites( bitmap_ind16 &bitmap, const rectangle &cliprect, int priority );
 	required_device<cpu_device> m_maincpu;

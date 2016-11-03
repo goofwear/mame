@@ -31,12 +31,12 @@ public:
 		IRQ_B_EXT
 	};
 
-	mpcc68561_t(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	mpcc68561_t(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _Object> static devcb_base &set_intrq_wr_callback(device_t &device, _Object object) { return downcast<mpcc68561_t &>(device).intrq_cb.set_callback(object); }
 
-	UINT8 get_reg_a(int reg);
-	void set_reg_a(int reg, UINT8 data);
+	uint8_t get_reg_a(int reg);
+	void set_reg_a(int reg, uint8_t data);
 
 	void set_status(int status);
 
@@ -44,9 +44,9 @@ public:
 	DECLARE_WRITE8_MEMBER(reg_w);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
 	struct Chan {
@@ -65,12 +65,12 @@ private:
 		bool syncHunt;
 		bool DCDEnable;
 		bool CTSEnable;
-		UINT8 rxData;
-		UINT8 txData;
+		uint8_t rxData;
+		uint8_t txData;
 
 		emu_timer *baudtimer;
 
-		UINT8 reg_val[22];
+		uint8_t reg_val[22];
 	};
 
 	int mode;
@@ -89,8 +89,8 @@ private:
 	void initchannel(int ch);
 	void resetchannel(int ch);
 	void acknowledge();
-	UINT8 getreg();
-	void putreg(int ch, UINT8 data);
+	uint8_t getreg();
+	void putreg(int ch, uint8_t data);
 };
 
 /***************************************************************************

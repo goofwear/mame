@@ -16,6 +16,9 @@
 #include "bus/intv/ecs.h"
 //#include "bus/intv/keycomp.h"
 
+#include "bus/intv_ctrl/ctrl.h"
+#include "bus/intv_ctrl/handctrl.h"
+
 #include "bus/generic/slot.h"
 #include "bus/generic/carts.h"
 
@@ -43,7 +46,6 @@ public:
 		m_iocart2(*this, "ioslot2"),
 		m_region_maincpu(*this, "maincpu"),
 		m_region_keyboard(*this, "keyboard"),
-		m_io_options(*this, "OPTIONS"),
 		m_io_test(*this, "TEST"),
 		m_gfxdecode(*this, "gfxdecode"),
 		m_palette(*this, "palette")
@@ -53,8 +55,8 @@ public:
 	required_device<ay8914_device> m_sound;
 	required_device<stic_device> m_stic;
 	optional_device<intv_cart_slot_device> m_cart;
-	optional_shared_ptr<UINT16> m_intvkbd_dualport_ram;
-	optional_shared_ptr<UINT8> m_videoram;
+	optional_shared_ptr<uint16_t> m_intvkbd_dualport_ram;
+	optional_shared_ptr<uint8_t> m_videoram;
 
 	DECLARE_READ16_MEMBER(intv_stic_r);
 	DECLARE_WRITE16_MEMBER(intv_stic_w);
@@ -69,11 +71,11 @@ public:
 	DECLARE_READ8_MEMBER(intv_right_control_r);
 	DECLARE_READ8_MEMBER(intv_left_control_r);
 
-	UINT8 m_bus_copy_mode;
-	UINT8 m_backtab_row;
-	UINT16 m_ram16[0x160];
+	uint8_t m_bus_copy_mode;
+	uint8_t m_backtab_row;
+	uint16_t m_ram16[0x160];
 	int m_sr1_int_pending;
-	UINT8 m_ram8[256];
+	uint8_t m_ram8[256];
 
 	// Keyboard Component
 	DECLARE_READ8_MEMBER(intvkbd_tms9927_r);
@@ -84,10 +86,10 @@ public:
 	DECLARE_READ8_MEMBER(intvkbd_dualport8_msb_r);
 	DECLARE_WRITE8_MEMBER(intvkbd_dualport8_msb_w);
 
-	UINT8 m_tms9927_num_rows;
-	UINT8 m_tms9927_cursor_col;
-	UINT8 m_tms9927_cursor_row;
-	UINT8 m_tms9927_last_row;
+	uint8_t m_tms9927_num_rows;
+	uint8_t m_tms9927_cursor_col;
+	uint8_t m_tms9927_cursor_row;
+	uint8_t m_tms9927_last_row;
 
 	int m_intvkbd_text_blanked;
 	int m_intvkbd_keyboard_col;
@@ -98,13 +100,12 @@ public:
 	DECLARE_DRIVER_INIT(intvecs);
 	DECLARE_DRIVER_INIT(intvkbd);
 	DECLARE_DRIVER_INIT(intv);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(intv);
-	void ecs_banks_restore();
-	UINT32 screen_update_intv(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_intvkbd(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_intv(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_intvkbd(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(intv_interrupt2);
 	INTERRUPT_GEN_MEMBER(intv_interrupt);
 	TIMER_CALLBACK_MEMBER(intv_interrupt2_complete);
@@ -119,37 +120,14 @@ protected:
 	optional_device<generic_slot_device> m_iocart2;
 	required_memory_region m_region_maincpu;
 	optional_memory_region m_region_keyboard;
-	required_ioport m_io_options;
 	optional_ioport m_io_test;
 
 	optional_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
 
-	ioport_port *m_keypad[4];
-	ioport_port *m_disc[4];
-	ioport_port *m_discx[4];
-	ioport_port *m_discy[4];
 	ioport_port *m_intv_keyboard[10];
 
-	int intv_load_rom_file(device_image_interface &image);
-	UINT8 intv_control_r(int hand);
-	void intv_set_pixel(bitmap_ind16 &bitmap, int x, int y, UINT32 color);
-	UINT32 intv_get_pixel(bitmap_ind16 &bitmap, int x, int y);
-	void intv_plot_box(bitmap_ind16 &bm, int x, int y, int w, int h, int color);
-	int sprites_collide(int spriteNum1, int spriteNum2);
-	void determine_sprite_collisions();
-	void render_sprites();
-	void render_line(bitmap_ind16 &bitmap, UINT8 nextByte, UINT16 x, UINT16 y, UINT8 fgcolor, UINT8 bgcolor);
-	void render_colored_squares(bitmap_ind16 &bitmap, UINT16 x, UINT16 y, UINT8 color0, UINT8 color1, UINT8 color2, UINT8 color3);
-	void render_color_stack_mode(bitmap_ind16 &bitmap);
-	void render_fg_bg_mode(bitmap_ind16 &bitmap);
-	void copy_sprites_to_background(bitmap_ind16 &bitmap);
-	void render_background(bitmap_ind16 &bitmap);
-	void draw_borders(bitmap_ind16 &bm);
-	void intv_stic_screenrefresh();
-	void draw_background(bitmap_ind16 &bitmap, int transparency);
-	void draw_sprites(bitmap_ind16 &bitmap, int behind_foreground);
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };
 
 #endif /* INTV_H_ */

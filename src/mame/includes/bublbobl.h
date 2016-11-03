@@ -1,6 +1,8 @@
 // license:BSD-3-Clause
 // copyright-holders:Chris Moore, Nicola Salmoria
 
+#include "machine/gen_latch.h"
+
 class bublbobl_state : public driver_device
 {
 public:
@@ -20,12 +22,13 @@ public:
 		m_audiocpu(*this, "audiocpu"),
 		m_slave(*this, "slave"),
 		m_gfxdecode(*this, "gfxdecode"),
-		m_palette(*this, "palette"){ }
+		m_palette(*this, "palette"),
+		m_soundlatch(*this, "soundlatch") { }
 
 	/* memory pointers */
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_objectram;
-	optional_shared_ptr<UINT8> m_mcu_sharedram;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_objectram;
+	optional_shared_ptr<uint8_t> m_mcu_sharedram;
 
 	/* video-related */
 	int      m_video_enable;
@@ -39,25 +42,25 @@ public:
 	/* Tokio*/
 	int      m_tokio_prot_count;
 	/* Bubble Bobble MCU */
-	UINT8    m_ddr1;
-	UINT8    m_ddr2;
-	UINT8    m_ddr3;
-	UINT8    m_ddr4;
-	UINT8    m_port1_in;
-	UINT8    m_port2_in;
-	UINT8    m_port3_in;
-	UINT8    m_port4_in;
-	UINT8    m_port1_out;
-	UINT8    m_port2_out;
-	UINT8    m_port3_out;
-	UINT8    m_port4_out;
+	uint8_t    m_ddr1;
+	uint8_t    m_ddr2;
+	uint8_t    m_ddr3;
+	uint8_t    m_ddr4;
+	uint8_t    m_port1_in;
+	uint8_t    m_port2_in;
+	uint8_t    m_port3_in;
+	uint8_t    m_port4_in;
+	uint8_t    m_port1_out;
+	uint8_t    m_port2_out;
+	uint8_t    m_port3_out;
+	uint8_t    m_port4_out;
 	/* Bubble Bobble 68705 */
-	UINT8    m_port_a_in;
-	UINT8    m_port_a_out;
-	UINT8    m_ddr_a;
-	UINT8    m_port_b_in;
-	UINT8    m_port_b_out;
-	UINT8    m_ddr_b;
+	uint8_t    m_port_a_in;
+	uint8_t    m_port_a_out;
+	uint8_t    m_ddr_a;
+	uint8_t    m_port_b_in;
+	uint8_t    m_port_b_out;
+	uint8_t    m_ddr_b;
 	int      m_address;
 	int      m_latch;
 	/* Bobble Bobble */
@@ -71,6 +74,7 @@ public:
 	required_device<cpu_device> m_slave;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
+	required_device<generic_latch_8_device> m_soundlatch;
 
 	DECLARE_WRITE8_MEMBER(bublbobl_bankswitch_w);
 	DECLARE_WRITE8_MEMBER(tokio_bankswitch_w);
@@ -124,11 +128,10 @@ public:
 	DECLARE_MACHINE_RESET(bub68705);
 	DECLARE_MACHINE_START(common);
 	DECLARE_MACHINE_RESET(common);
-	UINT32 screen_update_bublbobl(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_bublbobl(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(bublbobl_m68705_interrupt);
 	void configure_banks(  );
-	DECLARE_WRITE_LINE_MEMBER(irqhandler);
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };

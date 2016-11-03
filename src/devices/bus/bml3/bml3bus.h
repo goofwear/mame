@@ -56,11 +56,11 @@ class bml3bus_slot_device : public device_t,
 {
 public:
 	// construction/destruction
-	bml3bus_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	bml3bus_slot_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	bml3bus_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	bml3bus_slot_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
 	// device-level overrides
-	virtual void device_start();
+	virtual void device_start() override;
 
 	// inline configuration
 	static void static_set_bml3bus_slot(device_t &device, const char *tag, const char *slottag);
@@ -79,8 +79,8 @@ class bml3bus_device : public device_t
 {
 public:
 	// construction/destruction
-	bml3bus_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	bml3bus_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	bml3bus_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	bml3bus_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
 	// inline configuration
 	static void static_set_cputag(device_t &device, const char *tag);
@@ -101,8 +101,8 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	// internal state
 	cpu_device   *m_maincpu;

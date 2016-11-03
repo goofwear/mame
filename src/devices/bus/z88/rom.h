@@ -19,21 +19,21 @@ class z88_32k_rom_device : public device_t,
 {
 public:
 	// construction/destruction
-	z88_32k_rom_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	z88_32k_rom_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	z88_32k_rom_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	z88_32k_rom_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
+	virtual void device_start() override;
 
 	// z88cart_interface overrides
-	virtual DECLARE_READ8_MEMBER(read);
-	virtual UINT8* get_cart_base();
-	virtual UINT32 get_cart_size() { return 0x8000; }
+	virtual DECLARE_READ8_MEMBER(read) override;
+	virtual uint8_t* get_cart_base() override;
+	virtual uint32_t get_cart_size() override { return 0x8000; }
 
 protected:
 	// internal state
-	UINT8 *     m_rom;
+	uint8_t *     m_rom;
 };
 
 // ======================> z88_128k_rom_device
@@ -42,11 +42,11 @@ class z88_128k_rom_device : public z88_32k_rom_device
 {
 public:
 	// construction/destruction
-	z88_128k_rom_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	z88_128k_rom_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
 	// z88cart_interface overrides
-	virtual UINT32 get_cart_size() { return 0x20000; }
+	virtual uint32_t get_cart_size() override { return 0x20000; }
 };
 
 // ======================> z88_256k_rom_device
@@ -55,11 +55,11 @@ class z88_256k_rom_device : public z88_32k_rom_device
 {
 public:
 	// construction/destruction
-	z88_256k_rom_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	z88_256k_rom_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
 	// z88cart_interface overrides
-	virtual UINT32 get_cart_size() { return 0x200000; }
+	virtual uint32_t get_cart_size() override { return 0x200000; }
 };
 
 // device type definition

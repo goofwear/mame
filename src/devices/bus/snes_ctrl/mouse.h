@@ -26,20 +26,20 @@ class snes_mouse_device : public device_t,
 {
 public:
 	// construction/destruction
-	snes_mouse_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	snes_mouse_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// optional information overrides
-	virtual ioport_constructor device_input_ports() const;
+	virtual ioport_constructor device_input_ports() const override;
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
-	// device_sms_control_port_interface overrides
-	virtual UINT8 read_pin4();
-	virtual void write_strobe(UINT8 data);
-	virtual void port_poll();
+	// device_snes_control_port_interface overrides
+	virtual uint8_t read_pin4() override;
+	virtual void write_strobe(uint8_t data) override;
+	virtual void port_poll() override;
 
 private:
 	required_ioport m_buttons;
@@ -47,10 +47,10 @@ private:
 	required_ioport m_yaxis;
 	int m_strobe;
 	int m_idx;
-	UINT32 m_latch;
+	uint32_t m_latch;
 
-	INT16 m_x, m_y, m_oldx, m_oldy;
-	UINT8 m_deltax, m_deltay;
+	int16_t m_x, m_y, m_oldx, m_oldy;
+	uint8_t m_deltax, m_deltay;
 	int m_speed;
 	int m_dirx, m_diry;
 };

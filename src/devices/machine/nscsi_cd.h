@@ -9,18 +9,18 @@
 class nscsi_cdrom_device : public nscsi_full_device
 {
 public:
-	nscsi_cdrom_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	virtual machine_config_constructor device_mconfig_additions() const;
+	nscsi_cdrom_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
-	virtual void scsi_command();
-	virtual UINT8 scsi_get_data(int id, int pos);
+	virtual void scsi_command() override;
+	virtual uint8_t scsi_get_data(int id, int pos) override;
 
 private:
-	UINT8 block[2048];
+	uint8_t block[2048];
 	cdrom_file *cdrom;
 	int bytes_per_sector;
 	int lba, cur_lba, blocks;

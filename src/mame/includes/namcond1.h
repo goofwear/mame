@@ -24,9 +24,9 @@ public:
 	required_device<cpu_device> m_mcu;
 	required_device<ygv608_device> m_ygv608;
 
-	required_shared_ptr<UINT16> m_shared_ram;
+	required_shared_ptr<uint16_t> m_shared_ram;
 
-	UINT8 m_h8_irq5_enabled;
+	uint8_t m_h8_irq5_enabled;
 	int m_p8;
 
 	DECLARE_READ16_MEMBER(mcu_p7_read);
@@ -35,8 +35,8 @@ public:
 	DECLARE_READ16_MEMBER(cuskey_r);
 	DECLARE_WRITE16_MEMBER(cuskey_w);
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
 	INTERRUPT_GEN_MEMBER(mcu_interrupt);
 };

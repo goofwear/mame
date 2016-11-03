@@ -28,21 +28,21 @@ class snkwave_device : public device_t,
 						public device_sound_interface
 {
 public:
-	snkwave_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	snkwave_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	~snkwave_device() { }
 
 protected:
 	// device-level overrides
-	virtual void device_start();
+	virtual void device_start() override;
 
 	// sound stream update overrides
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 public:
 	DECLARE_WRITE8_MEMBER( snkwave_w );
 
 private:
-	void update_waveform(unsigned int offset, UINT8 data);
+	void update_waveform(unsigned int offset, uint8_t data);
 
 private:
 	sound_stream *m_stream;
@@ -50,12 +50,12 @@ private:
 	int m_sample_rate;
 
 	// data about the sound system
-	UINT32 m_frequency;
-	UINT32 m_counter;
+	uint32_t m_frequency;
+	uint32_t m_counter;
 	int m_waveform_position;
 
 	// decoded waveform table
-	INT16 m_waveform[SNKWAVE_WAVEFORM_LENGTH];
+	int16_t m_waveform[SNKWAVE_WAVEFORM_LENGTH];
 };
 
 extern const device_type SNKWAVE;

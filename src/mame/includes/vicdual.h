@@ -32,7 +32,7 @@ public:
 		m_in2(*this, "IN2"),
 		m_coinage(*this, "COINAGE"),
 		m_color_bw(*this, "COLOR_BW"),
-		m_fake_lives(*this, "FAKE_LIVES")
+		m_fake_lives(*this, "FAKE_LIVES.%u", 0)
 	{ }
 
 	required_device<cpu_device> m_maincpu;
@@ -45,8 +45,8 @@ public:
 	required_device<screen_device> m_screen;
 	optional_memory_region m_proms;
 
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_characterram;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_characterram;
 
 	required_ioport m_in0;
 	required_ioport m_in1;
@@ -55,14 +55,15 @@ public:
 	optional_ioport m_color_bw;
 	optional_ioport_array<2> m_fake_lives;
 
-	UINT8 m_coin_status;
-	UINT8 m_palette_bank;
-	UINT8 m_samurai_protection_data;
+	uint8_t m_coin_status;
+	uint8_t m_palette_bank;
+	uint8_t m_samurai_protection_data;
 	int m_nsub_coin_counter;
 	int m_nsub_play_counter;
 	int m_port1State;
 	int m_port2State;
 	int m_psgData;
+	int m_psgBus;
 	emu_timer *m_frogs_croak_timer;
 
 	void coin_in();
@@ -110,13 +111,13 @@ public:
 	DECLARE_WRITE8_MEMBER( invho2_audio_w );
 	TIMER_CALLBACK_MEMBER( frogs_croak_callback );
 
-
 	/*----------- defined in audio/carnival.c -----------*/
 	DECLARE_WRITE8_MEMBER( carnival_audio_1_w );
 	DECLARE_WRITE8_MEMBER( carnival_audio_2_w );
 	DECLARE_READ8_MEMBER( carnival_music_port_t1_r );
 	DECLARE_WRITE8_MEMBER( carnival_music_port_1_w );
 	DECLARE_WRITE8_MEMBER( carnival_music_port_2_w );
+	void carnival_psg_latch(address_space &space);
 
 	/*----------- defined in audio/depthch.c -----------*/
 	DECLARE_WRITE8_MEMBER( depthch_audio_w );
@@ -146,18 +147,11 @@ public:
 	DECLARE_MACHINE_RESET(nsub);
 	DECLARE_MACHINE_START(frogs_audio);
 
-	virtual void machine_start();
+	virtual void machine_start() override;
 
-	UINT32 screen_update_bw(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_bw_or_color(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_color(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_bw(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_bw_or_color(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_color(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 	int get_vcounter();
 	int is_cabinet_color();
 };
-
-MACHINE_CONFIG_EXTERN( carnival_audio );
-MACHINE_CONFIG_EXTERN( depthch_audio );
-MACHINE_CONFIG_EXTERN( frogs_audio );
-MACHINE_CONFIG_EXTERN( headon_audio );
-MACHINE_CONFIG_EXTERN( invinco_audio );
-MACHINE_CONFIG_EXTERN( pulsar_audio );

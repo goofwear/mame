@@ -65,7 +65,7 @@ class asc_device : public device_t, public device_sound_interface
 {
 public:
 	// construction/destruction
-	asc_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	asc_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// inline configuration helpers
 	static void static_set_type(device_t &device, int type);
@@ -105,21 +105,21 @@ protected:
 	};
 
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 	// inline data
-	UINT8   m_chip_type;
+	uint8_t   m_chip_type;
 
-	UINT8   m_fifo_a[0x400];
-	UINT8   m_fifo_b[0x400];
+	uint8_t   m_fifo_a[0x400];
+	uint8_t   m_fifo_b[0x400];
 
-	UINT8   m_regs[0x800];
+	uint8_t   m_regs[0x800];
 
-	UINT32  m_phase[4], m_incr[4];
+	uint32_t  m_phase[4], m_incr[4];
 
 	int m_fifo_a_rdptr, m_fifo_b_rdptr;
 	int m_fifo_a_wrptr, m_fifo_b_wrptr;

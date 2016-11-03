@@ -53,7 +53,7 @@ public:
 	{
 	}
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	DECLARE_READ8_MEMBER( keyboard_r );
 	DECLARE_WRITE8_MEMBER( keyboard_w );
 	DECLARE_WRITE8_MEMBER( ctrl_w );
@@ -65,9 +65,9 @@ public:
 	DECLARE_PALETTE_INIT(osi630);
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
-	virtual void machine_start();
-	virtual void video_start();
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
+	virtual void machine_start() override;
+	virtual void video_start() override;
 
 	enum
 	{
@@ -79,8 +79,8 @@ protected:
 	required_device<cassette_image_device> m_cassette;
 	optional_device<discrete_sound_device> m_discrete;
 	required_device<ram_device> m_ram;
-	required_shared_ptr<UINT8> m_video_ram;
-	optional_shared_ptr<UINT8> m_color_ram;
+	required_shared_ptr<uint8_t> m_video_ram;
+	optional_shared_ptr<uint8_t> m_color_ram;
 	required_ioport m_io_row0;
 	required_ioport m_io_row1;
 	required_ioport m_io_row2;
@@ -97,12 +97,12 @@ protected:
 	int m_fdc_index;
 
 	/* keyboard state */
-	UINT8 m_keylatch;
+	uint8_t m_keylatch;
 
 	/* video state */
 	int m_32;
 	int m_coloren;
-	UINT8 *m_p_chargen;
+	uint8_t *m_p_chargen;
 };
 
 class c1p_state : public sb2m600_state
@@ -116,7 +116,7 @@ public:
 
 	required_device<beep_device> m_beep;
 
-	virtual void machine_start();
+	virtual void machine_start() override;
 
 	DECLARE_WRITE8_MEMBER( osi630_ctrl_w );
 	DECLARE_WRITE8_MEMBER( osi630_sound_w );
@@ -138,7 +138,7 @@ public:
 	DECLARE_WRITE_LINE_MEMBER( osi470_pia_cb2_w );
 
 protected:
-	virtual void machine_start();
+	virtual void machine_start() override;
 
 private:
 	required_device<floppy_connector> m_floppy0;
@@ -153,7 +153,7 @@ public:
 	{
 	}
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 
 	DECLARE_WRITE8_MEMBER( keyboard_w );
 };

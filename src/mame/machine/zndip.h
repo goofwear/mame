@@ -21,7 +21,7 @@ extern const device_type ZNDIP;
 class zndip_device : public device_t
 {
 public:
-	zndip_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	zndip_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// static configuration helpers
 	template<class _Object> static devcb_base &set_data_handler(device_t &device, _Object object) { return downcast<zndip_device &>(device).m_data_handler.set_callback(object); }
@@ -32,8 +32,8 @@ public:
 	WRITE_LINE_MEMBER(write_clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
 	devcb_read8 m_data_handler;
@@ -43,7 +43,7 @@ private:
 	int m_select;
 	int m_clock;
 
-	UINT8 m_bit;
+	uint8_t m_bit;
 	emu_timer *m_dip_timer;
 };
 

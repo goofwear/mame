@@ -13,8 +13,8 @@ public:
 	required_device<cpu_device> m_maincpu;
 	required_device<gfxdecode_device> m_gfxdecode;
 
-	required_shared_ptr<UINT8> m_videoram_attr;
-	required_shared_ptr<UINT8> m_videoram;
+	required_shared_ptr<uint8_t> m_videoram_attr;
+	required_shared_ptr<uint8_t> m_videoram;
 
 	tilemap_t *m_tilemap;
 
@@ -23,8 +23,8 @@ public:
 
 	TILE_GET_INFO_MEMBER(get_tile_info);
 
-	virtual void video_start();
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(sbugger);
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 };

@@ -22,9 +22,9 @@ public:
 		m_palette(*this, "palette") { }
 
 	/* memory pointers */
-	required_shared_ptr<UINT8> m_spriteram;
-	required_shared_ptr<UINT8> m_colorram;
-	required_shared_ptr<UINT8> m_videoram;
+	required_shared_ptr<uint8_t> m_spriteram;
+	required_shared_ptr<uint8_t> m_colorram;
+	required_shared_ptr<uint8_t> m_videoram;
 
 	/* video-related */
 	tilemap_t     *m_layer0;
@@ -57,12 +57,12 @@ public:
 	DECLARE_READ8_MEMBER(pandoras_portA_r);
 	DECLARE_READ8_MEMBER(pandoras_portB_r);
 	TILE_GET_INFO_MEMBER(get_tile_info0);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(pandoras);
-	UINT32 screen_update_pandoras(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_pandoras(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(pandoras_master_interrupt);
 	INTERRUPT_GEN_MEMBER(pandoras_slave_interrupt);
-	void draw_sprites( bitmap_ind16 &bitmap, const rectangle &cliprect, UINT8* sr );
+	void draw_sprites( bitmap_ind16 &bitmap, const rectangle &cliprect, uint8_t* sr );
 };

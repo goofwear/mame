@@ -76,22 +76,22 @@ public:
 
 protected:
 	/* driver overrides */
-	virtual void device_start(void);
-	virtual void device_reset(void);
+	virtual void device_start(void) override;
+	virtual void device_reset(void) override;
 
 	/* interrupts */
-	virtual bool firq_get_line(void);
+	virtual bool firq_get_line(void) override;
 
 	/* PIA1 */
-	virtual DECLARE_READ8_MEMBER( ff20_read );
-	virtual DECLARE_WRITE8_MEMBER( ff20_write );
+	virtual DECLARE_READ8_MEMBER( ff20_read ) override;
+	virtual DECLARE_WRITE8_MEMBER( ff20_write ) override;
 
 private:
-	UINT8 m_just_reset;
+	uint8_t m_just_reset;
 
 	/* modem */
-	UINT8 modem_r(offs_t offset);
-	void modem_w(offs_t offset, UINT8 data);
+	uint8_t modem_r(offs_t offset);
+	void modem_w(offs_t offset, uint8_t data);
 };
 
 #endif /* __DGNALPHA__ */

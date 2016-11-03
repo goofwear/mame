@@ -30,7 +30,7 @@
 class r10788_device : public device_t
 {
 public:
-	r10788_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	r10788_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	~r10788_device() {}
 
 	enum {
@@ -50,21 +50,21 @@ public:
 	template<class _Object> static devcb_base &set_update(device_t &device, _Object object) { return downcast<r10788_device &>(device).m_display.set_callback(object); }
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
 	static const device_timer_id TIMER_DISPLAY = 0;
 
-	UINT8        m_reg[2][16];          //!< display registers
-	UINT8        m_ktr;                 //!< transfer keyboard return value
-	UINT8        m_kts;                 //!< transfer keyboard strobe value
-	UINT8        m_kla;                 //!< display register A value
-	UINT8        m_klb;                 //!< display register B value
-	UINT8        m_mask_a;              //!< display enable bits for A
-	UINT8        m_mask_b;              //!< display enable bits for B
-	UINT8        m_ker;                 //!< keyboard error value
+	uint8_t        m_reg[2][16];          //!< display registers
+	uint8_t        m_ktr;                 //!< transfer keyboard return value
+	uint8_t        m_kts;                 //!< transfer keyboard strobe value
+	uint8_t        m_kla;                 //!< display register A value
+	uint8_t        m_klb;                 //!< display register B value
+	uint8_t        m_mask_a;              //!< display enable bits for A
+	uint8_t        m_mask_b;              //!< display enable bits for B
+	uint8_t        m_ker;                 //!< keyboard error value
 	int          m_io_counter;          //!< current I/O register index
 	int          m_scan_counter;        //!< current display scan
 	devcb_write8 m_display;             //!< display updater

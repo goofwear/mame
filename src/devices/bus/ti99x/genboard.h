@@ -19,6 +19,9 @@
 #include "video/v9938.h"
 #include "cpu/tms9900/tms9995.h"
 #include "machine/at29x.h"
+#include "bus/ti99_peb/peribox.h"
+#include "sound/sn76496.h"
+#include "machine/ram.h"
 
 extern const device_type GENEVE_MOUSE;
 extern const device_type GENEVE_KEYBOARD;
@@ -29,14 +32,14 @@ extern const device_type GENEVE_MAPPER;
 class geneve_mouse_device : public device_t
 {
 public:
-	geneve_mouse_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	geneve_mouse_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	void poll();
 	line_state  left_button();  // left button is not connected to the V9938 but to a TMS9901 pin
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
-	virtual ioport_constructor device_input_ports() const;
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual ioport_constructor device_input_ports() const override;
 
 private:
 	v9938_device*   m_v9938;
@@ -57,20 +60,20 @@ private:
 class geneve_keyboard_device : public device_t
 {
 public:
-	geneve_keyboard_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	geneve_keyboard_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	DECLARE_WRITE_LINE_MEMBER( reset_line );
 	DECLARE_WRITE_LINE_MEMBER( send_scancodes );
 	DECLARE_WRITE_LINE_MEMBER( clock_control );
-	UINT8 get_recent_key();
+	uint8_t get_recent_key();
 
 	template<class _Object> static devcb_base &static_set_int_callback(device_t &device, _Object object) { return downcast<geneve_keyboard_device &>(device).m_interrupt.set_callback(object); }
 
 protected:
-	void               device_start();
-	void               device_reset();
-	ioport_constructor device_input_ports() const;
+	void               device_start() override;
+	void               device_reset() override;
+	ioport_constructor device_input_ports() const override;
 	devcb_write_line  m_interrupt;    // Keyboard interrupt to console
-	void               device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	void               device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
 	void    post_in_key_queue(int keycode);
@@ -79,10 +82,10 @@ private:
 
 	bool    m_key_reset;
 	int     m_key_queue_length;
-	UINT8   m_key_queue[KEYQUEUESIZE];
+	uint8_t   m_key_queue[KEYQUEUESIZE];
 	int     m_key_queue_head;
 	bool    m_key_in_buffer;
-	UINT32  m_key_state_save[4];
+	uint32_t  m_key_state_save[4];
 	bool    m_key_numlock_state;
 
 	int     m_key_ctrl_state;
@@ -109,7 +112,7 @@ private:
 class geneve_mapper_device : public device_t
 {
 public:
-	geneve_mapper_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	geneve_mapper_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	void set_geneve_mode(bool geneve);
 	void set_direct_mode(bool direct);
 	void set_cartridge_size(int size);
@@ -134,8 +137,8 @@ public:
 	template<class _Object> static devcb_base &static_set_ready_callback(device_t &device, _Object object) {  return downcast<geneve_mapper_device &>(device).m_ready.set_callback(object); }
 
 protected:
-	void    device_start();
-	void    device_reset();
+	void    device_start() override;
+	void    device_reset() override;
 
 private:
 	// GROM simulation
@@ -204,14 +207,14 @@ private:
 	tms9995_device*         m_cpu;
 	at29c040_device*         m_pfm512;
 	at29c040a_device*        m_pfm512a;
+	sn76496_base_device*    m_sound;
 
 	geneve_keyboard_device* m_keyboard;
-	bus8z_device*           m_video;
-	bus8z_device*           m_peribox;
-	bus8z_device*           m_sound;
-	UINT8*                  m_eprom;
-	UINT8*                  m_sram;
-	UINT8*                  m_dram;
+	v9938_device*           m_video;
+	peribox_device*          m_peribox;
+	uint8_t*                  m_eprom;
+	required_device<ram_device> m_sram;
+	required_device<ram_device> m_dram;
 };
 
 #define MCFG_GENEVE_READY_HANDLER( _intcallb ) \

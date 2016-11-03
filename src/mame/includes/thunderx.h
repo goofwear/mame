@@ -43,11 +43,11 @@ public:
 
 	/* memory */
 	required_memory_bank m_rombank;
-	optional_shared_ptr<UINT8> m_pmcram;
+	optional_shared_ptr<uint8_t> m_pmcram;
 
 	/* misc */
 	int        m_priority;
-	UINT8      m_1f98_latch;
+	uint8_t      m_1f98_latch;
 
 	DECLARE_WRITE8_MEMBER(scontra_bankswitch_w);
 	DECLARE_WRITE8_MEMBER(thunderx_videobank_w);
@@ -62,11 +62,11 @@ public:
 	DECLARE_WRITE8_MEMBER(k052109_051960_w);
 	DECLARE_WRITE8_MEMBER(k007232_bankswitch_w);
 
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(vblank_interrupt);
 	void run_collisions( int s0, int e0, int s1, int e1, int cm, int hm );
 	void calculate_collisions(  );
@@ -77,5 +77,5 @@ public:
 	DECLARE_WRITE8_MEMBER(banking_callback);
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };

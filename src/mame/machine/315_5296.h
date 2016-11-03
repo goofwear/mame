@@ -72,7 +72,7 @@
 class sega_315_5296_device : public device_t
 {
 public:
-	sega_315_5296_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	sega_315_5296_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// static configuration helpers
 	template<class _Object> static devcb_base &set_in_pa_callback(device_t &device, _Object object) { return downcast<sega_315_5296_device &>(device).m_in_pa_cb.set_callback(object); }
@@ -100,12 +100,12 @@ public:
 	DECLARE_READ8_MEMBER( read );
 	DECLARE_WRITE8_MEMBER( write );
 
-	UINT8 debug_peek_output(offs_t offset) { return m_output_latch[offset & 7]; }
+	uint8_t debug_peek_output(offs_t offset) { return m_output_latch[offset & 7]; }
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 private:
 	devcb_read8 m_in_pa_cb;
@@ -134,9 +134,9 @@ private:
 	devcb_write8 *m_out_port_cb[8];
 	devcb_write_line *m_out_cnt_cb[3];
 
-	UINT8 m_output_latch[8];
-	UINT8 m_cnt;
-	UINT8 m_dir;
+	uint8_t m_output_latch[8];
+	uint8_t m_cnt;
+	uint8_t m_dir;
 };
 
 // device type definition

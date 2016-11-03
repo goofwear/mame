@@ -13,6 +13,8 @@
 
 #include "debugvw.h"
 
+#include "vecstream.h"
+
 
 //**************************************************************************
 //  CONSTANTS
@@ -43,12 +45,10 @@ class debug_view_disasm_source : public debug_view_source
 
 public:
 	// getters
-	device_t &device() const { return m_device; }
 	address_space &space() const { return m_space; }
 
 private:
 	// internal state
-	device_t &          m_device;               // underlying device
 	device_disasm_interface *m_disasmintf;      // disassembly interface
 	address_space &     m_space;                // address space to display
 	address_space &     m_decrypted_space;      // address space to display for decrypted opcodes
@@ -69,49 +69,49 @@ public:
 	// getters
 	const char *expression() const { return m_expression.string(); }
 	disasm_right_column right_column() const { return m_right_column; }
-	UINT32 backward_steps() const { return m_backwards_steps; }
-	UINT32 disasm_width() const { return m_dasm_width; }
+	uint32_t backward_steps() const { return m_backwards_steps; }
+	uint32_t disasm_width() const { return m_dasm_width; }
 	offs_t selected_address();
 
 	// setters
 	void set_expression(const char *expression);
 	void set_right_column(disasm_right_column contents);
-	void set_backward_steps(UINT32 steps);
-	void set_disasm_width(UINT32 width);
+	void set_backward_steps(uint32_t steps);
+	void set_disasm_width(uint32_t width);
 	void set_selected_address(offs_t address);
 
 protected:
 	// view overrides
-	virtual void view_update();
-	virtual void view_notify(debug_view_notification type);
-	virtual void view_char(int chval);
-	virtual void view_click(const int button, const debug_view_xy& pos);
+	virtual void view_update() override;
+	virtual void view_notify(debug_view_notification type) override;
+	virtual void view_char(int chval) override;
+	virtual void view_click(const int button, const debug_view_xy& pos) override;
 
 private:
 	// internal helpers
 	void enumerate_sources();
 	offs_t find_pc_backwards(offs_t targetpc, int numinstrs);
-	void generate_bytes(offs_t pcbyte, int numbytes, int minbytes, char *string, int maxchars, bool encrypted);
+	void generate_bytes(offs_t pcbyte, int numbytes, int minbytes, int maxchars, bool encrypted);
 	bool recompute(offs_t pc, int startline, int lines);
 
 	// internal state
 	disasm_right_column m_right_column;         // right column contents
-	UINT32              m_backwards_steps;      // number of backwards steps
-	UINT32              m_dasm_width;           // width of the disassembly area
-	UINT8 *             m_last_direct_raw;      // last direct raw value
-	UINT8 *             m_last_direct_decrypted;// last direct decrypted value
-	UINT32              m_last_change_count;    // last comment change count
+	uint32_t              m_backwards_steps;      // number of backwards steps
+	uint32_t              m_dasm_width;           // width of the disassembly area
+	uint8_t *             m_last_direct_raw;      // last direct raw value
+	uint8_t *             m_last_direct_decrypted;// last direct decrypted value
+	uint32_t              m_last_change_count;    // last comment change count
 	offs_t              m_last_pcbyte;          // last PC byte value
 	int                 m_divider1, m_divider2; // left and right divider columns
 	int                 m_divider3;             // comment divider column
 	debug_view_expression m_expression;         // expression-related information
 	std::vector<offs_t> m_byteaddress;               // addresses of the instructions
-	std::vector<char> m_dasm;                        // disassembled instructions
+	util::ovectorstream m_dasm;                 // disassembled instructions
 
 	// constants
-	static const int DEFAULT_DASM_LINES = 1000;
-	static const int DEFAULT_DASM_WIDTH = 50;
-	static const int DASM_MAX_BYTES = 16;
+	static constexpr int DEFAULT_DASM_LINES = 1000;
+	static constexpr int DEFAULT_DASM_WIDTH = 50;
+	static constexpr int DASM_MAX_BYTES = 16;
 };
 
 

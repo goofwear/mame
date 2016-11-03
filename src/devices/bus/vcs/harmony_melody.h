@@ -4,7 +4,7 @@
 #define __VCS_HARMONY_H
 
 #include "rom.h"
-#include "cpu/arm7/arm7.h"
+#include "cpu/arm7/lpc210x.h"
 
 
 // ======================> a26_rom_harmony_device
@@ -13,27 +13,24 @@ class a26_rom_harmony_device : public a26_rom_f8_device
 {
 public:
 	// construction/destruction
-	a26_rom_harmony_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	a26_rom_harmony_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// device-level overrides
-	virtual void device_start();
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual void device_reset() override;
 
 	// reading and writing
-	virtual DECLARE_READ8_MEMBER(read_rom);
-	virtual DECLARE_WRITE8_MEMBER(write_bank);
+	virtual DECLARE_READ8_MEMBER(read_rom) override;
+	virtual DECLARE_WRITE8_MEMBER(write_bank) override;
 
-	DECLARE_READ32_MEMBER(armrom_r);
-	DECLARE_WRITE32_MEMBER(armrom_w);
-	
+
 	DECLARE_READ8_MEMBER(read8_r);
-
-	DECLARE_READ32_MEMBER(arm_E01FC088_r);
 
 	void check_bankswitch(offs_t offset);
 
-protected:
+private:
+	required_device<lpc210x_device> m_cpu;
 };
 
 

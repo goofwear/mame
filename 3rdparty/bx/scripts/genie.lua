@@ -1,6 +1,6 @@
 --
--- Copyright 2010-2015 Branimir Karadzic. All rights reserved.
--- License: http://www.opensource.org/licenses/BSD-2-Clause
+-- Copyright 2010-2016 Branimir Karadzic. All rights reserved.
+-- License: https://github.com/bkaradzic/bx#license-bsd-2-clause
 --
 
 solution "bx"
@@ -32,7 +32,6 @@ function copyLib()
 end
 
 dofile "bx.lua"
-dofile "unittest++.lua"
 dofile "bin2c.lua"
 
 project "bx.test"
@@ -46,29 +45,27 @@ project "bx.test"
 
 	includedirs {
 		path.join(BX_DIR, "include"),
-		path.join(BX_THIRD_PARTY_DIR, "UnitTest++/src"),
-	}
-
-	links {
-		"UnitTest++",
+		BX_THIRD_PARTY_DIR,
 	}
 
 	files {
-		path.join(BX_DIR, "tests/**.cpp"),
-		path.join(BX_DIR, "tests/**.H"),
+		path.join(BX_DIR, "tests/*_test.cpp"),
+		path.join(BX_DIR, "tests/*_test.H"),
+		path.join(BX_DIR, "tests/dbg.*"),
 	}
 
-	configuration { "vs*" }
+	configuration { "vs* or mingw*" }
+		links {
+			"psapi",
+		}
 
 	configuration { "android*" }
-		kind "ConsoleApp"
 		targetextension ".so"
 		linkoptions {
 			"-shared",
 		}
 
 	configuration { "nacl or nacl-arm" }
-		kind "ConsoleApp"
 		targetextension ".nexe"
 		links {
 			"ppapi",
@@ -76,7 +73,61 @@ project "bx.test"
 		}
 
 	configuration { "pnacl" }
-		kind "ConsoleApp"
+		targetextension ".pexe"
+		links {
+			"ppapi",
+			"pthread",
+		}
+
+	configuration { "linux-*" }
+		links {
+			"pthread",
+		}
+
+	configuration { "osx" }
+		links {
+			"Cocoa.framework",
+		}
+
+	configuration {}
+
+	strip()
+
+project "bx.bench"
+	kind "ConsoleApp"
+
+	debugdir (path.join(BX_DIR, "tests"))
+
+	includedirs {
+		path.join(BX_DIR, "include"),
+		BX_THIRD_PARTY_DIR,
+	}
+
+	files {
+		path.join(BX_DIR, "tests/*_bench.cpp"),
+		path.join(BX_DIR, "tests/*_bench.h"),
+		path.join(BX_DIR, "tests/dbg.*"),
+	}
+
+	configuration { "vs* or mingw*" }
+		links {
+			"psapi",
+		}
+
+	configuration { "android*" }
+		targetextension ".so"
+		linkoptions {
+			"-shared",
+		}
+
+	configuration { "nacl or nacl-arm" }
+		targetextension ".nexe"
+		links {
+			"ppapi",
+			"pthread",
+		}
+
+	configuration { "pnacl" }
 		targetextension ".pexe"
 		links {
 			"ppapi",

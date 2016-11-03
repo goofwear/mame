@@ -25,15 +25,15 @@
 class beckerport_device : public device_t
 {
 public:
-	beckerport_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	beckerport_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	virtual ~beckerport_device();
 
 	// optional information overrides
-	virtual ioport_constructor device_input_ports() const;
+	virtual ioport_constructor device_input_ports() const override;
 
-	virtual void device_start(void);
-	virtual void device_stop(void);
-	virtual void device_config_complete(void);
+	virtual void device_start(void) override;
+	virtual void device_stop(void) override;
+	virtual void device_config_complete(void) override;
 
 	void    update_port(void);
 
@@ -57,7 +57,7 @@ private:
 	required_ioport         m_dwconfigport;
 	int                     m_dwtcpport;
 
-	osd_file *m_pSocket;
+	osd_file::ptr m_pSocket;
 
 	unsigned int m_rx_pending;
 	unsigned int m_head;

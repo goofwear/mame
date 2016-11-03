@@ -20,33 +20,33 @@ class iq151_ms151a_device :
 {
 public:
 	// construction/destruction
-	iq151_ms151a_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	iq151_ms151a_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// optional information overrides
-	virtual const rom_entry *device_rom_region() const;
+	virtual const tiny_rom_entry *device_rom_region() const override;
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_stop();
+	virtual void device_start() override;
+	virtual void device_stop() override;
 
 	// iq151cart_interface overrides
-	virtual void read(offs_t offset, UINT8 &data);
-	virtual void io_read(offs_t offset, UINT8 &data);
-	virtual void io_write(offs_t offset, UINT8 data);
+	virtual void read(offs_t offset, uint8_t &data) override;
+	virtual void io_read(offs_t offset, uint8_t &data) override;
+	virtual void io_write(offs_t offset, uint8_t data) override;
 
 	// XY 4130/4131
-	UINT8 plotter_status();
-	void plotter_update(UINT8 offset, UINT8 data);
+	uint8_t plotter_status();
+	void plotter_update(uint8_t offset, uint8_t data);
 
 private:
 
-	UINT8 *     m_rom;
-	INT32       m_posx;
-	INT32       m_posy;
-	UINT8       m_pen;
+	uint8_t *     m_rom;
+	int32_t       m_posx;
+	int32_t       m_posy;
+	uint8_t       m_pen;
 
-	bitmap_ind16 *  m_paper;
+	std::unique_ptr<bitmap_ind16> m_paper;
 };
 
 

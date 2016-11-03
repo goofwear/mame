@@ -29,10 +29,10 @@ public:
 
 	required_device<cpu_device> m_maincpu;
 	/* memory pointers */
-	required_shared_ptr<UINT8> m_scrollram;
-	required_shared_ptr<UINT8> m_spriteram;
-	required_shared_ptr<UINT8> m_videoram1;
-	required_shared_ptr<UINT8> m_videoram2;
+	required_shared_ptr<uint8_t> m_scrollram;
+	required_shared_ptr<uint8_t> m_spriteram;
+	required_shared_ptr<uint8_t> m_videoram1;
+	required_shared_ptr<uint8_t> m_videoram2;
 
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<screen_device> m_screen;
@@ -49,10 +49,10 @@ public:
 	DECLARE_WRITE8_MEMBER(labyrunr_vram2_w);
 	TILE_GET_INFO_MEMBER(get_tile_info0);
 	TILE_GET_INFO_MEMBER(get_tile_info1);
-	virtual void machine_start();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(labyrunr);
-	UINT32 screen_update_labyrunr(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_labyrunr(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(labyrunr_vblank_interrupt);
 	INTERRUPT_GEN_MEMBER(labyrunr_timer_interrupt);
 };

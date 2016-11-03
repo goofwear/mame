@@ -51,24 +51,24 @@ public:
 		m_io_line5(*this, "LINE5"),
 		m_io_line6(*this, "LINE6"),
 		m_io_line7(*this, "LINE7"),
-		m_bank1(NULL),
-		m_bank2(NULL),
-		m_bank3(NULL),
-		m_bank4(NULL),
-		m_bank5(NULL),
-		m_bank6(NULL),
-		m_bank7(NULL),
-		m_bank8(NULL),
-		m_bank9(NULL),
-		m_bank11(NULL),
-		m_bank12(NULL),
-		m_bank13(NULL),
-		m_bank14(NULL),
-		m_bank15(NULL),
-		m_bank16(NULL),
-		m_bank17(NULL),
-		m_bank18(NULL),
-		m_bank19(NULL) { }
+		m_bank1(nullptr),
+		m_bank2(nullptr),
+		m_bank3(nullptr),
+		m_bank4(nullptr),
+		m_bank5(nullptr),
+		m_bank6(nullptr),
+		m_bank7(nullptr),
+		m_bank8(nullptr),
+		m_bank9(nullptr),
+		m_bank11(nullptr),
+		m_bank12(nullptr),
+		m_bank13(nullptr),
+		m_bank14(nullptr),
+		m_bank15(nullptr),
+		m_bank16(nullptr),
+		m_bank17(nullptr),
+		m_bank18(nullptr),
+		m_bank19(nullptr) { }
 
 	DECLARE_FLOPPY_FORMATS(floppy_formats);
 
@@ -122,48 +122,48 @@ public:
 	DECLARE_READ8_MEMBER( trs80_gfxram_r );
 	DECLARE_WRITE8_MEMBER( trs80_gfxram_w );
 	DECLARE_READ8_MEMBER (trs80_wd179x_r);
-	const UINT8 *m_p_chargen;
-	optional_shared_ptr<UINT8> m_p_videoram;
-	UINT8 *m_p_gfxram;
-	UINT8 m_model4;
-	UINT8 m_mode;
-	UINT8 m_irq;
-	UINT8 m_mask;
-	UINT8 m_nmi_mask;
-	UINT8 m_port_ec;
-	UINT8 m_tape_unit;
-	UINT8 m_reg_load;
-	UINT8 m_nmi_data;
+	const uint8_t *m_p_chargen;
+	optional_shared_ptr<uint8_t> m_p_videoram;
+	uint8_t *m_p_gfxram;
+	uint8_t m_model4;
+	uint8_t m_mode;
+	uint8_t m_irq;
+	uint8_t m_mask;
+	uint8_t m_nmi_mask;
+	uint8_t m_port_ec;
+	uint8_t m_tape_unit;
+	uint8_t m_reg_load;
+	uint8_t m_nmi_data;
 #ifdef USE_TRACK
-	UINT8 m_track[4];
+	uint8_t m_track[4];
 #endif
-	UINT8 m_head;
+	uint8_t m_head;
 #ifdef USE_SECTOR
-	UINT8 m_sector[4];
+	uint8_t m_sector[4];
 #endif
-	UINT8 m_cassette_data;
+	uint8_t m_cassette_data;
 	emu_timer *m_cassette_data_timer;
 	double m_old_cassette_val;
-	UINT16 m_start_address;
-	UINT8 m_crtc_reg;
-	UINT8 m_size_store;
+	uint16_t m_start_address;
+	uint8_t m_crtc_reg;
+	uint8_t m_size_store;
 	DECLARE_DRIVER_INIT(trs80m4);
 	DECLARE_DRIVER_INIT(trs80l2);
 	DECLARE_DRIVER_INIT(trs80m4p);
 	DECLARE_DRIVER_INIT(lnw80);
 	DECLARE_DRIVER_INIT(trs80);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_MACHINE_RESET(trs80m4);
 	DECLARE_MACHINE_RESET(lnw80);
 	DECLARE_PALETTE_INIT(lnw80);
-	UINT32 screen_update_trs80(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_trs80m4(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_ht1080z(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_lnw80(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_radionic(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_meritum(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_trs80(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_trs80m4(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_ht1080z(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_lnw80(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_radionic(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_meritum(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(trs80_rtc_interrupt);
 	INTERRUPT_GEN_MEMBER(trs80_fdc_interrupt);
 	TIMER_CALLBACK_MEMBER(cassette_data_callback);

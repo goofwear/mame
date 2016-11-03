@@ -6,7 +6,7 @@
 
 ***************************************************************************/
 #include "machine/msm6242.h"
-#include "sound/2413intf.h"
+#include "sound/ym2413.h"
 #include "sound/msm5205.h"
 #include "sound/okim6295.h"
 
@@ -14,16 +14,26 @@ class dynax_state : public driver_device
 {
 public:
 	dynax_state(const machine_config &mconfig, device_type type, const char *tag)
-		: driver_device(mconfig, type, tag),
-			m_maincpu(*this, "maincpu"),
-			m_soundcpu(*this, "soundcpu"),
-			m_ym2413(*this, "ym2413"),
-			m_oki(*this, "oki"),
-			m_msm(*this, "msm"),
-			m_screen(*this, "screen"),
-			m_palette(*this, "palette"),
-			m_rtc(*this, "rtc")
-		{ }
+		: driver_device(mconfig, type, tag)
+		, m_maincpu(*this, "maincpu")
+		, m_soundcpu(*this, "soundcpu")
+		, m_ym2413(*this, "ym2413")
+		, m_oki(*this, "oki")
+		, m_msm(*this, "msm")
+		, m_screen(*this, "screen")
+		, m_palette(*this, "palette")
+		, m_rtc(*this, "rtc")
+		, m_gfx_region1(*this, "gfx1")
+		, m_gfx_region2(*this, "gfx2")
+		, m_gfx_region3(*this, "gfx3")
+		, m_gfx_region4(*this, "gfx4")
+		, m_gfx_region5(*this, "gfx5")
+		, m_gfx_region6(*this, "gfx6")
+		, m_gfx_region7(*this, "gfx7")
+		, m_gfx_region8(*this, "gfx8")
+
+	{
+	}
 
 	/* devices */
 	required_device<cpu_device> m_maincpu;
@@ -34,19 +44,29 @@ public:
 	optional_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
 	optional_device<msm6242_device> m_rtc;
+	optional_region_ptr<uint8_t> m_gfx_region1;
+	optional_region_ptr<uint8_t> m_gfx_region2;
+	optional_region_ptr<uint8_t> m_gfx_region3;
+	optional_region_ptr<uint8_t> m_gfx_region4;
+	optional_region_ptr<uint8_t> m_gfx_region5;
+	optional_region_ptr<uint8_t> m_gfx_region6;
+	optional_region_ptr<uint8_t> m_gfx_region7;
+	optional_region_ptr<uint8_t> m_gfx_region8;
+
+	memory_region * m_gfxregions[8];
 
 	// up to 8 layers, 2 images per layer (interleaved on screen)
-	UINT8 *  m_pixmap[8][2];
+	std::unique_ptr<uint8_t[]>  m_pixmap[8][2];
 
 	/* irq */
 	typedef void (dynax_state::*irq_func)();    // some games trigger IRQ at blitter end, some don't
 	irq_func m_update_irq_func;
-	UINT8 m_sound_irq;
-	UINT8 m_vblank_irq;
-	UINT8 m_blitter_irq;
-	UINT8 m_blitter2_irq;
-	UINT8 m_soundlatch_irq;
-	UINT8 m_sound_vblank_irq;
+	uint8_t m_sound_irq;
+	uint8_t m_vblank_irq;
+	uint8_t m_blitter_irq;
+	uint8_t m_blitter2_irq;
+	uint8_t m_soundlatch_irq;
+	uint8_t m_sound_vblank_irq;
 
 	/* blitters */
 	int m_blit_scroll_x;
@@ -87,31 +107,32 @@ public:
 	int m_hanamai_priority;
 
 	/* input */
-	UINT8 m_input_sel;
-	UINT8 m_dsw_sel;
-	UINT8 m_keyb;
-	UINT8 m_coins;
-	UINT8 m_hopper;
+	uint8_t m_input_sel;
+	uint8_t m_dsw_sel;
+	uint8_t m_keyb;
+	uint8_t m_coins;
+	uint8_t m_hopper;
 
 	/* misc */
 	int m_hnoridur_bank;
-	UINT8 m_palette_ram[16*256*2];
+	uint8_t m_palette_ram[16*256*2];
 	int m_palbank;
 	int m_msm5205next;
 	int m_resetkludge;
 	int m_toggle;
 	int m_toggle_cpu1;
 	int m_yarunara_clk_toggle;
-	UINT8 m_soundlatch_ack;
-	UINT8 m_soundlatch_full;
-	UINT8 m_latch;
+	uint8_t m_soundlatch_ack;
+	uint8_t m_soundlatch_full;
+	uint8_t m_latch;
 	int m_rombank;
-	UINT8 m_tenkai_p5_val;
+	uint8_t m_tenkai_p5_val;
 	int m_tenkai_6c;
 	int m_tenkai_70;
-	UINT8 m_gekisha_val[2];
-	UINT8 m_gekisha_rom_enable;
-	UINT8 *m_romptr;
+	uint8_t m_gekisha_val[2];
+	uint8_t m_gekisha_rom_enable;
+	uint8_t *m_romptr;
+	uint8_t *m_hnoridur_ptr;
 
 	DECLARE_WRITE8_MEMBER(dynax_vblank_ack_w);
 	DECLARE_WRITE8_MEMBER(dynax_blitter_ack_w);
@@ -139,7 +160,7 @@ public:
 	DECLARE_WRITE8_MEMBER(hjingi_bank_w);
 	DECLARE_WRITE8_MEMBER(hjingi_lockout_w);
 	DECLARE_WRITE8_MEMBER(hjingi_hopper_w);
-	UINT8 hjingi_hopper_bit();
+	uint8_t hjingi_hopper_bit();
 	DECLARE_READ8_MEMBER(hjingi_keyboard_0_r);
 	DECLARE_READ8_MEMBER(hjingi_keyboard_1_r);
 	DECLARE_WRITE8_MEMBER(yarunara_input_w);
@@ -230,13 +251,13 @@ public:
 	DECLARE_DRIVER_INIT(mayac);
 	DECLARE_DRIVER_INIT(maya);
 
-	UINT32 screen_update_hanamai(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_hnoridur(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_sprtmtch(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_mjdialq2(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_jantouki_top(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_jantouki_bottom(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_cdracula(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_hanamai(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_hnoridur(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_sprtmtch(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_mjdialq2(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_jantouki_top(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_jantouki_bottom(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_cdracula(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 
 	INTERRUPT_GEN_MEMBER(sprtmtch_vblank_interrupt);
 	INTERRUPT_GEN_MEMBER(jantouki_vblank_interrupt);
@@ -282,7 +303,7 @@ public:
 	DECLARE_VIDEO_START(neruton);
 
 	inline void blitter_plot_pixel( int layer, int mask, int x, int y, int pen, int wrap, int flags );
-	int blitter_drawgfx( int layer, int mask, const char *gfx, int src, int pen, int x, int y, int wrap, int flags );
+	int blitter_drawgfx( int layer, int mask, memory_region *gfx, int src, int pen, int x, int y, int wrap, int flags );
 	void dynax_blitter_start( int flags );
 	void jantouki_blitter_start( int flags );
 	void jantouki_blitter2_start( int flags );
@@ -298,5 +319,5 @@ public:
 	void neruton_update_irq();
 	void jantouki_sound_update_irq();
 	void tenkai_show_6c();
-	void gekisha_set_rombank( UINT8 data );
+	void gekisha_set_rombank( uint8_t data );
 };

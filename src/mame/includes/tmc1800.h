@@ -62,8 +62,8 @@ public:
 
 	required_device<cdp1861_device> m_vdc;
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
 	DECLARE_WRITE8_MEMBER( keylatch_w );
 	DECLARE_READ8_MEMBER( dispon_r );
@@ -78,7 +78,7 @@ public:
 	DECLARE_DRIVER_INIT(tmc1800);
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };
 
 class osc1000b_state : public tmc1800_base_state
@@ -89,10 +89,10 @@ public:
 	{ }
 
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
-	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 	DECLARE_WRITE8_MEMBER( keylatch_w );
 	DECLARE_READ_LINE_MEMBER( clear_r );
@@ -111,29 +111,15 @@ public:
 		: tmc1800_base_state(mconfig, type, tag),
 			m_cti(*this, CDP1864_TAG),
 			m_colorram(*this, "color_ram"),
-			m_y0(*this, "Y0"),
-			m_y1(*this, "Y1"),
-			m_y2(*this, "Y2"),
-			m_y3(*this, "Y3"),
-			m_y4(*this, "Y4"),
-			m_y5(*this, "Y5"),
-			m_y6(*this, "Y6"),
-			m_y7(*this, "Y7")
+			m_key_row(*this, {"Y0", "Y1", "Y2", "Y3", "Y4", "Y5", "Y6", "Y7"})
 	{ }
 
 	required_device<cdp1864_device> m_cti;
-	optional_shared_ptr<UINT8> m_colorram;
-	required_ioport m_y0;
-	required_ioport m_y1;
-	required_ioport m_y2;
-	required_ioport m_y3;
-	required_ioport m_y4;
-	required_ioport m_y5;
-	required_ioport m_y6;
-	required_ioport m_y7;
+	optional_shared_ptr<uint8_t> m_colorram;
+	required_ioport_array<8> m_key_row;
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
 	DECLARE_WRITE8_MEMBER( keylatch_w );
 	DECLARE_WRITE8_MEMBER( bankswitch_w );
@@ -154,10 +140,9 @@ public:
 	int m_roc;
 
 	/* video state */
-	UINT8 m_color;
+	uint8_t m_color;
 
 	/* keyboard state */
-	ioport_port* m_key_row[8];
 	int m_keylatch;
 };
 
@@ -177,9 +162,9 @@ public:
 	required_ioport m_ny1;
 	required_ioport m_monitor;
 
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
 	enum
 	{

@@ -94,8 +94,8 @@ class mos7360_device :  public device_t,
 {
 public:
 	// construction/destruction
-	//mos7360_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock);
-	mos7360_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	//mos7360_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock);
+	mos7360_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _irq, class _k> void set_callbacks(const char *cpu_tag, _irq irq, _k k) {
 		m_cpu_tag = cpu_tag;
@@ -103,12 +103,12 @@ public:
 		m_read_k.set_callback(k);
 	}
 
-	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const;
+	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const override;
 
-	UINT8 read(address_space &space, offs_t offset, int &cs0, int &cs1);
-	void write(address_space &space, offs_t offset, UINT8 data, int &cs0, int &cs1);
+	uint8_t read(address_space &space, offs_t offset, int &cs0, int &cs1);
+	void write(address_space &space, offs_t offset, uint8_t data, int &cs0, int &cs1);
 
-	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 protected:
 	enum
@@ -126,20 +126,20 @@ protected:
 	};
 
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	// device_sound_interface callbacks
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 	inline void set_interrupt(int mask);
 	inline void clear_interrupt(int mask);
 	inline int rastercolumn();
-	inline UINT8 read_ram(offs_t offset);
-	inline UINT8 read_rom(offs_t offset);
+	inline uint8_t read_ram(offs_t offset);
+	inline uint8_t read_rom(offs_t offset);
 
-	void draw_character(int ybegin, int yend, int ch, int yoff, int xoff, UINT16 *color);
+	void draw_character(int ybegin, int yend, int ch, int yoff, int xoff, uint16_t *color);
 	void draw_character_multi(int ybegin, int yend, int ch, int yoff, int xoff);
 	void draw_bitmap(int ybegin, int yend, int ch, int yoff, int xoff);
 	void draw_bitmap_multi(int ybegin, int yend, int ch, int yoff, int xoff);
@@ -160,8 +160,8 @@ protected:
 	cpu_device *m_cpu;
 	sound_stream *m_stream;
 
-	UINT8 m_reg[0x20];
-	UINT8 m_last_data;
+	uint8_t m_reg[0x20];
+	uint8_t m_last_data;
 
 	bitmap_rgb32 m_bitmap;
 
@@ -179,13 +179,13 @@ protected:
 	int m_x_begin, m_x_end;
 	int m_y_begin, m_y_end;
 
-	UINT16 m_c16_bitmap[2], m_bitmapmulti[4], m_mono[2], m_monoinversed[2], m_multi[4], m_ecmcolor[2], m_colors[5];
+	uint16_t m_c16_bitmap[2], m_bitmapmulti[4], m_mono[2], m_monoinversed[2], m_multi[4], m_ecmcolor[2], m_colors[5];
 
 	int m_rasterline, m_lastline;
 	double m_rastertime;
 
 	/* sound part */
-	UINT8 *m_noise;
+	std::unique_ptr<uint8_t[]> m_noise;
 	int m_tone1pos, m_tone2pos,
 	m_tone1samples, m_tone2samples,
 	m_noisesize,          /* number of samples */

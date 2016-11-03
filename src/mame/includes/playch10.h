@@ -1,41 +1,42 @@
 // license:BSD-3-Clause
 // copyright-holders:Ernesto Corvi,Brad Oliver
 #include "machine/rp5h01.h"
-#include "sound/nes_apu.h"
 #include "video/ppu2c0x.h"
 
 struct chr_bank
 {
 	int writable;   // 1 for RAM, 0 for ROM
-	UINT8* chr;     // direct access to the memory
+	uint8_t* chr;     // direct access to the memory
 };
 
 class playch10_state : public driver_device
 {
 public:
 	playch10_state(const machine_config &mconfig, device_type type, const char *tag)
-		: driver_device(mconfig, type, tag),
-		m_maincpu(*this, "maincpu"),
-		m_nesapu(*this, "nesapu"),
-		m_ppu(*this, "ppu"),
-		m_rp5h01(*this, "rp5h01"),
-		m_ram_8w(*this, "ram_8w"),
-		m_videoram(*this, "videoram"),
-		m_timedata(*this, "timedata"),
-		m_work_ram(*this, "work_ram"),
-		m_gfxdecode(*this, "gfxdecode")
-		{ }
+		: driver_device(mconfig, type, tag)
+		, m_maincpu(*this, "maincpu")
+		, m_ppu(*this, "ppu")
+		, m_rp5h01(*this, "rp5h01")
+		, m_ram_8w(*this, "ram_8w")
+		, m_videoram(*this, "videoram")
+		, m_timedata(*this, "timedata")
+		, m_work_ram(*this, "work_ram")
+		, m_gfxdecode(*this, "gfxdecode")
+		, m_vrom_region(*this, "gfx2")
+	{
+	}
 
 	required_device<cpu_device> m_maincpu;
-	required_device<nesapu_device> m_nesapu;
 	required_device<ppu2c0x_device> m_ppu;
 	optional_device<rp5h01_device> m_rp5h01;
 
-	required_shared_ptr<UINT8> m_ram_8w;
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_timedata;
-	required_shared_ptr<UINT8> m_work_ram;
+	required_shared_ptr<uint8_t> m_ram_8w;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_timedata;
+	required_shared_ptr<uint8_t> m_work_ram;
 	required_device<gfxdecode_device> m_gfxdecode;
+
+	optional_memory_region m_vrom_region;
 
 	int m_up_8w;
 	int m_pc10_nmi_enable;
@@ -52,10 +53,10 @@ public:
 	int m_mirroring;
 	int m_MMC2_bank[4];
 	int m_MMC2_bank_latch[2];
-	UINT8* m_vrom;
-	UINT8* m_vram;
-	UINT8* m_nametable[4];
-	UINT8* m_nt_ram;
+	uint8_t* m_vrom;
+	std::unique_ptr<uint8_t[]> m_vram;
+	uint8_t* m_nametable[4];
+	std::unique_ptr<uint8_t[]> m_nt_ram;
 	chr_bank m_chr_page[8];
 	int m_mmc1_shiftreg;
 	int m_mmc1_shiftcount;
@@ -67,7 +68,7 @@ public:
 	int m_gboard_last_bank;
 	int m_gboard_command;
 	int m_IRQ_count;
-	UINT8 m_IRQ_count_latch;
+	uint8_t m_IRQ_count_latch;
 	int m_IRQ_enable;
 	int m_pc10_bios;
 	tilemap_t *m_bg_tilemap;
@@ -107,9 +108,6 @@ public:
 	void pc10_set_mirroring(int mirroring);
 	DECLARE_WRITE8_MEMBER(playch10_videoram_w);
 	DECLARE_CUSTOM_INPUT_MEMBER(pc10_int_detect_r);
-	DECLARE_READ8_MEMBER(psg_4015_r);
-	DECLARE_WRITE8_MEMBER(psg_4015_w);
-	DECLARE_WRITE8_MEMBER(psg_4017_w);
 	DECLARE_DRIVER_INIT(playch10);
 	DECLARE_DRIVER_INIT(pc_gun);
 	DECLARE_DRIVER_INIT(pcaboard);
@@ -121,6 +119,7 @@ public:
 	DECLARE_DRIVER_INIT(pcfboard);
 	DECLARE_DRIVER_INIT(pcfboard_2);
 	DECLARE_DRIVER_INIT(virus);
+	DECLARE_DRIVER_INIT(ttoon);
 	DECLARE_DRIVER_INIT(pcgboard);
 	DECLARE_DRIVER_INIT(pcgboard_type2);
 	DECLARE_DRIVER_INIT(pchboard);
@@ -128,15 +127,15 @@ public:
 	DECLARE_DRIVER_INIT(pckboard);
 	DECLARE_DRIVER_INIT(pc_hrz);
 	TILE_GET_INFO_MEMBER(get_bg_tile_info);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(playch10);
 	DECLARE_MACHINE_START(playch10_hboard);
 	DECLARE_VIDEO_START(playch10_hboard);
-	UINT32 screen_update_playch10_top(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_playch10_bottom(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_playch10_single(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_playch10_top(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_playch10_bottom(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_playch10_single(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(playch10_interrupt);
 	void pc10_set_videorom_bank( int first, int count, int bank, int size );
 	void set_videoram_bank( int first, int count, int bank, int size );

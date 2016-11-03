@@ -20,9 +20,9 @@ public:
 	required_device<cpu_device> m_maincpu;
 	required_device<nb1413m3_device> m_nb1413m3;
 	required_device<screen_device> m_screen;
-	required_shared_ptr<UINT8> m_clut;
+	required_shared_ptr<uint8_t> m_clut;
 
-	UINT8 m_mux_data;
+	uint8_t m_mux_data;
 	int m_blitter_destx;
 	int m_blitter_desty;
 	int m_blitter_sizex;
@@ -34,7 +34,7 @@ public:
 	int m_blitter_direction_x;
 	int m_blitter_direction_y;
 	int m_palbank;
-	UINT8 *m_videoram;
+	std::unique_ptr<uint8_t[]> m_videoram;
 	int m_flipscreen_old;
 
 	DECLARE_READ8_MEMBER(pastelg_sndrom_r);
@@ -51,15 +51,15 @@ public:
 	DECLARE_CUSTOM_INPUT_MEMBER(nb1413m3_busyflag_r);
 	DECLARE_CUSTOM_INPUT_MEMBER(nb1413m3_hackbusyflag_r);
 
-	virtual void machine_start();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void video_start() override;
 
 	DECLARE_PALETTE_INIT(pastelg);
-	UINT32 screen_update_pastelg(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_pastelg(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	int pastelg_blitter_src_addr_r();
 	void pastelg_vramflip();
 	void pastelg_gfxdraw();
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };

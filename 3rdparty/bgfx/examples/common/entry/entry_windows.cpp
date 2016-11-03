@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2015 Branimir Karadzic. All rights reserved.
- * License: http://www.opensource.org/licenses/BSD-2-Clause
+ * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
 #include "entry_p.h"
@@ -30,6 +30,15 @@
 
 namespace entry
 {
+	///
+	inline void winSetHwnd(::HWND _window)
+	{
+		bgfx::PlatformData pd;
+		memset(&pd, 0, sizeof(pd) );
+		pd.nwh = _window;
+		bgfx::setPlatformData(pd);
+	}
+
 	typedef DWORD (WINAPI* PFN_XINPUT_GET_STATE)(DWORD dwUserIndex, XINPUT_STATE* pState);
 	typedef void  (WINAPI* PFN_XINPUT_ENABLE)(BOOL enable); // 1.4+
 
@@ -358,7 +367,7 @@ namespace entry
 			s_translateKey[VK_HOME]       = Key::Home;
 			s_translateKey[VK_END]        = Key::End;
 			s_translateKey[VK_PRIOR]      = Key::PageUp;
-			s_translateKey[VK_NEXT]       = Key::PageUp;
+			s_translateKey[VK_NEXT]       = Key::PageDown;
 			s_translateKey[VK_SNAPSHOT]   = Key::Print;
 			s_translateKey[VK_OEM_PLUS]   = Key::Plus;
 			s_translateKey[VK_OEM_MINUS]  = Key::Minus;
@@ -368,6 +377,7 @@ namespace entry
 			s_translateKey[VK_OEM_7]      = Key::Quote;
 			s_translateKey[VK_OEM_COMMA]  = Key::Comma;
 			s_translateKey[VK_OEM_PERIOD] = Key::Period;
+			s_translateKey[VK_DECIMAL] 	  = Key::Period;
 			s_translateKey[VK_OEM_2]      = Key::Slash;
 			s_translateKey[VK_OEM_5]      = Key::Backslash;
 			s_translateKey[VK_OEM_3]      = Key::Tilde;
@@ -433,13 +443,13 @@ namespace entry
 
 		int32_t run(int _argc, char** _argv)
 		{
-			SetDllDirectory(".");
+			SetDllDirectoryA(".");
 
 			s_xinput.init();
 
 			HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 
-			WNDCLASSEX wnd;
+			WNDCLASSEXA wnd;
 			memset(&wnd, 0, sizeof(wnd) );
 			wnd.cbSize = sizeof(wnd);
 			wnd.style = CS_HREDRAW | CS_VREDRAW;
@@ -470,7 +480,7 @@ namespace entry
 				| ENTRY_WINDOW_FLAG_FRAME
 				;
 
-			bgfx::winSetHwnd(m_hwnd[0]);
+			winSetHwnd(m_hwnd[0]);
 
 			adjust(m_hwnd[0], ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT, true);
 			clear(m_hwnd[0]);
@@ -822,7 +832,7 @@ namespace entry
 		WindowHandle findHandle(HWND _hwnd)
 		{
 			bx::LwMutexScope scope(m_lock);
-			for (uint32_t ii = 0, num = m_windowAlloc.getNumHandles(); ii < num; ++ii)
+			for (uint16_t ii = 0, num = m_windowAlloc.getNumHandles(); ii < num; ++ii)
 			{
 				uint16_t idx = m_windowAlloc.getHandleAt(ii);
 				if (_hwnd == m_hwnd[idx])

@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2015 Branimir Karadzic. All rights reserved.
- * License: http://www.opensource.org/licenses/BSD-2-Clause
+ * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
 #include "entry_p.h"
@@ -46,6 +46,18 @@
 
 namespace entry
 {
+	///
+	inline void osxSetNSWindow(void* _window, void* _nsgl = NULL)
+	{
+		bgfx::PlatformData pd;
+		pd.ndt          = NULL;
+		pd.nwh          = _window;
+		pd.context      = _nsgl;
+		pd.backBuffer   = NULL;
+		pd.backBufferDS = NULL;
+		bgfx::setPlatformData(pd);
+	}
+
 	static WindowHandle s_defaultWindow = { 0 };	// TODO: Add support for more windows
 	static uint8_t s_translateKey[256];
 
@@ -444,7 +456,7 @@ namespace entry
 			const float centerY = (screenRect.size.height - (float)ENTRY_DEFAULT_HEIGHT)*0.5f;
 
 			m_windowAlloc.alloc();
-			NSRect rect = NSMakeRect(centerX, centerY, (float)ENTRY_DEFAULT_WIDTH, (float)ENTRY_DEFAULT_HEIGHT);
+			NSRect rect = NSMakeRect(centerX, centerY, ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
 			NSWindow* window = [[NSWindow alloc]
 				initWithContentRect:rect
 				styleMask:m_style
@@ -460,7 +472,7 @@ namespace entry
 			m_window[0] = window;
 			m_windowFrame = [window frame];
 
-			bgfx::osxSetNSWindow(window);
+			osxSetNSWindow(window);
 
 			MainThreadEntry mte;
 			mte.m_argc = _argc;
@@ -468,6 +480,9 @@ namespace entry
 
 			bx::Thread thread;
 			thread.init(mte.threadFunc, &mte);
+
+			WindowHandle handle = { 0 };
+			m_eventQueue.postSizeEvent(handle, ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
 
 			while (!(m_exit = [dg applicationHasTerminated]) )
 			{

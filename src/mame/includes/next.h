@@ -45,9 +45,9 @@ public:
 	required_device<nextmo_device> mo;
 	optional_device<n82077aa_device> fdc; // 040 only
 
-	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
-	void setup(UINT32 scr1, int size_x, int size_y, int skip, bool color);
+	void setup(uint32_t scr1, int size_x, int size_y, int skip, bool color);
 
 	DECLARE_READ8_MEMBER( io_r );
 	DECLARE_WRITE8_MEMBER( io_w );
@@ -58,15 +58,12 @@ public:
 	DECLARE_READ32_MEMBER( irq_status_r );
 	DECLARE_READ32_MEMBER( irq_mask_r );
 	DECLARE_WRITE32_MEMBER( irq_mask_w );
-	DECLARE_READ32_MEMBER( modisk_r );
-	DECLARE_READ32_MEMBER( network_r );
 	DECLARE_READ32_MEMBER( event_counter_r );
 	DECLARE_READ32_MEMBER( dsp_r );
 	DECLARE_READ32_MEMBER( fdc_control_r );
 	DECLARE_WRITE32_MEMBER( fdc_control_w );
 	DECLARE_READ32_MEMBER( dma_ctrl_r );
 	DECLARE_WRITE32_MEMBER( dma_ctrl_w );
-	DECLARE_WRITE32_MEMBER( dma_040_ctrl_w );
 	DECLARE_READ32_MEMBER( dma_regs_r );
 	DECLARE_WRITE32_MEMBER( dma_regs_w );
 	DECLARE_READ32_MEMBER( scsictrl_r );
@@ -79,23 +76,23 @@ public:
 	DECLARE_WRITE32_MEMBER( timer_ctrl_w );
 	DECLARE_WRITE8_MEMBER( ramdac_w );
 
-	UINT32 scr1;
-	UINT32 scr2;
-	UINT32 irq_status;
-	UINT32 irq_mask;
+	uint32_t scr1;
+	uint32_t scr2;
+	uint32_t irq_status;
+	uint32_t irq_mask;
 	int irq_level;
-	required_shared_ptr<UINT32> vram;
-	UINT8 scsictrl, scsistat;
+	required_shared_ptr<uint32_t> vram;
+	uint8_t scsictrl, scsistat;
 
-	UINT32 phy[2];
+	uint32_t phy[2];
 
 	attotime timer_tbase;
-	UINT16 timer_vbase;
-	UINT32 timer_data, timer_next_data;
-	UINT32 timer_ctrl;
+	uint16_t timer_vbase;
+	uint32_t timer_data, timer_next_data;
+	uint32_t timer_ctrl;
 	emu_timer *timer_tm;
 
-	UINT32 eventc_latch;
+	uint32_t eventc_latch;
 
 	DECLARE_WRITE_LINE_MEMBER(scc_irq);
 	DECLARE_WRITE_LINE_MEMBER(keyboard_irq);
@@ -121,8 +118,8 @@ public:
 
 protected:
 	struct dma_slot {
-		UINT32 start, limit, chain_start, chain_limit, current;
-		UINT8 state;
+		uint32_t start, limit, chain_start, chain_limit, current;
+		uint8_t state;
 		bool supdate, restart, drq;
 	};
 
@@ -150,29 +147,28 @@ protected:
 	static const int scsi_clocks[4];
 
 	dma_slot dma_slots[0x20];
-	UINT32 esp;
+	uint32_t esp;
 
 	int screen_sx, screen_sy, screen_skip;
 	bool screen_color;
 	bool vbl_enabled;
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 	void timer_start();
 	void timer_update();
 
 	void irq_set(int id, bool raise);
 	void irq_check();
 	const char *dma_name(int slot);
-	void dma_do_ctrl_w(int slot, UINT8 data);
+	void dma_do_ctrl_w(int slot, uint8_t data);
 	void dma_drq_w(int slot, bool state);
-	void dma_read(int slot, UINT8 &val, bool &eof, bool &err);
-	void dma_write(int slot, UINT8 val, bool eof, bool &err);
+	void dma_read(int slot, uint8_t &val, bool &eof, bool &err);
+	void dma_write(int slot, uint8_t val, bool eof, bool &err);
 	void dma_check_update(int slot);
 	void dma_check_end(int slot, bool eof);
-	void dma_done(int slot);
 	void dma_end(int slot);
 
 public:

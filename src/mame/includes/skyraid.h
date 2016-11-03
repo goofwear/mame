@@ -1,4 +1,4 @@
-// license:???
+// license:BSD-3-Clause
 // copyright-holders:Stefan Jokisch
 #include "sound/discrete.h"
 
@@ -20,18 +20,18 @@ public:
 
 	int m_scroll;
 
-	required_shared_ptr<UINT8> m_pos_ram;
-	required_shared_ptr<UINT8> m_alpha_num_ram;
-	required_shared_ptr<UINT8> m_obj_ram;
+	required_shared_ptr<uint8_t> m_pos_ram;
+	required_shared_ptr<uint8_t> m_alpha_num_ram;
+	required_shared_ptr<uint8_t> m_obj_ram;
 	required_device<discrete_device> m_discrete;
 	bitmap_ind16 m_helper;
 	DECLARE_READ8_MEMBER(skyraid_port_0_r);
 	DECLARE_WRITE8_MEMBER(skyraid_range_w);
 	DECLARE_WRITE8_MEMBER(skyraid_offset_w);
 	DECLARE_WRITE8_MEMBER(skyraid_scroll_w);
-	virtual void video_start();
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(skyraid);
-	UINT32 screen_update_skyraid(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_skyraid(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	DECLARE_WRITE8_MEMBER(skyraid_sound_w);
 	void draw_text(bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void draw_terrain(bitmap_ind16 &bitmap, const rectangle &cliprect);

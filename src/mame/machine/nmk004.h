@@ -21,7 +21,7 @@
 class nmk004_device : public device_t
 {
 public:
-	nmk004_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	nmk004_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	WRITE8_MEMBER( write );
 	READ8_MEMBER( read );
@@ -36,16 +36,16 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual const rom_entry *device_rom_region() const;
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual void device_start() override;
+	virtual const tiny_rom_entry *device_rom_region() const override;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 
 private:
 	// internal state
 	required_device<cpu_device> m_systemcpu;
-	UINT8 to_nmk004;
-	UINT8 to_main;
+	uint8_t to_nmk004;
+	uint8_t to_main;
 
 };
 

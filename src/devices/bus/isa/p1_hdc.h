@@ -26,21 +26,21 @@ class p1_hdc_device : public device_t,
 {
 public:
 	// construction/destruction
-	p1_hdc_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	p1_hdc_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// optional information overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual const rom_entry *device_rom_region() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual const tiny_rom_entry *device_rom_region() const override;
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 private:
 	required_device<wd2010_device> m_hdc;
 
-	//UINT8 m_ram[0x800];
+	//uint8_t m_ram[0x800];
 
 public:
 	DECLARE_READ8_MEMBER(p1_HDC_r);

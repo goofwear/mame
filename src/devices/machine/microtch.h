@@ -11,25 +11,24 @@ class microtouch_device :
 		public device_serial_interface
 {
 public:
-	microtouch_device(const machine_config &mconfig, device_type type, const char* name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
-	microtouch_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	microtouch_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	template<class _Object> static devcb_base &static_set_stx_callback(device_t &device, _Object object) { return downcast<microtouch_device &>(device).m_out_stx_func.set_callback(object); }
 
-	virtual ioport_constructor device_input_ports() const;
+	virtual ioport_constructor device_input_ports() const override;
 	DECLARE_WRITE_LINE_MEMBER(rx) { device_serial_interface::rx_w(state); }
 	DECLARE_INPUT_CHANGED_MEMBER(touch);
 
 	typedef delegate<int (int *, int *)> touch_cb;
 	static void static_set_touch_callback(device_t &device, touch_cb object) { downcast<microtouch_device &>(device).m_out_touch_cb = object; }
 protected:
-	virtual void device_start();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
-	virtual void tra_callback();
-	virtual void tra_complete();
-	virtual void rcv_complete();
+	virtual void device_start() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
+	virtual void tra_callback() override;
+	virtual void tra_complete() override;
+	virtual void rcv_complete() override;
 private:
-	int check_command( const char* commandtocheck, int command_len, UINT8* command_data );
-	void send_format_table_packet(UINT8 flag, int x, int y);
+	int check_command( const char* commandtocheck, int command_len, uint8_t* command_data );
+	void send_format_table_packet(uint8_t flag, int x, int y);
 	void send_format_decimal_packet(int x, int y);
 	void send_touch_packet();
 
@@ -45,11 +44,11 @@ private:
 		MODE_STREAM,
 		MODE_POINT
 	};
-	UINT8       m_rx_buffer[16];
+	uint8_t       m_rx_buffer[16];
 	int         m_rx_buffer_ptr;
-	UINT8       m_tx_buffer[16];
-	UINT8       m_tx_buffer_num;
-	UINT8       m_tx_buffer_ptr;
+	uint8_t       m_tx_buffer[16];
+	uint8_t       m_tx_buffer_num;
+	uint8_t       m_tx_buffer_ptr;
 	int         m_reset_done;
 	int         m_format;
 	int         m_mode;
@@ -63,7 +62,7 @@ private:
 	required_ioport m_touchy;
 	emu_timer*  m_timer;
 	bool m_output_valid;
-	UINT8 m_output;
+	uint8_t m_output;
 };
 
 extern const device_type MICROTOUCH;

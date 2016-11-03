@@ -15,26 +15,26 @@
 
 class m65ce02_device : public m65c02_device {
 public:
-	m65ce02_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	m65ce02_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	m65ce02_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	m65ce02_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
 	static const disasm_entry disasm_entries[0x100];
 
-	virtual offs_t disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options);
-	virtual void do_exec_full();
-	virtual void do_exec_partial();
+	virtual offs_t disasm_disassemble(char *buffer, offs_t pc, const uint8_t *oprom, const uint8_t *opram, uint32_t options) override;
+	virtual void do_exec_full() override;
+	virtual void do_exec_partial() override;
 
 protected:
-	UINT16  TMP3;                   /* temporary internal values */
-	UINT8   Z;                      /* Z index register */
-	UINT16  B;                      /* Zero page base address (always xx00) */
+	uint16_t  TMP3;                   /* temporary internal values */
+	uint8_t   Z;                      /* Z index register */
+	uint16_t  B;                      /* Zero page base address (always xx00) */
 
-	virtual void init();
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void state_import(const device_state_entry &entry);
-	virtual void state_export(const device_state_entry &entry);
-	virtual void state_string_export(const device_state_entry &entry, std::string &str);
+	virtual void init() override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void state_import(const device_state_entry &entry) override;
+	virtual void state_export(const device_state_entry &entry) override;
+	virtual void state_string_export(const device_state_entry &entry, std::string &str) const override;
 
 	inline void dec_SP_ce() { if(P & F_E) SP = set_l(SP, SP-1); else SP--; }
 	inline void inc_SP_ce() { if(P & F_E) SP = set_l(SP, SP+1); else SP++; }

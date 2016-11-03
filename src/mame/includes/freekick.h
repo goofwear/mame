@@ -16,8 +16,8 @@ public:
 		m_bank1d(*this, "bank1d") { }
 
 	/* memory pointers */
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_spriteram;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_spriteram;
 
 	/* video-related */
 	tilemap_t    *m_freek_tilemap;
@@ -30,6 +30,7 @@ public:
 	int        m_spinner;
 	int        m_nmi_en;
 	int        m_ff_data;
+	DECLARE_WRITE8_MEMBER(flipscreen_xy_w);
 	DECLARE_WRITE8_MEMBER(flipscreen_w);
 	DECLARE_WRITE8_MEMBER(coin_w);
 	DECLARE_WRITE8_MEMBER(spinner_select_w);
@@ -49,15 +50,15 @@ public:
 	DECLARE_DRIVER_INIT(gigasb);
 	DECLARE_DRIVER_INIT(pbillrds);
 	TILE_GET_INFO_MEMBER(get_freek_tile_info);
-	virtual void video_start();
+	virtual void video_start() override;
 	DECLARE_MACHINE_START(pbillrd);
 	DECLARE_MACHINE_RESET(freekick);
 	DECLARE_MACHINE_START(freekick);
 	DECLARE_MACHINE_START(oigas);
 	DECLARE_MACHINE_RESET(oigas);
-	UINT32 screen_update_pbillrd(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_freekick(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_gigas(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_pbillrd(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_freekick(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_gigas(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(freekick_irqgen);
 	void gigas_draw_sprites( bitmap_ind16 &bitmap, const rectangle &cliprect );
 	void pbillrd_draw_sprites( bitmap_ind16 &bitmap, const rectangle &cliprect );

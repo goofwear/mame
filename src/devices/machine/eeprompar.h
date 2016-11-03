@@ -53,12 +53,10 @@ protected:
 	// construction/destruction
 	eeprom_parallel_base_device(const machine_config &mconfig, device_type devtype, const char *name, const char *tag, device_t *owner, const char *shortname, const char *file);
 
-public:
-
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 
@@ -89,7 +87,7 @@ public:
 class eeprom_parallel_##_lowercase##_device : public eeprom_parallel_##_baseclass##_device \
 { \
 public: \
-	eeprom_parallel_##_lowercase##_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock); \
+	eeprom_parallel_##_lowercase##_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock); \
 }; \
 extern const device_type EEPROM_PARALLEL_##_uppercase;
 // standard 28XX class of 8-bit EEPROMs

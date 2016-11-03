@@ -1,6 +1,6 @@
 /*
- * Copyright 2011-2015 Branimir Karadzic. All rights reserved.
- * License: http://www.opensource.org/licenses/BSD-2-Clause
+ * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
 #ifndef BGFX_RENDERER_D3D_H_HEADER_GUARD
@@ -21,6 +21,12 @@
 
 namespace bgfx
 {
+#if BX_PLATFORM_XBOXONE
+	typedef ::IGraphicsUnknown IUnknown;
+#else
+	typedef ::IUnknown IUnknown;
+#endif // BX_PLATFORM_XBOXONE
+
 #define _DX_CHECK(_call) \
 			BX_MACRO_BLOCK_BEGIN \
 				HRESULT __hr__ = _call; \
@@ -90,13 +96,21 @@ namespace bgfx
 #	define PIX_ENDEVENT()
 #endif // BGFX_CONFIG_DEBUG_PIX
 
+#define D3DCOLOR_FRAME   D3DCOLOR_RGBA(0xff, 0xd7, 0xc9, 0xff)
+#define D3DCOLOR_VIEW    D3DCOLOR_RGBA(0xe4, 0xb4, 0x8e, 0xff)
+#define D3DCOLOR_VIEW_L  D3DCOLOR_RGBA(0xf9, 0xee, 0xe5, 0xff)
+#define D3DCOLOR_VIEW_R  D3DCOLOR_RGBA(0xe8, 0xd3, 0xc0, 0xff)
+#define D3DCOLOR_DRAW    D3DCOLOR_RGBA(0xc6, 0xe5, 0xb9, 0xff)
+#define D3DCOLOR_COMPUTE D3DCOLOR_RGBA(0xa7, 0xdb, 0xd8, 0xff)
+#define D3DCOLOR_MARKER  D3DCOLOR_RGBA(0xff, 0x00, 0x00, 0xff)
+
 	inline int getRefCount(IUnknown* _interface)
 	{
 		_interface->AddRef();
 		return _interface->Release();
 	}
 
-	template <typename Ty>
+	template<typename Ty>
 	class StateCacheT
 	{
 	public:
@@ -104,6 +118,11 @@ namespace bgfx
 		{
 			invalidate(_key);
 			m_hashMap.insert(stl::make_pair(_key, _value) );
+			BX_CHECK(isGraphicsDebuggerPresent()
+				|| 1 == getRefCount(_value), "Interface ref count %d, hash %" PRIx64 "."
+				, getRefCount(_value)
+				, _key
+				);
 		}
 
 		Ty* find(uint64_t _key)

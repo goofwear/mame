@@ -9,6 +9,7 @@
 #ifndef __KANEKO16_H__
 #define __KANEKO16_H__
 
+#include "machine/gen_latch.h"
 #include "machine/nvram.h"
 #include "video/kan_pand.h"
 #include "video/kaneko_tmap.h"
@@ -38,6 +39,7 @@ public:
 		m_pandora(*this, "pandora"),
 		m_palette(*this, "palette"),
 		m_eeprom(*this, "eeprom"),
+		m_soundlatch(*this, "soundlatch"),
 		m_spriteram(*this, "spriteram"),
 		m_mainram(*this, "mainram")
 		{ }
@@ -55,11 +57,12 @@ public:
 	optional_device<kaneko_pandora_device> m_pandora;
 	required_device<palette_device> m_palette;
 	optional_device<eeprom_serial_93cxx_device> m_eeprom;
+	optional_device<generic_latch_8_device> m_soundlatch;
 
-	optional_shared_ptr<UINT16> m_spriteram;
-	optional_shared_ptr<UINT16> m_mainram;
+	optional_shared_ptr<uint16_t> m_spriteram;
+	optional_shared_ptr<uint16_t> m_mainram;
 
-	UINT16 m_disp_enable;
+	uint16_t m_disp_enable;
 
 	int m_VIEW2_2_pri;
 
@@ -74,7 +77,8 @@ public:
 	DECLARE_WRITE16_MEMBER(kaneko16_ay1_YM2149_w);
 	DECLARE_READ16_MEMBER(kaneko16_ay2_YM2149_r);
 	DECLARE_WRITE16_MEMBER(kaneko16_ay2_YM2149_w);
-	DECLARE_WRITE16_MEMBER(bakubrkr_oki_bank_sw);
+	DECLARE_WRITE16_MEMBER(bakubrkr_oki_bank_w);
+	DECLARE_WRITE8_MEMBER(wingforc_oki_bank_w);
 
 	DECLARE_READ8_MEMBER(eeprom_r);
 	DECLARE_WRITE8_MEMBER(eeprom_w);
@@ -86,16 +90,16 @@ public:
 	DECLARE_MACHINE_RESET(gtmr);
 	DECLARE_VIDEO_START(kaneko16);
 	DECLARE_MACHINE_RESET(mgcrystl);
-	UINT32 screen_update_kaneko16(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_kaneko16(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 
 	template<class _BitmapClass>
-	UINT32 screen_update_common(screen_device &screen, _BitmapClass &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_common(screen_device &screen, _BitmapClass &bitmap, const rectangle &cliprect);
 
 	TIMER_DEVICE_CALLBACK_MEMBER(kaneko16_interrupt);
 	TIMER_DEVICE_CALLBACK_MEMBER(shogwarr_interrupt);
 
 	template<class _BitmapClass>
-	void kaneko16_fill_bitmap(palette_device* palette, _BitmapClass &bitmap, const rectangle &cliprect);
+	void kaneko16_fill_bitmap(_BitmapClass &bitmap, const rectangle &cliprect);
 
 	void kaneko16_common_oki_bank_w(  const char *bankname, const char* tag, int bank, size_t fixedsize, size_t bankedsize );
 	void kaneko16_unscramble_tiles(const char *region);
@@ -139,9 +143,9 @@ public:
 	{
 	}
 
-	optional_shared_ptr<UINT16> m_bg15_select;
-	optional_shared_ptr<UINT16> m_bg15_scroll;
-	optional_shared_ptr<UINT16> m_bg15_bright;
+	optional_shared_ptr<uint16_t> m_bg15_select;
+	optional_shared_ptr<uint16_t> m_bg15_scroll;
+	optional_shared_ptr<uint16_t> m_bg15_bright;
 	required_device<palette_device> m_bgpalette;
 
 	bitmap_ind16 m_bg15_bitmap[32];
@@ -162,7 +166,7 @@ public:
 	DECLARE_DRIVER_INIT(berlwall);
 	DECLARE_PALETTE_INIT(berlwall);
 	DECLARE_VIDEO_START(berlwall);
-	UINT32 screen_update_berlwall(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_berlwall(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 	void kaneko16_render_15bpp_bitmap(bitmap_rgb32 &bitmap, const rectangle &cliprect);
 };
 

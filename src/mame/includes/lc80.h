@@ -46,7 +46,7 @@ public:
 	required_ioport m_y2;
 	required_ioport m_y3;
 
-	virtual void machine_start();
+	virtual void machine_start() override;
 
 	DECLARE_WRITE_LINE_MEMBER( ctc_z0_w );
 	DECLARE_WRITE_LINE_MEMBER( ctc_z1_w );
@@ -61,8 +61,8 @@ public:
 	void update_display();
 
 	// display state
-	UINT8 m_digit;
-	UINT8 m_segment;
+	uint8_t m_digit;
+	uint8_t m_segment;
 };
 
 #endif

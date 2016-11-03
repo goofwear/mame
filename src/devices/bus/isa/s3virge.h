@@ -19,28 +19,28 @@ class s3virge_vga_device :  public s3_vga_device
 {
 public:
 	// construction/destruction
-	s3virge_vga_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	s3virge_vga_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	s3virge_vga_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	s3virge_vga_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
-	virtual READ8_MEMBER(port_03b0_r);
-	virtual WRITE8_MEMBER(port_03b0_w);
-	virtual READ8_MEMBER(port_03c0_r);
-	virtual WRITE8_MEMBER(port_03c0_w);
-	virtual READ8_MEMBER(port_03d0_r);
-	virtual WRITE8_MEMBER(port_03d0_w);
-	virtual READ8_MEMBER(mem_r);
-	virtual WRITE8_MEMBER(mem_w);
+	virtual READ8_MEMBER(port_03b0_r) override;
+	virtual WRITE8_MEMBER(port_03b0_w) override;
+	virtual READ8_MEMBER(port_03c0_r) override;
+	virtual WRITE8_MEMBER(port_03c0_w) override;
+	virtual READ8_MEMBER(port_03d0_r) override;
+	virtual WRITE8_MEMBER(port_03d0_w) override;
+	virtual READ8_MEMBER(mem_r) override;
+	virtual WRITE8_MEMBER(mem_w) override;
 
-	ibm8514a_device* get_8514() { fatalerror("s3virge requested non-existant 8514/A device\n"); return NULL; }
+	ibm8514a_device* get_8514() { fatalerror("s3virge requested non-existant 8514/A device\n"); return nullptr; }
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 private:
-	virtual UINT8 s3_crtc_reg_read(UINT8 index);
+	virtual uint8_t s3_crtc_reg_read(uint8_t index);
 	virtual void s3_define_video_mode(void);
-	virtual void s3_crtc_reg_write(UINT8 index, UINT8 data);
+	virtual void s3_crtc_reg_write(uint8_t index, uint8_t data);
 	// has no 8514/A device
 };
 
@@ -51,13 +51,13 @@ class s3virgedx_vga_device :  public s3virge_vga_device
 {
 public:
 	// construction/destruction
-	s3virgedx_vga_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	s3virgedx_vga_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	s3virgedx_vga_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	s3virgedx_vga_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 // ======================> s3virgedx_vga_device
@@ -66,12 +66,12 @@ class s3virgedx_rev1_vga_device :  public s3virgedx_vga_device
 {
 public:
 	// construction/destruction
-	s3virgedx_rev1_vga_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	s3virgedx_rev1_vga_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 // device type definition

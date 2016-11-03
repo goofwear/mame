@@ -52,19 +52,19 @@ public:
 	namco58xx_device *m_namco58xx;
 	namco56xx_device *m_namco56xx;
 
-	required_shared_ptr<UINT8> m_customio_3;
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_spriteram;
+	required_shared_ptr<uint8_t> m_customio_3;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_spriteram;
 
 	int m_type;
 
 	tilemap_t *m_bg_tilemap;
-	UINT8 m_starfield_control[4];
+	uint8_t m_starfield_control[4];
 	int m_total_stars;
 	struct star m_stars[MAX_STARS];
-	UINT8 m_main_irq_mask;
-	UINT8 m_sub_irq_mask;
-	UINT8 m_sub2_irq_mask;
+	uint8_t m_main_irq_mask;
+	uint8_t m_sub_irq_mask;
+	uint8_t m_sub2_irq_mask;
 
 	DECLARE_WRITE8_MEMBER(irq_1_ctrl_w);
 	DECLARE_WRITE8_MEMBER(irq_2_ctrl_w);
@@ -81,9 +81,9 @@ public:
 	DECLARE_DRIVER_INIT(gaplus);
 	DECLARE_DRIVER_INIT(gaplusd);
 	DECLARE_DRIVER_INIT(galaga3);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(gaplus);
 
 	TILEMAP_MAPPER_MEMBER(tilemap_scan);
@@ -95,12 +95,12 @@ public:
 	INTERRUPT_GEN_MEMBER(vblank_sub2_irq);
 	TIMER_CALLBACK_MEMBER(namcoio_run);
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void screen_eof(screen_device &screen, bool state);
 	void starfield_init();
 	void starfield_render(bitmap_ind16 &bitmap);
 	void draw_sprites(bitmap_ind16 &bitmap, const rectangle &cliprect );
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };

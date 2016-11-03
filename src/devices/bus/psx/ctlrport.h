@@ -33,8 +33,8 @@ public:
 	bool ack_r() { return m_ack; }
 
 protected:
-	virtual void interface_pre_reset();
-	virtual void interface_pre_start();
+	virtual void interface_pre_reset() override;
+	virtual void interface_pre_start() override;
 
 	enum
 	{
@@ -43,12 +43,12 @@ protected:
 	};
 
 private:
-	virtual bool get_pad(int count, UINT8 *odata, UINT8 idata) = 0;
+	virtual bool get_pad(int count, uint8_t *odata, uint8_t idata) = 0;
 	virtual void do_pad();
 	void ack_timer(void *ptr, int param);
 
-	UINT8 m_odata;
-	UINT8 m_idata;
+	uint8_t m_odata;
+	uint8_t m_idata;
 	int m_bit;
 	int m_count;
 	bool m_memcard;
@@ -66,14 +66,14 @@ class psx_standard_controller_device :  public device_t,
 										public device_psx_controller_interface
 {
 public:
-	psx_standard_controller_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	psx_standard_controller_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual ioport_constructor device_input_ports() const;
+	virtual ioport_constructor device_input_ports() const override;
 
 protected:
-	virtual void device_start() { }
+	virtual void device_start() override { }
 private:
-	virtual bool get_pad(int count, UINT8 *odata, UINT8 idata);
+	virtual bool get_pad(int count, uint8_t *odata, uint8_t idata) override;
 
 	required_ioport m_pad0;
 	required_ioport m_pad1;
@@ -88,7 +88,7 @@ private:
 class psxcontrollerports_device : public device_t
 {
 public:
-	psxcontrollerports_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	psxcontrollerports_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	void ack();
 
 	template<class _Object> static devcb_base &set_dsr_handler(device_t &device, _Object object) { return downcast<psxcontrollerports_device &>(device).m_dsr_handler.set_callback(object); }
@@ -99,7 +99,7 @@ public:
 	DECLARE_WRITE_LINE_MEMBER(write_txd);
 
 protected:
-	virtual void device_start();
+	virtual void device_start() override;
 
 private:
 	psx_controller_port_device *m_port0;
@@ -113,8 +113,8 @@ class psx_controller_port_device :  public device_t,
 									public device_slot_interface
 {
 public:
-	psx_controller_port_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	virtual machine_config_constructor device_mconfig_additions() const;
+	psx_controller_port_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 	typedef delegate<void ()> void_cb;
 	void ack() { if(!ack_cb.isnull()) ack_cb(); }
@@ -131,9 +131,9 @@ public:
 	void disable_card(bool status);
 
 protected:
-	virtual void device_start() {}
-	virtual void device_reset() { m_tx = true; }
-	virtual void device_config_complete();
+	virtual void device_start() override {}
+	virtual void device_reset() override { m_tx = true; }
+	virtual void device_config_complete() override;
 
 private:
 	void_cb ack_cb;

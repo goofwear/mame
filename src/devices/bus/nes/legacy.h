@@ -12,13 +12,13 @@ class nes_ffe3_device : public nes_nrom_device
 {
 public:
 	// construction/destruction
-	nes_ffe3_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	nes_ffe3_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// device-level overrides
-	virtual void device_start();
-	virtual DECLARE_WRITE8_MEMBER(write_h);
+	virtual void device_start() override;
+	virtual DECLARE_WRITE8_MEMBER(write_h) override;
 
-	virtual void pcb_reset();
+	virtual void pcb_reset() override;
 };
 
 
@@ -28,30 +28,30 @@ class nes_ffe4_device : public nes_nrom_device
 {
 public:
 	// construction/destruction
-	nes_ffe4_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
-	nes_ffe4_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	nes_ffe4_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
+	nes_ffe4_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
-	virtual DECLARE_WRITE8_MEMBER(write_l);
-	virtual DECLARE_WRITE8_MEMBER(write_h);
-	virtual DECLARE_READ8_MEMBER(chr_r);
-	virtual DECLARE_WRITE8_MEMBER(chr_w);
+	virtual void device_start() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
+	virtual DECLARE_WRITE8_MEMBER(write_l) override;
+	virtual DECLARE_WRITE8_MEMBER(write_h) override;
+	virtual DECLARE_READ8_MEMBER(chr_r) override;
+	virtual DECLARE_WRITE8_MEMBER(chr_w) override;
 
-	virtual void pcb_reset();
+	virtual void pcb_reset() override;
 
 protected:
-	UINT16 m_irq_count;
+	uint16_t m_irq_count;
 	int m_irq_enable;
 
 	static const device_timer_id TIMER_IRQ = 0;
 	emu_timer *irq_timer;
 
-	UINT8 m_latch;
+	uint8_t m_latch;
 	int m_exram_enabled;
 	int m_exram_bank;
-	UINT8 m_exram[0x8000];
+	uint8_t m_exram[0x8000];
 };
 
 
@@ -61,13 +61,13 @@ class nes_ffe8_device : public nes_ffe4_device
 {
 public:
 	// construction/destruction
-	nes_ffe8_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	nes_ffe8_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// device-level overrides
-	virtual DECLARE_WRITE8_MEMBER(write_l);
-	virtual DECLARE_WRITE8_MEMBER(write_h) {}
+	virtual DECLARE_WRITE8_MEMBER(write_l) override;
+	virtual DECLARE_WRITE8_MEMBER(write_h) override {}
 
-	virtual void pcb_reset();
+	virtual void pcb_reset() override;
 };
 
 

@@ -20,21 +20,21 @@ class dmv_k233_device :
 {
 public:
 	// construction/destruction
-	dmv_k233_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	dmv_k233_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	// dmvcart_interface overrides
-	virtual void io_write(address_space &space, int ifsel, offs_t offset, UINT8 data);
-	virtual bool read(offs_t offset, UINT8 &data);
-	virtual bool write(offs_t offset, UINT8 data);
+	virtual void io_write(address_space &space, int ifsel, offs_t offset, uint8_t data) override;
+	virtual bool read(offs_t offset, uint8_t &data) override;
+	virtual bool write(offs_t offset, uint8_t data) override;
 
 private:
 	bool        m_enabled;
-	UINT8 *     m_ram;
+	uint8_t *     m_ram;
 };
 
 

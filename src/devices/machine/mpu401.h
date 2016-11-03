@@ -23,10 +23,10 @@ class mpu401_device : public device_t
 {
 public:
 	// construction/destruction
-	mpu401_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	mpu401_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// optional information overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 	required_device<m6801_cpu_device> m_ourcpu;
 
@@ -53,16 +53,16 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual const rom_entry *device_rom_region() const;
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual const tiny_rom_entry *device_rom_region() const override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
-	UINT8 m_port2;
-	UINT8 m_command;
-	UINT8 m_mpudata;
-	UINT8 m_gatearrstat;
+	uint8_t m_port2;
+	uint8_t m_command;
+	uint8_t m_mpudata;
+	uint8_t m_gatearrstat;
 	emu_timer *m_timer;
 };
 

@@ -30,9 +30,6 @@
 #define MCFG_MC6845_SHOW_BORDER_AREA(_show) \
 	mc6845_device::set_show_border_area(*device, _show);
 
-#define MCFG_MC6845_INTERLACE_ADJUST(_value) \
-	mc6845_device::set_interlace_adjust(*device, _value);
-
 #define MCFG_MC6845_VISAREA_ADJUST(_minx, _maxx, _miny, _maxy) \
 	mc6845_device::set_visarea_adjust(*device, _minx, _maxx, _miny, _maxy);
 
@@ -74,10 +71,10 @@ typedef device_delegate<void (int width, int height, const rectangle &visarea, a
 typedef device_delegate<void (bitmap_rgb32 &bitmap, const rectangle &cliprect)> mc6845_begin_update_delegate;
 #define MC6845_BEGIN_UPDATE(name)  void name(bitmap_rgb32 &bitmap, const rectangle &cliprect)
 
-typedef device_delegate<void (bitmap_rgb32 &bitmap, const rectangle &cliprect, UINT16 ma, UINT8 ra,
-								UINT16 y, UINT8 x_count, INT8 cursor_x, int de, int hbp, int vbp)> mc6845_update_row_delegate;
-#define MC6845_UPDATE_ROW(name)     void name(bitmap_rgb32 &bitmap, const rectangle &cliprect, UINT16 ma, UINT8 ra, \
-												UINT16 y, UINT8 x_count, INT8 cursor_x, int de, int hbp, int vbp)
+typedef device_delegate<void (bitmap_rgb32 &bitmap, const rectangle &cliprect, uint16_t ma, uint8_t ra,
+								uint16_t y, uint8_t x_count, int8_t cursor_x, int de, int hbp, int vbp)> mc6845_update_row_delegate;
+#define MC6845_UPDATE_ROW(name)     void name(bitmap_rgb32 &bitmap, const rectangle &cliprect, uint16_t ma, uint8_t ra, \
+												uint16_t y, uint8_t x_count, int8_t cursor_x, int de, int hbp, int vbp)
 
 typedef device_delegate<void (bitmap_rgb32 &bitmap, const rectangle &cliprect)> mc6845_end_update_delegate;
 #define MC6845_END_UPDATE(name)     void name(bitmap_rgb32 &bitmap, const rectangle &cliprect)
@@ -98,14 +95,14 @@ class mc6845_device :   public device_t,
 	friend class sy6845e_device;
 	friend class hd6345_device;
 	friend class ams40041_device;
+	friend class ams40489_device;
 
 public:
 	// construction/destruction
-	mc6845_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	mc6845_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	mc6845_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	mc6845_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
 	static void set_show_border_area(device_t &device, bool show) { downcast<mc6845_device &>(device).m_show_border_area = show; }
-	static void set_interlace_adjust(device_t &device, int value) { downcast<mc6845_device &>(device).m_interlace_adjust = value; }
 	static void set_visarea_adjust(device_t &device, int min_x, int max_x, int min_y, int max_y)
 	{
 		mc6845_device &dev = downcast<mc6845_device &>(device);
@@ -144,6 +141,7 @@ public:
 
 	// read cursor line state
 	DECLARE_READ_LINE_MEMBER( cursor_r );
+	DECLARE_READ_LINE_MEMBER( cursor_state_r );
 
 	// read horizontal sync line state
 	DECLARE_READ_LINE_MEMBER( hsync_r );
@@ -152,10 +150,10 @@ public:
 	DECLARE_READ_LINE_MEMBER( vsync_r );
 
 	/* return the current value on the MA0-MA13 pins */
-	UINT16 get_ma();
+	uint16_t get_ma();
 
 	/* return the current value on the RA0-RA4 pins */
-	UINT8 get_ra();
+	uint8_t get_ra();
 
 	/* simulates the LO->HI clocking of the light pen pin (pin 3) */
 	void assert_light_pen_input();
@@ -167,16 +165,16 @@ public:
 	void set_hpixels_per_column(int hpixels_per_column);
 
 	/* updates the screen -- this will call begin_update(),
-	   followed by update_row() reapeatedly and after all row
+	   followed by update_row() repeatedly and after all row
 	   updating is complete, end_update() */
-	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_post_load();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_post_load() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	bool m_supports_disp_start_addr_r;
 	bool m_supports_vert_sync_width;
@@ -186,27 +184,27 @@ protected:
 	bool m_supports_transparent;
 
 	/* register file */
-	UINT8   m_horiz_char_total;     /* 0x00 */
-	UINT8   m_horiz_disp;           /* 0x01 */
-	UINT8   m_horiz_sync_pos;       /* 0x02 */
-	UINT8   m_sync_width;           /* 0x03 */
-	UINT8   m_vert_char_total;      /* 0x04 */
-	UINT8   m_vert_total_adj;       /* 0x05 */
-	UINT8   m_vert_disp;            /* 0x06 */
-	UINT8   m_vert_sync_pos;        /* 0x07 */
-	UINT8   m_mode_control;         /* 0x08 */
-	UINT8   m_max_ras_addr;         /* 0x09 */
-	UINT8   m_cursor_start_ras;     /* 0x0a */
-	UINT8   m_cursor_end_ras;       /* 0x0b */
-	UINT16  m_disp_start_addr;      /* 0x0c/0x0d */
-	UINT16  m_cursor_addr;          /* 0x0e/0x0f */
-	UINT16  m_light_pen_addr;       /* 0x10/0x11 */
-	UINT16  m_update_addr;          /* 0x12/0x13 */
+	uint8_t   m_horiz_char_total;     /* 0x00 */
+	uint8_t   m_horiz_disp;           /* 0x01 */
+	uint8_t   m_horiz_sync_pos;       /* 0x02 */
+	uint8_t   m_sync_width;           /* 0x03 */
+	uint8_t   m_vert_char_total;      /* 0x04 */
+	uint8_t   m_vert_total_adj;       /* 0x05 */
+	uint8_t   m_vert_disp;            /* 0x06 */
+	uint8_t   m_vert_sync_pos;        /* 0x07 */
+	uint8_t   m_mode_control;         /* 0x08 */
+	uint8_t   m_max_ras_addr;         /* 0x09 */
+	uint8_t   m_cursor_start_ras;     /* 0x0a */
+	uint8_t   m_cursor_end_ras;       /* 0x0b */
+	uint16_t  m_disp_start_addr;      /* 0x0c/0x0d */
+	uint16_t  m_cursor_addr;          /* 0x0e/0x0f */
+	uint16_t  m_light_pen_addr;       /* 0x10/0x11 */
+	uint16_t  m_update_addr;          /* 0x12/0x13 */
 
 	/* other internal state */
-	UINT8   m_register_address_latch;
+	uint8_t   m_register_address_latch;
 	bool    m_cursor_state;
-	UINT8   m_cursor_blink_count;
+	uint8_t   m_cursor_blink_count;
 	bool    m_update_ready_bit;
 	/* output signals */
 	int     m_cur;
@@ -215,18 +213,18 @@ protected:
 	int     m_de;
 
 	/* internal counters */
-	UINT8   m_character_counter;        /* Not used yet */
-	UINT8   m_hsync_width_counter;  /* Not used yet */
-	UINT8   m_line_counter;
-	UINT8   m_raster_counter;
-	UINT8   m_adjust_counter;
-	UINT8   m_vsync_width_counter;
+	uint8_t   m_character_counter;        /* Not used yet */
+	uint8_t   m_hsync_width_counter;  /* Not used yet */
+	uint8_t   m_line_counter;
+	uint8_t   m_raster_counter;
+	uint8_t   m_adjust_counter;
+	uint8_t   m_vsync_width_counter;
 
 	bool    m_line_enable_ff;       /* Internal flip flop which is set when the line_counter is reset and reset when vert_disp is reached */
-	UINT8   m_vsync_ff;
-	UINT8   m_adjust_active;
-	UINT16  m_line_address;
-	INT16   m_cursor_x;
+	uint8_t   m_vsync_ff;
+	uint8_t   m_adjust_active;
+	uint16_t  m_line_address;
+	int16_t   m_cursor_x;
 
 	/* timers */
 	static const device_timer_id TIMER_LINE = 0;
@@ -251,17 +249,17 @@ protected:
 
 	/* computed values - do NOT state save these! */
 	/* These computed are used to define the screen parameters for a driver */
-	UINT16  m_horiz_pix_total;
-	UINT16  m_vert_pix_total;
-	UINT16  m_max_visible_x;
-	UINT16  m_max_visible_y;
-	UINT16  m_hsync_on_pos;
-	UINT16  m_hsync_off_pos;
-	UINT16  m_vsync_on_pos;
-	UINT16  m_vsync_off_pos;
+	uint16_t  m_horiz_pix_total;
+	uint16_t  m_vert_pix_total;
+	uint16_t  m_max_visible_x;
+	uint16_t  m_max_visible_y;
+	uint16_t  m_hsync_on_pos;
+	uint16_t  m_hsync_off_pos;
+	uint16_t  m_vsync_on_pos;
+	uint16_t  m_vsync_off_pos;
 	bool    m_has_valid_parameters;
 
-	UINT16   m_current_disp_addr;   /* the display address currently drawn (used only in mc6845_update) */
+	uint16_t   m_current_disp_addr;   /* the display address currently drawn (used only in mc6845_update) */
 
 	bool     m_light_pen_latched;
 	attotime m_upd_time;
@@ -276,14 +274,15 @@ protected:
 	void set_cur(int state);
 	void handle_line_timer();
 	virtual void update_cursor_state();
-	virtual UINT8 draw_scanline(int y, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	virtual uint8_t draw_scanline(int y, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 	/************************
 	 interface CRTC - driver
 	 ************************/
 
 	bool m_show_border_area;        /* visible screen area (false) active display (true) active display + blanking */
-	int m_interlace_adjust; /* adjust max ras in interlace mode */
+	int m_noninterlace_adjust;      /* adjust max ras in non-interlace mode */
+	int m_interlace_adjust;         /* adjust max ras in interlace mode */
 
 	/* visible screen area adjustment */
 	int m_visarea_adjust_min_x;
@@ -314,7 +313,7 @@ protected:
 	 * vblank/hblank timing not supported yet! */
 	mc6845_on_update_addr_changed_delegate m_on_update_addr_changed_cb;
 
-	/* if specified, this gets called for every change of the disply enable pin (pin 18) */
+	/* if specified, this gets called for every change of the display enable pin (pin 18) */
 	devcb_write_line            m_out_de_cb;
 
 	/* if specified, this gets called for every change of the cursor pin (pin 19) */
@@ -331,101 +330,111 @@ protected:
 class mc6845_1_device : public mc6845_device
 {
 public:
-	mc6845_1_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	mc6845_1_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class r6545_1_device : public mc6845_device
 {
 public:
-	r6545_1_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	r6545_1_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class c6545_1_device : public mc6845_device
 {
 public:
-	c6545_1_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	c6545_1_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class h46505_device : public mc6845_device
 {
 public:
-	h46505_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	h46505_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class hd6845_device : public mc6845_device
 {
 public:
-	hd6845_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	hd6845_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class sy6545_1_device : public mc6845_device
 {
 public:
-	sy6545_1_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	sy6545_1_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class sy6845e_device : public mc6845_device
 {
 public:
-	sy6845e_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	sy6845e_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class hd6345_device : public mc6845_device
 {
 public:
-	hd6345_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	hd6345_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class ams40041_device : public mc6845_device
 {
 public:
-	ams40041_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	ams40041_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
+};
+
+class ams40489_device : public mc6845_device
+{
+public:
+	ams40489_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+
+protected:
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 class mos8563_device : public mc6845_device,
 						public device_memory_interface
 {
 public:
-	mos8563_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
-	mos8563_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	mos8563_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
+	mos8563_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const;
+	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const override;
 
 	DECLARE_PALETTE_INIT(mos8563);
 
@@ -434,48 +443,48 @@ public:
 	DECLARE_READ8_MEMBER( register_r );
 	DECLARE_WRITE8_MEMBER( register_w );
 
-	inline UINT8 read_videoram(offs_t offset);
-	inline void write_videoram(offs_t offset, UINT8 data);
+	inline uint8_t read_videoram(offs_t offset);
+	inline void write_videoram(offs_t offset, uint8_t data);
 
 	MC6845_UPDATE_ROW( vdc_update_row );
 
 protected:
 	// device-level overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	const address_space_config      m_videoram_space_config;
 	required_device<palette_device> m_palette;
 
-	UINT8 m_char_buffer[80];
-	UINT8 m_attr_buffer[80];
+	uint8_t m_char_buffer[80];
+	uint8_t m_attr_buffer[80];
 
 	bool    m_char_blink_state;
-	UINT8   m_char_blink_count;
+	uint8_t   m_char_blink_count;
 
 	/* register file */
-	UINT16  m_attribute_addr;       /* 0x14/0x15 */
-	UINT8   m_horiz_char;           /* 0x16 */
-	UINT8   m_vert_char_disp;       /* 0x17 */
-	UINT8   m_vert_scroll;          /* 0x18 */
-	UINT8   m_horiz_scroll;         /* 0x19 */
-	UINT8   m_color;                /* 0x1a */
-	UINT8   m_row_addr_incr;        /* 0x1b */
-	UINT8   m_char_base_addr;       /* 0x1c */
-	UINT8   m_underline_ras;        /* 0x1d */
-	UINT8   m_word_count;           /* 0x1e */
-	UINT8   m_data;                 /* 0x1f */
-	UINT16  m_block_addr;           /* 0x20/0x21 */
-	UINT16  m_de_begin;             /* 0x22/0x23 */
-	UINT8   m_dram_refresh;         /* 0x24 */
-	UINT8   m_sync_polarity;        /* 0x25 */
+	uint16_t  m_attribute_addr;       /* 0x14/0x15 */
+	uint8_t   m_horiz_char;           /* 0x16 */
+	uint8_t   m_vert_char_disp;       /* 0x17 */
+	uint8_t   m_vert_scroll;          /* 0x18 */
+	uint8_t   m_horiz_scroll;         /* 0x19 */
+	uint8_t   m_color;                /* 0x1a */
+	uint8_t   m_row_addr_incr;        /* 0x1b */
+	uint8_t   m_char_base_addr;       /* 0x1c */
+	uint8_t   m_underline_ras;        /* 0x1d */
+	uint8_t   m_word_count;           /* 0x1e */
+	uint8_t   m_data;                 /* 0x1f */
+	uint16_t  m_block_addr;           /* 0x20/0x21 */
+	uint16_t  m_de_begin;             /* 0x22/0x23 */
+	uint8_t   m_dram_refresh;         /* 0x24 */
+	uint8_t   m_sync_polarity;        /* 0x25 */
 
 	int m_revision;
 
-	virtual void update_cursor_state();
-	virtual UINT8 draw_scanline(int y, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	virtual void update_cursor_state() override;
+	virtual uint8_t draw_scanline(int y, bitmap_rgb32 &bitmap, const rectangle &cliprect) override;
 
 	static const device_timer_id TIMER_BLOCK_COPY = 9;
 
@@ -485,12 +494,12 @@ protected:
 class mos8568_device : public mos8563_device
 {
 public:
-	mos8568_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	mos8568_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 };
 
 
@@ -504,6 +513,7 @@ extern const device_type SY6545_1;
 extern const device_type SY6845E;
 extern const device_type HD6345;
 extern const device_type AMS40041;
+extern const device_type AMS40489;
 extern const device_type MOS8563;
 extern const device_type MOS8568;
 

@@ -12,17 +12,17 @@
 class m24_keyboard_device :  public device_t
 {
 public:
-	m24_keyboard_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	m24_keyboard_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _Object> static devcb_base &set_out_data_handler(device_t &device, _Object object) { return downcast<m24_keyboard_device &>(device).m_out_data.set_callback(object); }
 
-	virtual const rom_entry *device_rom_region() const;
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual ioport_constructor device_input_ports() const;
+	virtual const tiny_rom_entry *device_rom_region() const override;
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual ioport_constructor device_input_ports() const override;
 
-	void device_start();
-	void device_reset();
-	void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	void device_start() override;
+	void device_reset() override;
+	void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	DECLARE_WRITE8_MEMBER(bus_w);
 	DECLARE_READ8_MEMBER(p1_r);
@@ -35,7 +35,7 @@ public:
 private:
 	required_ioport_array<16> m_rows;
 	required_ioport m_mousebtn;
-	UINT8 m_p1;
+	uint8_t m_p1;
 	bool m_keypress, m_kbcdata;
 	devcb_write_line m_out_data;
 	required_device<cpu_device> m_mcu;

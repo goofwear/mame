@@ -40,12 +40,12 @@ public:
 	required_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
 
-	required_shared_ptr<UINT8> m_video_ram;
+	required_shared_ptr<uint8_t> m_video_ram;
 
 	attotime m_time_pushed;
 	attotime m_time_released;
-	UINT8 m_prev;
-	UINT8 m_mask;
+	uint8_t m_prev;
+	uint8_t m_mask;
 	int m_ball_x;
 	int m_ball_y;
 	tilemap_t* m_bg_tilemap;
@@ -62,18 +62,18 @@ public:
 	TILEMAP_MAPPER_MEMBER(get_memory_offset);
 	TILE_GET_INFO_MEMBER(get_tile_info);
 
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 
 	TIMER_CALLBACK_MEMBER(interrupt_callback);
 	void update_plunger();
 	double calc_plunger_pos();
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };
 
 /*----------- defined in audio/videopin.c -----------*/

@@ -32,36 +32,35 @@ class tc8830f_device : public device_t,
 {
 public:
 	// construction/destruction
-	tc8830f_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	tc8830f_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	void reset();
-	void write_p(UINT8 data);
+	void write_p(uint8_t data);
 
 	sound_stream *m_stream;
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_post_load();
-	virtual void device_clock_changed();
+	virtual void device_start() override;
+	virtual void device_post_load() override;
+	virtual void device_clock_changed() override;
 
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 private:
 	bool m_playing;
-	UINT32 m_address;
-	UINT32 m_stop_address;
-	UINT8 m_bitcount;
-	UINT8 m_bitrate;
-	UINT8 m_prevbits;
+	uint32_t m_address;
+	uint32_t m_stop_address;
+	uint8_t m_bitcount;
+	uint8_t m_bitrate;
+	uint8_t m_prevbits;
 	int m_delta;
 	int m_output;
-	UINT8 m_command;
+	uint8_t m_command;
 	int m_cmd_rw;
-	UINT8 m_phrase;
+	uint8_t m_phrase;
 
-	UINT8 *m_mem_base;
-	UINT32 m_mem_mask;
+	required_region_ptr<uint8_t> m_mem;
 };
 
 

@@ -1,4 +1,4 @@
-// license:???
+// license:GPL-2.0+
 // copyright-holders:Jarek Burczynski
 /*************************************************************************
 
@@ -21,8 +21,8 @@ public:
 		m_pc090oj(*this, "pc090oj") { }
 
 	/* video-related */
-	UINT16      m_sprite_ctrl;
-	UINT16      m_sprites_flipscreen;
+	uint16_t      m_sprite_ctrl;
+	uint16_t      m_sprites_flipscreen;
 
 	/* misc */
 	int         m_adpcm_pos;
@@ -39,8 +39,8 @@ public:
 	DECLARE_WRITE8_MEMBER(rastan_bankswitch_w);
 	DECLARE_WRITE8_MEMBER(rastan_msm5205_start_w);
 	DECLARE_WRITE8_MEMBER(rastan_msm5205_stop_w);
-	virtual void machine_start();
-	virtual void machine_reset();
-	UINT32 screen_update_rastan(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	uint32_t screen_update_rastan(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	DECLARE_WRITE_LINE_MEMBER(rastan_msm5205_vck);
 };

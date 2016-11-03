@@ -20,9 +20,9 @@ class msx_cart_disk : public device_t
 						, public msx_cart_interface
 {
 public:
-	msx_cart_disk(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname);
+	msx_cart_disk(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname);
 
-	virtual void initialize_cartridge();
+	virtual void initialize_cartridge() override;
 
 	DECLARE_FLOPPY_FORMATS(floppy_formats);
 
@@ -36,7 +36,7 @@ protected:
 class msx_cart_disk_wd : public msx_cart_disk
 {
 public:
-	msx_cart_disk_wd(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname);
+	msx_cart_disk_wd(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname);
 
 protected:
 	required_device<wd_fdc_analog_t> m_fdc;
@@ -46,78 +46,78 @@ protected:
 class msx_cart_disk_type1 : public msx_cart_disk_wd
 {
 public:
-	msx_cart_disk_type1(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname);
+	msx_cart_disk_type1(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname);
 
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
-	virtual DECLARE_READ8_MEMBER(read_cart);
-	virtual DECLARE_WRITE8_MEMBER(write_cart);
+	virtual DECLARE_READ8_MEMBER(read_cart) override;
+	virtual DECLARE_WRITE8_MEMBER(write_cart) override;
 
 	void post_load();
 
 protected:
-	UINT8 m_side_control;
-	UINT8 m_control;
+	uint8_t m_side_control;
+	uint8_t m_control;
 
-	void set_side_control(UINT8 data);
-	void set_control(UINT8 data);
+	void set_side_control(uint8_t data);
+	void set_control(uint8_t data);
 };
 
 
 class msx_cart_disk_type2 : public msx_cart_disk_wd
 {
 public:
-	msx_cart_disk_type2(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname);
+	msx_cart_disk_type2(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname);
 
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
-	virtual DECLARE_READ8_MEMBER(read_cart);
-	virtual DECLARE_WRITE8_MEMBER(write_cart);
+	virtual DECLARE_READ8_MEMBER(read_cart) override;
+	virtual DECLARE_WRITE8_MEMBER(write_cart) override;
 
 	void post_load();
 
 protected:
-	UINT8 m_control;
+	uint8_t m_control;
 
-	void set_control(UINT8 data);
+	void set_control(uint8_t data);
 };
 
 
 class msx_cart_vy0010 : public msx_cart_disk_type1
 {
 public:
-	msx_cart_vy0010(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	msx_cart_vy0010(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 };
 
 
 class msx_cart_fsfd1 : public msx_cart_disk_type1
 {
 public:
-	msx_cart_fsfd1(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	msx_cart_fsfd1(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 };
 
 
 class msx_cart_fscf351 : public msx_cart_disk_type2
 {
 public:
-	msx_cart_fscf351(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	msx_cart_fscf351(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 };
 
 
 class msx_cart_disk_tc8566 : public msx_cart_disk
 {
 public:
-	msx_cart_disk_tc8566(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname);
+	msx_cart_disk_tc8566(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname);
 
 protected:
 	required_device<tc8566af_device> m_fdc;
@@ -127,18 +127,15 @@ protected:
 class msx_cart_fsfd1a : public msx_cart_disk_tc8566
 {
 public:
-	msx_cart_fsfd1a(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	msx_cart_fsfd1a(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
-	virtual DECLARE_READ8_MEMBER(read_cart);
-	virtual DECLARE_WRITE8_MEMBER(write_cart);
-
-private:
-
+	virtual DECLARE_READ8_MEMBER(read_cart) override;
+	virtual DECLARE_WRITE8_MEMBER(write_cart) override;
 };
 
 

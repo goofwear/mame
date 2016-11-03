@@ -1,4 +1,4 @@
-// license:???
+// license:BSD-3-Clause
 // copyright-holders:Stefan Jokisch
 class sspeedr_state : public driver_device
 {
@@ -9,8 +9,8 @@ public:
 		m_gfxdecode(*this, "gfxdecode"),
 		m_palette(*this, "palette") { }
 
-	UINT8 m_led_TIME[2];
-	UINT8 m_led_SCORE[24];
+	uint8_t m_led_TIME[2];
+	uint8_t m_led_SCORE[24];
 	int m_toggle;
 	unsigned m_driver_horz;
 	unsigned m_driver_vert;
@@ -38,9 +38,9 @@ public:
 	DECLARE_WRITE8_MEMBER(sspeedr_track_horz_2_w);
 	DECLARE_WRITE8_MEMBER(sspeedr_track_vert_w);
 	DECLARE_WRITE8_MEMBER(sspeedr_track_ice_w);
-	virtual void video_start();
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(sspeedr);
-	UINT32 screen_update_sspeedr(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_sspeedr(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void screen_eof_sspeedr(screen_device &screen, bool state);
 	void draw_track(bitmap_ind16 &bitmap);
 	void draw_drones(bitmap_ind16 &bitmap, const rectangle &cliprect);

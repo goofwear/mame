@@ -34,9 +34,9 @@ public:
 	optional_device<msm5205_device> m_msm;
 
 	/* memory pointers */
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_colorram;
-	required_shared_ptr<UINT8> m_spriteram;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_colorram;
+	required_shared_ptr<uint8_t> m_spriteram;
 
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
@@ -50,8 +50,8 @@ public:
 	int      m_adpcm_idle;
 	int      m_adpcm_data;
 	int      m_adpcm_status;
-	UINT8    m_buffer0[9];
-	UINT8    m_buffer1[9];
+	uint8_t    m_buffer0[9];
+	uint8_t    m_buffer1[9];
 
 	DECLARE_READ8_MEMBER(docastle_shared0_r);
 	DECLARE_READ8_MEMBER(docastle_shared1_r);
@@ -65,13 +65,13 @@ public:
 	DECLARE_READ8_MEMBER(idsoccer_adpcm_status_r);
 	DECLARE_WRITE8_MEMBER(idsoccer_adpcm_w);
 	TILE_GET_INFO_MEMBER(get_tile_info);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(docastle);
 	DECLARE_VIDEO_START(dorunrun);
-	UINT32 screen_update_docastle(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	void video_start_common( UINT32 tile_transmask );
+	uint32_t screen_update_docastle(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	void video_start_common( uint32_t tile_transmask );
 	void draw_sprites( screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect );
 	DECLARE_WRITE_LINE_MEMBER(docastle_tint);
 	DECLARE_WRITE_LINE_MEMBER(idsoccer_adpcm_int);

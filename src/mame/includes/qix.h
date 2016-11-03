@@ -1,10 +1,9 @@
-// license:???
-// copyright-holders:John Butler, Ed Mueller, Aaron Giles
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, Zsolt Vasvari
+// thanks-to: John Butler, Ed Mueller
 /***************************************************************************
 
     Taito Qix hardware
-
-    driver by John Butler, Ed Mueller, Aaron Giles
 
 ***************************************************************************/
 
@@ -68,20 +67,20 @@ public:
 	optional_device<discrete_device> m_discrete;
 
 	/* machine state */
-	optional_shared_ptr<UINT8> m_68705_port_out;
-	optional_shared_ptr<UINT8> m_68705_ddr;
-	UINT8  m_68705_port_in[3];
-	UINT8  m_coinctrl;
+	optional_shared_ptr<uint8_t> m_68705_port_out;
+	optional_shared_ptr<uint8_t> m_68705_ddr;
+	uint8_t  m_68705_port_in[3];
+	uint8_t  m_coinctrl;
 
 	/* video state */
-	required_shared_ptr<UINT8> m_paletteram;
-	optional_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_videoram_address;
-	optional_shared_ptr<UINT8> m_videoram_mask;
-	required_shared_ptr<UINT8> m_scanline_latch;
-	UINT8  m_flip;
-	UINT8  m_palette_bank;
-	UINT8  m_leds;
+	required_shared_ptr<uint8_t> m_paletteram;
+	optional_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_videoram_address;
+	optional_shared_ptr<uint8_t> m_videoram_mask;
+	required_shared_ptr<uint8_t> m_scanline_latch;
+	uint8_t  m_flip;
+	uint8_t  m_palette_bank;
+	uint8_t  m_leds;
 
 	optional_memory_bank m_bank0;
 	optional_memory_bank m_bank1;
@@ -114,7 +113,7 @@ public:
 	DECLARE_DRIVER_INIT(slither);
 	DECLARE_DRIVER_INIT(zookeep);
 	DECLARE_DRIVER_INIT(kram3);
-	virtual void machine_reset();
+	virtual void machine_reset() override;
 	DECLARE_MACHINE_START(qixmcu);
 	DECLARE_VIDEO_START(qix);
 	TIMER_CALLBACK_MEMBER(pia_w_callback);
@@ -142,7 +141,7 @@ public:
 	MC6845_UPDATE_ROW(crtc_update_row);
 	void set_pen(int offs);
 	int kram3_permut1(int idx, int value);
-	int kram3_permut2(int tbl_index, int idx, const UINT8 *xor_table);
+	int kram3_permut2(int tbl_index, int idx, const uint8_t *xor_table);
 	int kram3_decrypt(int address, int value);
 	DECLARE_WRITE_LINE_MEMBER(kram3_lic_maincpu_changed);
 	DECLARE_WRITE_LINE_MEMBER(kram3_lic_videocpu_changed);

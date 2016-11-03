@@ -1,12 +1,12 @@
 /*
- * Copyright 2011-2015 Branimir Karadzic. All rights reserved.
- * License: http://www.opensource.org/licenses/BSD-2-Clause
+ * Copyright 2011-2016 Branimir Karadzic. All rights reserved.
+ * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
-#include <bgfx/bgfx.h>
-#include <bx/uint32_t.h>
-
 #include "common.h"
+#include "bgfx_utils.h"
+
+#include <bx/uint32_t.h>
 #include "imgui/imgui.h"
 
 // embedded shaders
@@ -70,10 +70,12 @@ static const int64_t highwm = 1000000/65;
 static const int64_t lowwm  = 1000000/57;
 #endif // BX_PLATFORM_EMSCRIPTEN || BX_PLATFORM_NACL
 
-class DrawStress : public entry::AppI
+class ExampleDrawStress : public entry::AppI
 {
-	void init(int /*_argc*/, char** /*_argv*/) BX_OVERRIDE
+	void init(int _argc, char** _argv) BX_OVERRIDE
 	{
+		Args args(_argc, _argv);
+
 		m_width  = 1280;
 		m_height = 720;
 		m_debug  = BGFX_DEBUG_TEXT;
@@ -91,11 +93,11 @@ class DrawStress : public entry::AppI
 		m_deltaTimeAvgNs = 0;
 		m_numFrames      = 0;
 
-		bgfx::init();
+		bgfx::init(args.m_type, args.m_pciId);
 		bgfx::reset(m_width, m_height, m_reset);
 
 		const bgfx::Caps* caps = bgfx::getCaps();
-		m_maxDim = (int32_t)powf(float(caps->maxDrawCalls), 1.0f/3.0f);
+		m_maxDim = (int32_t)bx::fpow(float(caps->limits.maxDrawCalls), 1.0f/3.0f);
 
 		// Enable debug text.
 		bgfx::setDebug(m_debug);
@@ -222,7 +224,7 @@ class DrawStress : public entry::AppI
 					, m_height
 					);
 
-			imguiBeginScrollArea("Settings", m_width - m_width / 4 - 10, 10, m_width / 4, m_height / 3, &m_scrollArea);
+			imguiBeginScrollArea("Settings", m_width - m_width / 4 - 10, 10, m_width / 4, m_height / 2, &m_scrollArea);
 			imguiSeparatorLine();
 
 			m_transform = imguiChoose(m_transform
@@ -239,6 +241,13 @@ class DrawStress : public entry::AppI
 			imguiSlider("Dim", m_dim, 5, m_maxDim);
 			imguiLabel("Draw calls: %d", m_dim*m_dim*m_dim);
 			imguiLabel("Avg Delta Time (1 second) [ms]: %0.4f", m_deltaTimeAvgNs/1000.0f);
+
+			imguiSeparatorLine();
+			const bgfx::Stats* stats = bgfx::getStats();
+			imguiLabel("GPU %0.6f [ms]", double(stats->gpuTimeEnd - stats->gpuTimeBegin)*1000.0/stats->gpuTimerFreq);
+			imguiLabel("CPU %0.6f [ms]", double(stats->cpuTimeEnd - stats->cpuTimeBegin)*1000.0/stats->cpuTimerFreq);
+			imguiLabel("Waiting for render thread %0.6f [ms]", double(stats->waitRender) * toMs);
+			imguiLabel("Waiting for submit thread %0.6f [ms]", double(stats->waitSubmit) * toMs);
 
 			imguiEndScrollArea();
 			imguiEndFrame();
@@ -343,4 +352,4 @@ class DrawStress : public entry::AppI
 	bgfx::IndexBufferHandle  m_ibh;
 };
 
-ENTRY_IMPLEMENT_MAIN(DrawStress);
+ENTRY_IMPLEMENT_MAIN(ExampleDrawStress);

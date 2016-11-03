@@ -56,14 +56,12 @@ public:
 	DECLARE_WRITE8_MEMBER(aim65_pia_b_w);
 	DECLARE_READ8_MEMBER(aim65_riot_b_r);
 	DECLARE_WRITE8_MEMBER(aim65_riot_a_w);
-	DECLARE_WRITE8_MEMBER(aim65_pa_w);
 	DECLARE_WRITE8_MEMBER(aim65_pb_w);
-	DECLARE_WRITE8_MEMBER(aim65_printer_on);
 	DECLARE_READ8_MEMBER(aim65_pb_r);
-	UINT8 m_pia_a;
-	UINT8 m_pia_b;
-	UINT8 m_riot_port_a;
-	UINT8 m_pb_save;
+	uint8_t m_pia_a;
+	uint8_t m_pia_b;
+	uint8_t m_riot_port_a;
+	uint8_t m_pb_save;
 
 	required_device<cpu_device> m_maincpu;
 	required_device<cassette_image_device> m_cassette1;
@@ -77,8 +75,7 @@ public:
 	required_device<dl1416_device> m_ds3;
 	required_device<dl1416_device> m_ds4;
 	required_device<dl1416_device> m_ds5;
-	virtual void machine_start();
-	TIMER_CALLBACK_MEMBER(aim65_printer_timer);
+	virtual void machine_start() override;
 	void aim65_pia();
 
 	DECLARE_WRITE16_MEMBER(aim65_update_ds1);
@@ -89,7 +86,7 @@ public:
 
 	void dl1416_update(dl1416_device *device, int index);
 
-	int load_cart(device_image_interface &image, generic_slot_device *slot, const char *slot_tag);
+	image_init_result load_cart(device_image_interface &image, generic_slot_device *slot, const char *slot_tag);
 	DECLARE_DEVICE_IMAGE_LOAD_MEMBER(z24_load) { return load_cart(image, m_z24, "z24"); }
 	DECLARE_DEVICE_IMAGE_LOAD_MEMBER(z25_load) { return load_cart(image, m_z25, "z25"); }
 	DECLARE_DEVICE_IMAGE_LOAD_MEMBER(z26_load) { return load_cart(image, m_z26, "z26"); }

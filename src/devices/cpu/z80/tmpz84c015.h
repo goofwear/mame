@@ -23,9 +23,6 @@
     DEVICE CONFIGURATION MACROS
 ***************************************************************************/
 
-// If an external daisy chain is used, insert this before your own device tags:
-#define TMPZ84C015_DAISY_INTERNAL { "tmpz84c015_ctc" }, { "tmpz84c015_sio" }, { "tmpz84c015_pio" }
-
 // SIO callbacks
 #define MCFG_TMPZ84C015_OUT_TXDA_CB(_devcb) \
 	devcb = &tmpz84c015_device::set_out_txda_callback(*device, DEVCB_##_devcb);
@@ -108,7 +105,7 @@
 class tmpz84c015_device : public z80_device
 {
 public:
-	tmpz84c015_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32);
+	tmpz84c015_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t);
 
 	// static configuration helpers
 	template<class _Object> static devcb_base &set_out_txda_callback(device_t &device, _Object object) { return downcast<tmpz84c015_device &>(device).m_out_txda_cb.set_callback(object); }
@@ -209,14 +206,14 @@ public:
 
 protected:
 	// device-level overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_post_load();
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_post_load() override;
 
 	const address_space_config m_io_space_config;
 
-	const address_space_config *memory_space_config(address_spacenum spacenum) const
+	const address_space_config *memory_space_config(address_spacenum spacenum) const override
 	{
 		switch (spacenum)
 		{
@@ -232,7 +229,7 @@ private:
 	required_device<z80pio_device> m_pio;
 
 	// internal state
-	UINT8 m_irq_priority;
+	uint8_t m_irq_priority;
 
 	// callbacks
 	devcb_write_line m_out_txda_cb;

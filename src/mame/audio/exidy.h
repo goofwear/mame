@@ -8,37 +8,37 @@
 /* 6840 variables */
 struct sh6840_timer_channel
 {
-	UINT8   cr;
-	UINT8   state;
-	UINT8   leftovers;
-	UINT16  timer;
-	UINT32  clocks;
+	uint8_t   cr;
+	uint8_t   state;
+	uint8_t   leftovers;
+	uint16_t  timer;
+	uint32_t  clocks;
 	union
 	{
 #ifdef LSB_FIRST
-		struct { UINT8 l, h; } b;
+		struct { uint8_t l, h; } b;
 #else
-		struct { UINT8 h, l; } b;
+		struct { uint8_t h, l; } b;
 #endif
-		UINT16 w;
+		uint16_t w;
 	} counter;
 };
 
 struct sh8253_timer_channel
 {
-	UINT8   clstate;
-	UINT8   enable;
-	UINT16  count;
-	UINT32  step;
-	UINT32  fraction;
+	uint8_t   clstate;
+	uint8_t   enable;
+	uint16_t  count;
+	uint32_t  step;
+	uint32_t  fraction;
 };
 
 class exidy_sound_device : public device_t,
 									public device_sound_interface
 {
 public:
-	exidy_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	exidy_sound_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	exidy_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	exidy_sound_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 	~exidy_sound_device() {}
 
 	DECLARE_READ8_MEMBER( sh6840_r );
@@ -58,9 +58,9 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_config_complete();
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_config_complete() override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	void common_sh_start();
 	void common_sh_reset();
@@ -69,7 +69,7 @@ protected:
 	void sh8253_register_state_globals();
 
 	// sound stream update overrides
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 	cpu_device *m_maincpu;
 
@@ -77,7 +77,7 @@ protected:
 	riot6532_device *m_riot;
 
 	/* IRQ variable */
-	UINT8 m_riot_irq_state;
+	uint8_t m_riot_irq_state;
 
 	/* 8253 variables */
 	int m_has_sh8253;
@@ -96,18 +96,18 @@ protected:
 private:
 	// internal state
 	struct sh6840_timer_channel m_sh6840_timer[3];
-	INT16 m_sh6840_volume[3];
-	UINT8 m_sh6840_MSB_latch;
-	UINT8 m_sh6840_LSB_latch;
-	UINT8 m_sh6840_LFSR_oldxor;
-	UINT32 m_sh6840_LFSR_0;
-	UINT32 m_sh6840_LFSR_1;
-	UINT32 m_sh6840_LFSR_2;
-	UINT32 m_sh6840_LFSR_3;
-	UINT32 m_sh6840_clocks_per_sample;
-	UINT32 m_sh6840_clock_count;
+	int16_t m_sh6840_volume[3];
+	uint8_t m_sh6840_MSB_latch;
+	uint8_t m_sh6840_LSB_latch;
+	uint8_t m_sh6840_LFSR_oldxor;
+	uint32_t m_sh6840_LFSR_0;
+	uint32_t m_sh6840_LFSR_1;
+	uint32_t m_sh6840_LFSR_2;
+	uint32_t m_sh6840_LFSR_3;
+	uint32_t m_sh6840_clocks_per_sample;
+	uint32_t m_sh6840_clock_count;
 
-	UINT8 m_sfxctrl;
+	uint8_t m_sfxctrl;
 
 	inline int sh6840_update_noise(int clocks);
 };
@@ -117,7 +117,7 @@ extern const device_type EXIDY;
 class venture_sound_device : public exidy_sound_device
 {
 public:
-	venture_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	venture_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	DECLARE_WRITE8_MEMBER( mtrap_voiceio_w );
 	DECLARE_READ8_MEMBER( mtrap_voiceio_r );
@@ -126,15 +126,12 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_config_complete();
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_config_complete() override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	// sound stream update overrides
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
-
-private:
-	// internal state
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 };
 
 extern const device_type EXIDY_VENTURE;
@@ -142,7 +139,7 @@ extern const device_type EXIDY_VENTURE;
 class victory_sound_device : public exidy_sound_device
 {
 public:
-	victory_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	victory_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	DECLARE_READ8_MEMBER( response_r );
 	DECLARE_READ8_MEMBER( status_r );
@@ -152,16 +149,16 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_config_complete();
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_config_complete() override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	// sound stream update overrides
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 private:
 	// internal state
-	UINT8 m_victory_sound_response_ack_clk; /* 7474 @ F4 */
+	uint8_t m_victory_sound_response_ack_clk; /* 7474 @ F4 */
 
 	TIMER_CALLBACK_MEMBER( delayed_command_w );
 

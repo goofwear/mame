@@ -36,7 +36,7 @@ class k056230_device :  public device_t
 {
 public:
 	// construction/destruction
-	k056230_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	k056230_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	static void set_cpu_tag(device_t &device, const char *tag) { downcast<k056230_device &>(device).m_cpu.set_tag(tag); }
 	static void set_thunderh_hack(device_t &device, int thunderh) { downcast<k056230_device &>(device).m_is_thunderh = thunderh; }
@@ -47,22 +47,21 @@ public:
 	DECLARE_READ8_MEMBER(read);
 	DECLARE_WRITE8_MEMBER(write);
 
-	static TIMER_CALLBACK( network_irq_clear_callback );
+	TIMER_CALLBACK_MEMBER(network_irq_clear);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset() { }
-	virtual void device_post_load() { }
-	virtual void device_clock_changed() { }
+	virtual void device_start() override;
+	virtual void device_reset() override { }
+	virtual void device_post_load() override { }
+	virtual void device_clock_changed() override { }
 
 private:
 
-	void network_irq_clear();
 	int m_is_thunderh;
 
 	required_device<cpu_device> m_cpu;
-	UINT32 m_ram[0x2000];
+	uint32_t m_ram[0x2000];
 };
 
 

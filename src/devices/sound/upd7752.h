@@ -37,30 +37,30 @@ class upd7752_device : public device_t,
 {
 public:
 	// construction/destruction
-	upd7752_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	upd7752_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	// I/O operations
 	DECLARE_WRITE8_MEMBER( write );
 	DECLARE_READ8_MEMBER( read );
-	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const;
+	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const override;
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_stop();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_stop() override;
+	virtual void device_reset() override;
 
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 private:
 	sound_stream  *m_stream;
 	const address_space_config      m_space_config;
-	UINT8 m_status;
-	UINT16 m_ram_addr;
-	UINT8 m_mode;
-	void status_change(UINT8 flag,bool type);
-	inline UINT8 readbyte(offs_t address);
-	inline void writebyte(offs_t address, UINT8 data);
+	uint8_t m_status;
+	uint16_t m_ram_addr;
+	uint8_t m_mode;
+	void status_change(uint8_t flag,bool type);
+	inline uint8_t readbyte(offs_t address);
+	inline void writebyte(offs_t address, uint8_t data);
 };
 
 

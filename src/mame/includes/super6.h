@@ -56,11 +56,11 @@ public:
 	required_device<ram_device> m_ram;
 	required_device<floppy_connector> m_floppy0;
 	required_device<floppy_connector> m_floppy1;
-	required_region_ptr<UINT8> m_rom;
+	required_region_ptr<uint8_t> m_rom;
 	required_ioport m_j7;
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
 	DECLARE_READ8_MEMBER( fdc_r );
 	DECLARE_WRITE8_MEMBER( fdc_w );
@@ -75,11 +75,10 @@ public:
 	void bankswitch();
 
 	// memory state
-	UINT8 m_s100;
-	UINT8 m_bank0;
-	UINT8 m_bank1;
+	uint8_t m_s100;
+	uint8_t m_bank0;
+	uint8_t m_bank1;
 	TIMER_DEVICE_CALLBACK_MEMBER(ctc_tick);
-	DECLARE_WRITE8_MEMBER(dummy_w);
 	DECLARE_READ8_MEMBER(memory_read_byte);
 	DECLARE_WRITE8_MEMBER(memory_write_byte);
 	DECLARE_READ8_MEMBER(io_read_byte);

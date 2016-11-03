@@ -107,7 +107,7 @@
 class v53_base_device : public nec_common_device
 {
 public:
-	v53_base_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, offs_t fetch_xor, UINT8 prefetch_size, UINT8 prefetch_cycles, UINT32 chip_type);
+	v53_base_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, offs_t fetch_xor, uint8_t prefetch_size, uint8_t prefetch_cycles, uint32_t chip_type);
 
 	DECLARE_WRITE8_MEMBER(BSEL_w);
 	DECLARE_WRITE8_MEMBER(BADR_w);
@@ -131,19 +131,19 @@ public:
 	DECLARE_WRITE8_MEMBER(OPSEL_w);
 	DECLARE_WRITE8_MEMBER(SCTL_w);
 
-	UINT8 m_SCTL;
-	UINT8 m_OPSEL;
+	uint8_t m_SCTL;
+	uint8_t m_OPSEL;
 
-	UINT8 m_SULA;
-	UINT8 m_TULA;
-	UINT8 m_IULA;
-	UINT8 m_DULA;
-	UINT8 m_OPHA;
+	uint8_t m_SULA;
+	uint8_t m_TULA;
+	uint8_t m_IULA;
+	uint8_t m_DULA;
+	uint8_t m_OPHA;
 
 	// SCU
 	DECLARE_READ8_MEMBER(scu_simk_r);
 	DECLARE_WRITE8_MEMBER(scu_simk_w);
-	UINT8 m_simk;
+	uint8_t m_simk;
 	template<class _Object> static devcb_base &set_txd_handler(device_t &device, _Object object) { return downcast<v53_base_device &>(device).m_txd_handler.set_callback(object); }
 	template<class _Object> static devcb_base &set_dtr_handler(device_t &device, _Object object) { return downcast<v53_base_device &>(device).m_dtr_handler.set_callback(object); }
 	template<class _Object> static devcb_base &set_rts_handler(device_t &device, _Object object) { return downcast<v53_base_device &>(device).m_rts_handler.set_callback(object); }
@@ -224,7 +224,7 @@ public:
 
 	const address_space_config m_io_space_config;
 
-	const address_space_config *memory_space_config(address_spacenum spacenum) const
+	const address_space_config *memory_space_config(address_spacenum spacenum) const override
 	{
 		switch (spacenum)
 		{
@@ -242,10 +242,10 @@ public:
 
 protected:
 	// device-level overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void execute_set_input(int inputnum, int state);
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void execute_set_input(int inputnum, int state) override;
 
 	required_device<pit8253_device> m_v53tcu;
 	required_device<upd71071_v53_device> m_v53dmau;
@@ -296,13 +296,13 @@ protected:
 class v53_device : public v53_base_device
 {
 public:
-	v53_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	v53_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 };
 
 class v53a_device : public v53_base_device
 {
 public:
-	v53a_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	v53a_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 };
 
 extern const device_type V53;

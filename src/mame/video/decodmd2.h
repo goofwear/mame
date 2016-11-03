@@ -21,7 +21,7 @@
 class decodmd_type2_device : public device_t
 {
 public:
-	decodmd_type2_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	decodmd_type2_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	required_device<cpu_device> m_cpu;
 	required_device<mc6845_device> m_mc6845;
 	required_memory_bank m_rombank1;
@@ -29,8 +29,6 @@ public:
 	required_memory_bank m_rambank;
 	required_device<ram_device> m_ram;
 	memory_region* m_rom;
-
-	UINT32 screen_update( screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect );
 
 	DECLARE_WRITE8_MEMBER(bank_w);
 	DECLARE_WRITE8_MEMBER(crtc_address_w);
@@ -49,18 +47,18 @@ public:
 	static void static_set_gfxregion(device_t &device, const char *tag);
 
 protected:
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual void device_start();
-	virtual void device_reset();
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 private:
-	UINT8 m_crtc_index;
-	UINT8 m_crtc_reg[0x100];
-	UINT8 m_latch;
-	UINT8 m_status;
-	UINT8 m_ctrl;
-	UINT8 m_busy;
-	UINT8 m_command;
+	uint8_t m_crtc_index;
+	uint8_t m_crtc_reg[0x100];
+	uint8_t m_latch;
+	uint8_t m_status;
+	uint8_t m_ctrl;
+	uint8_t m_busy;
+	uint8_t m_command;
 	const char* m_gfxtag;
 };
 

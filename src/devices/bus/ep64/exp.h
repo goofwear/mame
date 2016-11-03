@@ -97,7 +97,7 @@ class ep64_expansion_bus_slot_device : public device_t,
 
 public:
 	// construction/destruction
-	ep64_expansion_bus_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	ep64_expansion_bus_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	static void static_set_dave_tag(device_t &device, const char* tag) { downcast<ep64_expansion_bus_slot_device &>(device).m_dave.set_tag(tag); }
 	template<class _Object> static devcb_base &set_irq_wr_callback(device_t &device, _Object object) { return downcast<ep64_expansion_bus_slot_device &>(device).m_write_irq.set_callback(object); }
@@ -113,8 +113,8 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 private:
 	devcb_write_line m_write_irq;

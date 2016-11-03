@@ -22,9 +22,9 @@ public:
 		m_palette(*this, "palette") { }
 
 	/* memory pointers */
-	optional_shared_ptr<UINT8> m_videoram;
-	optional_shared_ptr<UINT8> m_colorram;
-	optional_shared_ptr<UINT8> m_paletteram;
+	optional_shared_ptr<uint8_t> m_videoram;
+	optional_shared_ptr<uint8_t> m_colorram;
+	optional_shared_ptr<uint8_t> m_paletteram;
 
 	/* video-related */
 	tilemap_t  *m_tilemap;
@@ -73,7 +73,7 @@ public:
 	DECLARE_READ8_MEMBER(ojankohs_ay8910_1_r);
 	TILE_GET_INFO_MEMBER(ojankohs_get_tile_info);
 	TILE_GET_INFO_MEMBER(ojankoy_get_tile_info);
-	virtual void machine_reset();
+	virtual void machine_reset() override;
 	DECLARE_MACHINE_START(ojankohs);
 	DECLARE_VIDEO_START(ojankohs);
 	DECLARE_MACHINE_START(ojankoy);
@@ -82,8 +82,8 @@ public:
 	DECLARE_MACHINE_START(ojankoc);
 	DECLARE_VIDEO_START(ojankoc);
 	DECLARE_MACHINE_START(common);
-	UINT32 screen_update_ojankohs(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_ojankoc(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_ojankohs(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_ojankoc(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void ojankoc_flipscreen( address_space &space, int data );
 	DECLARE_WRITE_LINE_MEMBER(ojankohs_adpcm_int);
 };

@@ -42,66 +42,66 @@
 
 struct fm7_encoder_t
 {
-	UINT8 buffer[12];
-	UINT8 tx_count;
-	UINT8 rx_count;
-	UINT8 command_length;
-	UINT8 answer_length;
-	UINT8 latch;  // 0=ready to receive
-	UINT8 ack;
-	UINT8 position;
+	uint8_t buffer[12];
+	uint8_t tx_count;
+	uint8_t rx_count;
+	uint8_t command_length;
+	uint8_t answer_length;
+	uint8_t latch;  // 0=ready to receive
+	uint8_t ack;
+	uint8_t position;
 };
 
 struct fm7_mmr_t
 {
-	UINT8 bank_addr[8][16];
-	UINT8 segment;
-	UINT8 window_offset;
-	UINT8 enabled;
-	UINT8 mode;
+	uint8_t bank_addr[8][16];
+	uint8_t segment;
+	uint8_t window_offset;
+	uint8_t enabled;
+	uint8_t mode;
 };
 
 struct fm7_video_t
 {
-	UINT8 sub_busy;
-	UINT8 sub_halt;
-	UINT8 sub_reset;  // high if reset caused by subrom change
-	UINT8 attn_irq;
-	UINT8 vram_access;  // VRAM access flag
-	UINT8 crt_enable;
-	UINT16 vram_offset;
-	UINT16 vram_offset2;
-	UINT8 fm7_pal[8];
-	UINT16 fm77av_pal_selected;
-	UINT8 subrom;  // currently active sub CPU ROM (AV only)
-	UINT8 cgrom;  // currently active CGROM (AV only)
-	UINT8 modestatus;
-	UINT8 multi_page;
-	UINT8 fine_offset;
-	UINT8 nmi_mask;
-	UINT8 active_video_page;
-	UINT8 display_video_page;
-	UINT8 vsync_flag;
+	uint8_t sub_busy;
+	uint8_t sub_halt;
+	uint8_t sub_reset;  // high if reset caused by subrom change
+	uint8_t attn_irq;
+	uint8_t vram_access;  // VRAM access flag
+	uint8_t crt_enable;
+	uint16_t vram_offset;
+	uint16_t vram_offset2;
+	uint8_t fm7_pal[8];
+	uint16_t fm77av_pal_selected;
+	uint8_t subrom;  // currently active sub CPU ROM (AV only)
+	uint8_t cgrom;  // currently active CGROM (AV only)
+	uint8_t modestatus;
+	uint8_t multi_page;
+	uint8_t fine_offset;
+	uint8_t nmi_mask;
+	uint8_t active_video_page;
+	uint8_t display_video_page;
+	uint8_t vsync_flag;
 };
 
 struct fm7_alu_t
 {
-	UINT8 command;
-	UINT8 lcolour;
-	UINT8 mask;
-	UINT8 compare_data;
-	UINT8 compare[8];
-	UINT8 bank_disable;
-	UINT8 tilepaint_b;
-	UINT8 tilepaint_r;
-	UINT8 tilepaint_g;
-	UINT16 addr_offset;
-	UINT16 line_style;
-	UINT16 x0;
-	UINT16 x1;
-	UINT16 y0;
-	UINT16 y1;
-	UINT8 busy;
+	uint8_t command;
+	uint8_t lcolour;
+	uint8_t mask;
+	uint8_t compare_data;
+	uint8_t compare[8];
+	uint8_t bank_disable;
+	uint8_t tilepaint_b;
+	uint8_t tilepaint_r;
+	uint8_t tilepaint_g;
+	uint16_t addr_offset;
+	uint16_t line_style;
+	uint16_t x0;
+	uint16_t x1;
+	uint16_t y0;
+	uint16_t y1;
+	uint8_t busy;
 };
 
 
@@ -135,11 +135,12 @@ public:
 		m_fdc(*this, "fdc"),
 		m_floppy0(*this, "fdc:0"),
 		m_floppy1(*this, "fdc:1"),
-		m_floppy(NULL),
+		m_floppy(nullptr),
+		m_ram_ptr(*this, "maincpu"),
+		m_rom_ptr(*this, "init"),
+		m_basic_ptr(*this, "fbasic"),
 		m_kanji(*this, "kanji1"),
-		m_key1(*this, "key1"),
-		m_key2(*this, "key2"),
-		m_key3(*this, "key3"),
+		m_kb_ports(*this, {"key1", "key2", "key3"}),
 		m_keymod(*this, "key_modifiers"),
 		m_joy1(*this, "joy1"),
 		m_joy2(*this, "joy2"),
@@ -164,42 +165,22 @@ public:
 		m_avbank16(*this, "av_bank16")
 	{
 	}
+	DECLARE_DRIVER_INIT(fm7);
 
-	optional_shared_ptr<UINT8> m_shared_ram;
-	optional_shared_ptr<UINT8> m_boot_ram;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 
-	UINT8 m_irq_flags;
-	UINT8 m_irq_mask;
-	emu_timer* m_timer;
-	emu_timer* m_subtimer;
-	emu_timer* m_keyboard_timer;
-	UINT8 m_basic_rom_en;
-	UINT8 m_init_rom_en;
-	unsigned int m_key_delay;
-	unsigned int m_key_repeat;
-	UINT16 m_current_scancode;
-	UINT32 m_key_data[4];
-	UINT32 m_mod_data;
-	UINT8 m_key_scan_mode;
-	UINT8 m_break_flag;
-	UINT8 m_psg_regsel;
-	UINT8 m_psg_data;
-	UINT8 m_fdc_side;
-	UINT8 m_fdc_drive;
-	UINT8 m_fdc_irq_flag;
-	UINT8 m_fdc_drq_flag;
-	UINT8 m_fm77av_ym_irq;
-	UINT8 m_speaker_active;
-	UINT16 m_kanji_address;
-	fm7_encoder_t m_encoder;
-	fm7_mmr_t m_mmr;
-	UINT8 m_cp_prev;
-	UINT8* m_video_ram;
-	emu_timer* m_fm77av_vsync_timer;
-	UINT8 m_type;
-	fm7_video_t m_video;
-	fm7_alu_t m_alu;
-	int m_sb_prev;
+	DECLARE_MACHINE_START(fm7);
+	DECLARE_MACHINE_START(fm77av);
+	DECLARE_MACHINE_START(fm11);
+	DECLARE_MACHINE_START(fm16);
+
+	DECLARE_WRITE_LINE_MEMBER(fm7_fdc_intrq_w);
+	DECLARE_WRITE_LINE_MEMBER(fm7_fdc_drq_w);
+	DECLARE_READ8_MEMBER(fm77av_joy_1_r);
+	DECLARE_READ8_MEMBER(fm77av_joy_2_r);
+	DECLARE_WRITE_LINE_MEMBER(fm77av_fmirq);
+
 	DECLARE_READ8_MEMBER(fm7_subintf_r);
 	DECLARE_WRITE8_MEMBER(fm7_subintf_w);
 	DECLARE_READ8_MEMBER(fm7_sub_busyflag_r);
@@ -286,16 +267,62 @@ public:
 	DECLARE_WRITE8_MEMBER(fm7_mmr_w);
 	DECLARE_READ8_MEMBER(fm7_kanji_r);
 	DECLARE_WRITE8_MEMBER(fm7_kanji_w);
+
+	IRQ_CALLBACK_MEMBER(fm7_irq_ack);
+	IRQ_CALLBACK_MEMBER(fm7_sub_irq_ack);
+
+	DECLARE_WRITE_LINE_MEMBER(write_centronics_busy);
+	DECLARE_WRITE_LINE_MEMBER(write_centronics_fault);
+	DECLARE_WRITE_LINE_MEMBER(write_centronics_ack);
+	DECLARE_WRITE_LINE_MEMBER(write_centronics_perror);
+
+	uint32_t screen_update_fm7(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+
+protected:
+	optional_shared_ptr<uint8_t> m_shared_ram;
+	optional_shared_ptr<uint8_t> m_boot_ram;
+
+	uint8_t           m_irq_flags;
+	uint8_t           m_irq_mask;
+	emu_timer*      m_timer;
+	emu_timer*      m_subtimer;
+	emu_timer*      m_keyboard_timer;
+	uint8_t           m_basic_rom_en;
+	uint8_t           m_init_rom_en;
+
+	unsigned int    m_key_delay;
+	unsigned int    m_key_repeat;
+	uint16_t          m_current_scancode;
+	uint32_t          m_key_data[4];
+	uint32_t          m_mod_data;
+	uint8_t           m_key_scan_mode;
+	uint8_t           m_break_flag;
+
+	uint8_t           m_psg_regsel;
+	uint8_t           m_psg_data;
+
+	uint8_t           m_fdc_side;
+	uint8_t           m_fdc_drive;
+	uint8_t           m_fdc_irq_flag;
+	uint8_t           m_fdc_drq_flag;
+
+	uint8_t           m_fm77av_ym_irq;
+	uint8_t           m_speaker_active;
+
+	uint16_t          m_kanji_address;
+	fm7_encoder_t   m_encoder;
+	fm7_mmr_t       m_mmr;
+	uint8_t           m_cp_prev;
+
+	std::unique_ptr<uint8_t[]>    m_video_ram;
+	emu_timer*                  m_fm77av_vsync_timer;
+	uint8_t m_type;
+	fm7_video_t     m_video;
+	fm7_alu_t       m_alu;
+	int             m_sb_prev;
+
 	void fm77av_encoder_setup_command();
 	void fm77av_encoder_handle_command();
-	DECLARE_DRIVER_INIT(fm7);
-	virtual void machine_reset();
-	virtual void video_start();
-	DECLARE_MACHINE_START(fm7);
-	DECLARE_MACHINE_START(fm77av);
-	DECLARE_MACHINE_START(fm11);
-	DECLARE_MACHINE_START(fm16);
-	UINT32 screen_update_fm7(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 	TIMER_CALLBACK_MEMBER(fm7_beeper_off);
 	TIMER_CALLBACK_MEMBER(fm77av_encoder_ack);
 	TIMER_CALLBACK_MEMBER(fm7_timer_irq);
@@ -303,13 +330,7 @@ public:
 	TIMER_CALLBACK_MEMBER(fm7_keyboard_poll);
 	TIMER_CALLBACK_MEMBER(fm77av_alu_task_end);
 	TIMER_CALLBACK_MEMBER(fm77av_vsync);
-	DECLARE_WRITE_LINE_MEMBER(fm7_fdc_intrq_w);
-	DECLARE_WRITE_LINE_MEMBER(fm7_fdc_drq_w);
-	DECLARE_READ8_MEMBER(fm77av_joy_1_r);
-	DECLARE_READ8_MEMBER(fm77av_joy_2_r);
-	IRQ_CALLBACK_MEMBER(fm7_irq_ack);
-	IRQ_CALLBACK_MEMBER(fm7_sub_irq_ack);
-	DECLARE_WRITE_LINE_MEMBER(fm77av_fmirq);
+
 	required_device<cpu_device> m_maincpu;
 	required_device<cpu_device> m_sub;
 	optional_device<cpu_device> m_x86;
@@ -317,32 +338,37 @@ public:
 	required_device<beep_device> m_beeper;
 	optional_device<ym2203_device> m_ym;
 	optional_device<ay8910_device> m_psg;
+
 	required_device<centronics_device> m_centronics;
 	required_device<output_latch_device> m_cent_data_out;
+
 	required_device<mb8877_t> m_fdc;
 	required_device<floppy_connector> m_floppy0;
 	required_device<floppy_connector> m_floppy1;
-
 	floppy_image_device *m_floppy;
 
-	void fm7_alu_mask_write(UINT32 offset, int bank, UINT8 dat);
-	void fm7_alu_function_compare(UINT32 offset);
-	void fm7_alu_function_pset(UINT32 offset);
-	void fm7_alu_function_or(UINT32 offset);
-	void fm7_alu_function_and(UINT32 offset);
-	void fm7_alu_function_xor(UINT32 offset);
-	void fm7_alu_function_not(UINT32 offset);
-	void fm7_alu_function_invalid(UINT32 offset);
-	void fm7_alu_function_tilepaint(UINT32 offset);
-	void fm7_alu_function(UINT32 offset);
-	UINT32 fm7_line_set_pixel(int x, int y);
+	optional_region_ptr<uint8_t> m_ram_ptr;
+	optional_region_ptr<uint8_t> m_rom_ptr;
+	optional_region_ptr<uint8_t> m_basic_ptr;
+
+	void fm7_alu_mask_write(uint32_t offset, int bank, uint8_t dat);
+	void fm7_alu_function_compare(uint32_t offset);
+	void fm7_alu_function_pset(uint32_t offset);
+	void fm7_alu_function_or(uint32_t offset);
+	void fm7_alu_function_and(uint32_t offset);
+	void fm7_alu_function_xor(uint32_t offset);
+	void fm7_alu_function_not(uint32_t offset);
+	void fm7_alu_function_invalid(uint32_t offset);
+	void fm7_alu_function_tilepaint(uint32_t offset);
+	void fm7_alu_function(uint32_t offset);
+	uint32_t fm7_line_set_pixel(int x, int y);
 	void fm77av_line_draw();
-	void main_irq_set_flag(UINT8 flag);
-	void main_irq_clear_flag(UINT8 flag);
+	void main_irq_set_flag(uint8_t flag);
+	void main_irq_clear_flag(uint8_t flag);
 	void fm7_update_psg();
-	void fm7_update_bank(address_space & space, int bank, UINT8 physical);
+	void fm7_update_bank(address_space & space, int bank, uint8_t physical);
 	void fm7_mmr_refresh(address_space& space);
-	void key_press(UINT16 scancode);
+	void key_press(uint16_t scancode);
 	void fm7_keyboard_poll_scan();
 
 	int m_centronics_busy;
@@ -350,15 +376,8 @@ public:
 	int m_centronics_ack;
 	int m_centronics_perror;
 
-	DECLARE_WRITE_LINE_MEMBER(write_centronics_busy);
-	DECLARE_WRITE_LINE_MEMBER(write_centronics_fault);
-	DECLARE_WRITE_LINE_MEMBER(write_centronics_ack);
-	DECLARE_WRITE_LINE_MEMBER(write_centronics_perror);
-
 	optional_memory_region m_kanji;
-	required_ioport m_key1;
-	required_ioport m_key2;
-	required_ioport m_key3;
+	required_ioport_array<3> m_kb_ports;
 	required_ioport m_keymod;
 	required_ioport m_joy1;
 	required_ioport m_joy2;
@@ -383,8 +402,7 @@ public:
 	optional_device<address_map_bank_device> m_avbank15;
 	optional_device<address_map_bank_device> m_avbank16;
 
-protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };
 
 #endif /*FM7_H_*/

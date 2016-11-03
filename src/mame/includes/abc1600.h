@@ -98,8 +98,8 @@ public:
 	required_device<abcbus_slot_t> m_bus1;
 	required_device<abcbus_slot_t> m_bus2;
 
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
 	DECLARE_READ8_MEMBER( bus_r );
 	DECLARE_WRITE8_MEMBER( bus_w );
@@ -127,13 +127,6 @@ public:
 
 	DECLARE_WRITE_LINE_MEMBER( fdc_drq_w );
 
-	UINT8 read_io(offs_t offset);
-	void write_io(offs_t offset, UINT8 data);
-	UINT8 read_internal_io(offs_t offset);
-	void write_internal_io(offs_t offset, UINT8 data);
-	UINT8 read_external_io(offs_t offset);
-	void write_external_io(offs_t offset, UINT8 data);
-
 	void update_drdy0();
 	void update_drdy1();
 	void update_drdy2();
@@ -142,13 +135,13 @@ public:
 	int m_dmadis;
 	int m_sysscc;
 	int m_sysfs;
-	UINT8 m_cause;
+	uint8_t m_cause;
 	int m_partst;               // parity test
 
 	// peripherals
 	int m_cs7;                  // card select address bit 7
 	int m_bus0;                 // BUS 0 selected
-	UINT8 m_csb;                // card select
+	uint8_t m_csb;                // card select
 	int m_atce;                 // V.24 channel A external clock enable
 	int m_btce;                 // V.24 channel B external clock enable
 };

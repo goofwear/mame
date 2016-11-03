@@ -114,7 +114,7 @@ class cdp1864_device :  public device_t,
 {
 public:
 	// construction/destruction
-	cdp1864_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	cdp1864_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _inlace> void set_inlace_callback(_inlace inlace) { m_read_inlace.set_callback(inlace); }
 	template<class _irq> void set_irq_callback(_irq irq) { m_write_irq.set_callback(irq); }
@@ -138,16 +138,16 @@ public:
 	DECLARE_WRITE_LINE_MEMBER( aoe_w );
 	DECLARE_WRITE_LINE_MEMBER( evs_w );
 
-	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	// internal callbacks
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 private:
 	enum
@@ -189,7 +189,7 @@ private:
 	// sound state
 	int m_aoe;                      // audio on
 	int m_latch;                    // sound latch
-	INT16 m_signal;                 // current signal
+	int16_t m_signal;                 // current signal
 	int m_incr;                     // initial wave state
 
 	// timers

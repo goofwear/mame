@@ -16,8 +16,11 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <memory.h>
+
 #include "nanovg.h"
 
 #include <bx/macros.h>
@@ -35,8 +38,42 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_GCC("-Wunused-result");
 BX_PRAGMA_DIAGNOSTIC_POP();
 
 BX_PRAGMA_DIAGNOSTIC_PUSH();
+BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4127) // warning C4127: conditional expression is constant
+#define LODEPNG_NO_COMPILE_ENCODER
+#define LODEPNG_NO_COMPILE_DISK
+#define LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
+#define LODEPNG_NO_COMPILE_ERROR_TEXT
+#define LODEPNG_NO_COMPILE_ALLOCATORS
+#define LODEPNG_NO_COMPILE_CPP
+#include <lodepng/lodepng.cpp>
+BX_PRAGMA_DIAGNOSTIC_POP();
+
+void* lodepng_malloc(size_t _size)
+{
+	return ::malloc(_size);
+}
+
+void* lodepng_realloc(void* _ptr, size_t _size)
+{
+	return ::realloc(_ptr, _size);
+}
+
+void lodepng_free(void* _ptr)
+{
+	::free(_ptr);
+}
+
+BX_PRAGMA_DIAGNOSTIC_PUSH();
 BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC("-Wmissing-field-initializers");
 BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC("-Wshadow");
+BX_PRAGMA_DIAGNOSTIC_IGNORED_CLANG_GCC("-Wint-to-pointer-cast")
+#if BX_COMPILER_GCC >= 60000
+BX_PRAGMA_DIAGNOSTIC_IGNORED_GCC("-Wmisleading-indentation");
+BX_PRAGMA_DIAGNOSTIC_IGNORED_GCC("-Wshift-negative-value");
+#endif // BX_COMPILER_GCC >= 60000_
+#define STBI_MALLOC(_size)        lodepng_malloc(_size)
+#define STBI_REALLOC(_ptr, _size) lodepng_realloc(_ptr, _size)
+#define STBI_FREE(_ptr)           lodepng_free(_ptr)
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.c>
 BX_PRAGMA_DIAGNOSTIC_POP();
@@ -58,7 +95,7 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 #define NVG_INIT_VERTS_SIZE 256
 #define NVG_MAX_STATES 32
 
-#define NVG_KAPPA90 0.5522847493f	// Lenght proportional to radius of a cubic bezier handle for 90deg arcs.
+#define NVG_KAPPA90 0.5522847493f	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
 
 #define NVG_COUNTOF(arr) (sizeof(arr) / sizeof(0[arr]))
 
@@ -80,6 +117,7 @@ enum NVGpointFlags
 };
 
 struct NVGstate {
+	NVGcompositeOperationState compositeOperation;
 	NVGpaint fill;
 	NVGpaint stroke;
 	float strokeWidth;
@@ -217,6 +255,75 @@ static void nvg__setDevicePixelRatio(NVGcontext* ctx, float ratio)
 	ctx->devicePxRatio = ratio;
 }
 
+static NVGcompositeOperationState nvg__compositeOperationState(int op)
+{
+	int sfactor = NVG_ONE;
+	int dfactor = NVG_ONE_MINUS_SRC_ALPHA;
+
+	if (op == NVG_SOURCE_IN)
+	{
+		sfactor = NVG_DST_ALPHA;
+		dfactor = NVG_ZERO;
+	}
+	else if (op == NVG_SOURCE_OUT)
+	{
+		sfactor = NVG_ONE_MINUS_DST_ALPHA;
+		dfactor = NVG_ZERO;
+	}
+	else if (op == NVG_ATOP)
+	{
+		sfactor = NVG_DST_ALPHA;
+		dfactor = NVG_ONE_MINUS_SRC_ALPHA;
+	}
+	else if (op == NVG_DESTINATION_OVER)
+	{
+		sfactor = NVG_ONE_MINUS_DST_ALPHA;
+		dfactor = NVG_ONE;
+	}
+	else if (op == NVG_DESTINATION_IN)
+	{
+		sfactor = NVG_ZERO;
+		dfactor = NVG_SRC_ALPHA;
+	}
+	else if (op == NVG_DESTINATION_OUT)
+	{
+		sfactor = NVG_ZERO;
+		dfactor = NVG_ONE_MINUS_SRC_ALPHA;
+	}
+	else if (op == NVG_DESTINATION_ATOP)
+	{
+		sfactor = NVG_ONE_MINUS_DST_ALPHA;
+		dfactor = NVG_SRC_ALPHA;
+	}
+	else if (op == NVG_LIGHTER)
+	{
+		sfactor = NVG_ONE;
+		dfactor = NVG_ONE;
+	}
+	else if (op == NVG_COPY)
+	{
+		sfactor = NVG_ONE;
+		dfactor = NVG_ZERO;
+	}
+	else if (op == NVG_XOR)
+	{
+		sfactor = NVG_ONE_MINUS_DST_ALPHA;
+		dfactor = NVG_ONE_MINUS_SRC_ALPHA;
+	}
+
+	NVGcompositeOperationState state;
+	state.srcRGB = sfactor;
+	state.dstRGB = dfactor;
+	state.srcAlpha = sfactor;
+	state.dstAlpha = dfactor;
+	return state;
+}
+
+static NVGstate* nvg__getState(NVGcontext* ctx)
+{
+	return &ctx->states[ctx->nstates-1];
+}
+
 NVGcontext* nvgCreateInternal(NVGparams* params)
 {
 	FONSparams fontParams;
@@ -297,7 +404,7 @@ void nvgDeleteInternal(NVGcontext* ctx)
 	free(ctx);
 }
 
-void nvgBeginFrameScaled(NVGcontext* ctx, int windowWidth, int windowHeight, int surfaceWidth, int surfaceHeight, float devicePixelRatio)
+void nvgBeginFrame(NVGcontext* ctx, int windowWidth, int windowHeight, float devicePixelRatio)
 {
 /*	printf("Tris: draws:%d  fill:%d  stroke:%d  text:%d  TOT:%d\n",
 		ctx->drawCallCount, ctx->fillTriCount, ctx->strokeTriCount, ctx->textTriCount,
@@ -309,17 +416,12 @@ void nvgBeginFrameScaled(NVGcontext* ctx, int windowWidth, int windowHeight, int
 
 	nvg__setDevicePixelRatio(ctx, devicePixelRatio);
 
-	ctx->params.renderViewport(ctx->params.userPtr, windowWidth, windowHeight, surfaceWidth, surfaceHeight);
+	ctx->params.renderViewport(ctx->params.userPtr, windowWidth, windowHeight, devicePixelRatio);
 
 	ctx->drawCallCount = 0;
 	ctx->fillTriCount = 0;
 	ctx->strokeTriCount = 0;
 	ctx->textTriCount = 0;
-}
-
-void nvgBeginFrame(NVGcontext* ctx, int windowWidth, int windowHeight, float devicePixelRatio)
-{
-	nvgBeginFrameScaled(ctx, windowWidth, windowHeight, windowWidth, windowHeight, devicePixelRatio);
 }
 
 void nvgCancelFrame(NVGcontext* ctx)
@@ -329,7 +431,8 @@ void nvgCancelFrame(NVGcontext* ctx)
 
 void nvgEndFrame(NVGcontext* ctx)
 {
-	ctx->params.renderFlush(ctx->params.userPtr);
+	NVGstate* state = nvg__getState(ctx);
+	ctx->params.renderFlush(ctx->params.userPtr, state->compositeOperation);
 	if (ctx->fontImageIdx != 0) {
 		int fontImage = ctx->fontImages[ctx->fontImageIdx];
 		int i, j, iw, ih;
@@ -450,12 +553,6 @@ NVGcolor nvgHSLA(float h, float s, float l, unsigned char a)
 	col.b = nvg__clampf(nvg__hue(h - 1.0f/3.0f, m1, m2), 0.0f, 1.0f);
 	col.a = a/255.0f;
 	return col;
-}
-
-
-static NVGstate* nvg__getState(NVGcontext* ctx)
-{
-	return &ctx->states[ctx->nstates-1];
 }
 
 void nvgTransformIdentity(float* t)
@@ -590,6 +687,7 @@ void nvgReset(NVGcontext* ctx)
 
 	nvg__setPaintColor(&state->fill, nvgRGBA(255,255,255,255));
 	nvg__setPaintColor(&state->stroke, nvgRGBA(0,0,0,255));
+	state->compositeOperation = nvg__compositeOperationState(NVG_SOURCE_OVER);
 	state->strokeWidth = 1.0f;
 	state->miterLimit = 10.0f;
 	state->lineCap = NVG_BUTT;
@@ -956,6 +1054,30 @@ void nvgResetScissor(NVGcontext* ctx)
 	memset(state->scissor.xform, 0, sizeof(state->scissor.xform));
 	state->scissor.extent[0] = -1.0f;
 	state->scissor.extent[1] = -1.0f;
+}
+
+// Global composite operation.
+void nvgGlobalCompositeOperation(NVGcontext* ctx, int op)
+{
+	NVGstate* state = nvg__getState(ctx);
+	state->compositeOperation = nvg__compositeOperationState(op);
+}
+
+void nvgGlobalCompositeBlendFunc(NVGcontext* ctx, int sfactor, int dfactor)
+{
+	nvgGlobalCompositeBlendFuncSeparate(ctx, sfactor, dfactor, sfactor, dfactor);
+}
+
+void nvgGlobalCompositeBlendFuncSeparate(NVGcontext* ctx, int srcRGB, int dstRGB, int srcAlpha, int dstAlpha)
+{
+	NVGcompositeOperationState op;
+	op.srcRGB = srcRGB;
+	op.dstRGB = dstRGB;
+	op.srcAlpha = srcAlpha;
+	op.dstAlpha = dstAlpha;
+
+	NVGstate* state = nvg__getState(ctx);
+	state->compositeOperation = op;
 }
 
 static int nvg__ptEquals(float x1, float y1, float x2, float y2, float tol)
@@ -1641,7 +1763,7 @@ static int nvg__expandStroke(NVGcontext* ctx, float w, int lineCap, int lineJoin
 	for (i = 0; i < cache->npaths; i++) {
 		NVGpath* path = &cache->paths[i];
 		int loop = (path->closed == 0) ? 0 : 1;
-		if (lineCap == NVG_ROUND)
+		if (lineJoin == NVG_ROUND)
 			cverts += (path->count + path->nbevel*(ncap+2) + 1) * 2; // plus one for loop
 		else
 			cverts += (path->count + path->nbevel*5 + 1) * 2; // plus one for loop
@@ -2192,6 +2314,18 @@ int nvgFindFont(NVGcontext* ctx, const char* name)
 	return fonsGetFontByName(ctx->fs, name);
 }
 
+
+int nvgAddFallbackFontId(NVGcontext* ctx, int baseFont, int fallbackFont)
+{
+	if(baseFont == -1 || fallbackFont == -1) return 0;
+	return fonsAddFallbackFont(ctx->fs, baseFont, fallbackFont);
+}
+
+int nvgAddFallbackFont(NVGcontext* ctx, const char* baseFont, const char* fallbackFont)
+{
+	return nvgAddFallbackFontId(ctx, nvgFindFont(ctx, baseFont), nvgFindFont(ctx, fallbackFont));
+}
+
 // State setting
 void nvgFontSize(NVGcontext* ctx, float size)
 {
@@ -2349,7 +2483,7 @@ float nvgText(NVGcontext* ctx, float x, float y, const char* string, const char*
 				break;
 		}
 		prevIter = iter;
-		// Trasnform corners.
+		// Transform corners.
 		nvgTransformPoint(&c[0],&c[1], state->xform, q.x0*invscale, q.y0*invscale);
 		nvgTransformPoint(&c[2],&c[3], state->xform, q.x1*invscale, q.y0*invscale);
 		nvgTransformPoint(&c[4],&c[5], state->xform, q.x1*invscale, q.y1*invscale);
@@ -2609,7 +2743,7 @@ int nvgTextBreakLines(NVGcontext* ctx, const char* string, const char* end, floa
 						wordStartX = iter.x;
 						wordMinX = q.x0 - rowStartX;
 					} else {
-						// Break the line from the end of the last word, and start new line from the begining of the new.
+						// Break the line from the end of the last word, and start new line from the beginning of the new.
 						rows[nrows].start = rowStart;
 						rows[nrows].end = breakEnd;
 						rows[nrows].width = breakWidth * invscale;
@@ -2639,7 +2773,7 @@ int nvgTextBreakLines(NVGcontext* ctx, const char* string, const char* end, floa
 		ptype = type;
 	}
 
-	// Break the line from the end of the last word, and start new line from the begining of the new.
+	// Break the line from the end of the last word, and start new line from the beginning of the new.
 	if (rowStart != NULL) {
 		rows[nrows].start = rowStart;
 		rows[nrows].end = rowEnd;

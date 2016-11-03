@@ -85,10 +85,7 @@ public:
 	required_ioport m_y10;
 	required_ioport m_rpt;
 
-	virtual void machine_start();
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-
-	void bankswitch();
+	virtual void machine_start() override;
 
 	DECLARE_WRITE8_MEMBER( ppi_pa_w );
 	DECLARE_READ8_MEMBER( ppi_pb_r );
@@ -100,7 +97,7 @@ public:
 	DECLARE_WRITE_LINE_MEMBER( motor_w );
 
 	/* video state */
-	required_shared_ptr<UINT8> m_video_ram;
+	required_shared_ptr<uint8_t> m_video_ram;
 
 	/* keyboard state */
 	int m_keylatch;
@@ -115,7 +112,7 @@ public:
 	DECLARE_FLOPPY_FORMATS(floppy_formats);
 	TIMER_DEVICE_CALLBACK_MEMBER(cassette_output_tick);
 
-	int load_cart(device_image_interface &image, generic_slot_device *slot);
+	image_init_result load_cart(device_image_interface &image, generic_slot_device *slot);
 	DECLARE_DEVICE_IMAGE_LOAD_MEMBER(cart_load) { return load_cart(image, m_cart); }
 	DECLARE_QUICKLOAD_LOAD_MEMBER(atom_atm);
 };
@@ -130,7 +127,7 @@ public:
 	{
 	}
 
-	virtual void machine_start();
+	virtual void machine_start() override;
 
 	DECLARE_READ8_MEMBER(eprom_r);
 	DECLARE_WRITE8_MEMBER(eprom_w);

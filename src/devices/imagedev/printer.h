@@ -25,35 +25,34 @@ class printer_image_device : public device_t,
 {
 public:
 	// construction/destruction
-	printer_image_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	printer_image_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _Object> static devcb_base &set_online_callback(device_t &device, _Object object) { return downcast<printer_image_device &>(device).m_online_cb.set_callback(object); }
 
 	// image-level overrides
-	virtual bool call_load();
-	virtual bool call_create(int format_type, option_resolution *format_options);
-	virtual void call_unload();
+	virtual image_init_result call_load() override;
+	virtual image_init_result call_create(int format_type, util::option_resolution *format_options) override;
+	virtual void call_unload() override;
 
 	// image device
-	virtual iodevice_t image_type() const { return IO_PRINTER; }
-	virtual bool is_readable()  const { return 0; }
-	virtual bool is_writeable() const { return 1; }
-	virtual bool is_creatable() const { return 1; }
-	virtual bool must_be_loaded() const { return 0; }
-	virtual bool is_reset_on_load() const { return 0; }
-	virtual const char *file_extensions() const { return "prn"; }
-	virtual const option_guide *create_option_guide() const { return NULL; }
+	virtual iodevice_t image_type() const override { return IO_PRINTER; }
+	virtual bool is_readable()  const override { return 0; }
+	virtual bool is_writeable() const override { return 1; }
+	virtual bool is_creatable() const override { return 1; }
+	virtual bool must_be_loaded() const override { return 0; }
+	virtual bool is_reset_on_load() const override { return 0; }
+	virtual const char *file_extensions() const override { return "prn"; }
 
 	// specific implementation
 
 	/* checks to see if a printer is ready */
 	int is_ready();
 	/* outputs data to a printer */
-	void output(UINT8 data);
+	void output(uint8_t data);
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_config_complete();
+	virtual void device_start() override;
+	virtual void device_config_complete() override;
 
 	devcb_write_line m_online_cb;
 };

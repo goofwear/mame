@@ -10,13 +10,13 @@
 
 class lpc_rtc_device : public lpc_device {
 public:
-	lpc_rtc_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	lpc_rtc_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual void map_device(UINT64 memory_window_start, UINT64 memory_window_end, UINT64 memory_offset, address_space *memory_space,
-							UINT64 io_window_start, UINT64 io_window_end, UINT64 io_offset, address_space *io_space);
+	virtual void map_device(uint64_t memory_window_start, uint64_t memory_window_end, uint64_t memory_offset, address_space *memory_space,
+							uint64_t io_window_start, uint64_t io_window_end, uint64_t io_offset, address_space *io_space) override;
 
-	virtual void map_extdevice(UINT64 memory_window_start, UINT64 memory_window_end, UINT64 memory_offset, address_space *memory_space,
-									UINT64 io_window_start, UINT64 io_window_end, UINT64 io_offset, address_space *io_space);
+	virtual void map_extdevice(uint64_t memory_window_start, uint64_t memory_window_end, uint64_t memory_offset, address_space *memory_space,
+									uint64_t io_window_start, uint64_t io_window_end, uint64_t io_offset, address_space *io_space);
 
 	DECLARE_READ8_MEMBER(  index_r);
 	DECLARE_WRITE8_MEMBER( index_w);
@@ -28,15 +28,15 @@ public:
 	DECLARE_WRITE8_MEMBER( exttarget_w);
 
 protected:
-	void device_start();
-	void device_reset();
+	void device_start() override;
+	void device_reset() override;
 
 private:
 	DECLARE_ADDRESS_MAP(map, 32);
 	DECLARE_ADDRESS_MAP(extmap, 32);
 
-	UINT8 cur_index, cur_extindex;
-	UINT8 ram[256];
+	uint8_t cur_index, cur_extindex;
+	uint8_t ram[256];
 };
 
 extern const device_type LPC_RTC;

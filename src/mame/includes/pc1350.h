@@ -32,11 +32,11 @@ public:
 		m_maincpu(*this, "maincpu"),
 		m_ram(*this, RAM_TAG) { }
 
-	UINT8 m_outa;
-	UINT8 m_outb;
+	uint8_t m_outa;
+	uint8_t m_outb;
 	int m_power;
-	UINT8 m_reg[0x1000];
-	UINT32 screen_update_pc1350(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint8_t m_reg[0x1000];
+	uint32_t screen_update_pc1350(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 
 	DECLARE_WRITE8_MEMBER(pc1350_outa);
 	DECLARE_WRITE8_MEMBER(pc1350_outb);
@@ -49,12 +49,12 @@ public:
 	DECLARE_WRITE8_MEMBER(pc1350_lcd_write);
 	DECLARE_READ8_MEMBER(pc1350_keyboard_line_r);
 
-	virtual void machine_start();
+	virtual void machine_start() override;
 	required_device<sc61860_device> m_maincpu;
 	required_device<ram_device> m_ram;
 
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };
 
 #endif /* PC1350_H_ */

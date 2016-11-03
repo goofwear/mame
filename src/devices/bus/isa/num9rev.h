@@ -22,10 +22,10 @@ class isa8_number_9_rev_device :
 {
 public:
 		// construction/destruction
-		isa8_number_9_rev_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+		isa8_number_9_rev_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 		// optional information overrides
-		virtual machine_config_constructor device_mconfig_additions() const;
+		virtual machine_config_constructor device_mconfig_additions() const override;
 
 		UPD7220_DISPLAY_PIXELS_MEMBER(hgdc_display_pixels);
 		DECLARE_READ8_MEMBER(pal8_r);
@@ -41,19 +41,19 @@ public:
 		DECLARE_READ8_MEMBER(read8);
 		DECLARE_WRITE8_MEMBER(write8);
 
-		UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+		uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 protected:
 		// device-level overrides
-		virtual void device_start();
-		virtual void device_reset();
+		virtual void device_start() override;
+		virtual void device_reset() override;
 private:
 		required_device<upd7220_device> m_upd7220;
 		required_device<palette_device> m_palette;
-		dynamic_buffer m_ram;
-		dynamic_buffer m_overlay;
+		std::vector<uint8_t> m_ram;
+		std::vector<uint8_t> m_overlay;
 
-		UINT8 m_bank;
-		UINT8 m_mode;
+		uint8_t m_bank;
+		uint8_t m_mode;
 		bool m_1024;
 };
 

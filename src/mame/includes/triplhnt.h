@@ -1,4 +1,4 @@
-// license:???
+// license:BSD-3-Clause
 // copyright-holders:Stefan Jokisch
 /*************************************************************************
 
@@ -6,6 +6,7 @@
 
 *************************************************************************/
 
+#include "machine/watchdog.h"
 #include "sound/discrete.h"
 #include "sound/samples.h"
 
@@ -34,22 +35,23 @@ public:
 		m_orga_ram(*this, "orga_ram"),
 		m_code_ram(*this, "code_ram"),
 		m_maincpu(*this, "maincpu"),
+		m_watchdog(*this, "watchdog"),
 		m_discrete(*this, "discrete"),
 		m_samples(*this, "samples"),
 		m_gfxdecode(*this, "gfxdecode"),
 		m_screen(*this, "screen"),
 		m_palette(*this, "palette") { }
 
-	UINT8 m_cmos[16];
-	UINT8 m_da_latch;
-	UINT8 m_misc_flags;
-	UINT8 m_cmos_latch;
-	UINT8 m_hit_code;
-	required_shared_ptr<UINT8> m_playfield_ram;
-	required_shared_ptr<UINT8> m_vpos_ram;
-	required_shared_ptr<UINT8> m_hpos_ram;
-	required_shared_ptr<UINT8> m_orga_ram;
-	required_shared_ptr<UINT8> m_code_ram;
+	uint8_t m_cmos[16];
+	uint8_t m_da_latch;
+	uint8_t m_misc_flags;
+	uint8_t m_cmos_latch;
+	uint8_t m_hit_code;
+	required_shared_ptr<uint8_t> m_playfield_ram;
+	required_shared_ptr<uint8_t> m_vpos_ram;
+	required_shared_ptr<uint8_t> m_hpos_ram;
+	required_shared_ptr<uint8_t> m_orga_ram;
+	required_shared_ptr<uint8_t> m_code_ram;
 	int m_sprite_zoom;
 	int m_sprite_bank;
 	bitmap_ind16 m_helper;
@@ -61,20 +63,21 @@ public:
 	DECLARE_READ8_MEMBER(triplhnt_da_latch_r);
 	DECLARE_DRIVER_INIT(triplhnt);
 	TILE_GET_INFO_MEMBER(get_tile_info);
-	virtual void video_start();
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(triplhnt);
-	UINT32 screen_update_triplhnt(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_triplhnt(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void draw_sprites(bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void triplhnt_set_collision(int code);
 	void triplhnt_update_misc(address_space &space, int offset);
 	required_device<cpu_device> m_maincpu;
+	required_device<watchdog_timer_device> m_watchdog;
 	required_device<discrete_device> m_discrete;
 	required_device<samples_device> m_samples;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
 protected:
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 };
 
 /*----------- defined in audio/triplhnt.c -----------*/

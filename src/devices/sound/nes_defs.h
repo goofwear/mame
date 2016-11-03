@@ -28,22 +28,13 @@
 #ifndef __NES_DEFS_H__
 #define __NES_DEFS_H__
 
-#include "nes_defs.h"
-
-/* BOOLEAN CONSTANTS */
-#ifndef TRUE
-#define TRUE   1
-#define FALSE  0
-#endif
-
 /* REGULAR TYPE DEFINITIONS */
-typedef INT8          int8;
-typedef INT16         int16;
-typedef INT32         int32;
-typedef UINT8         uint8;
-typedef UINT16        uint16;
-typedef UINT32        uint32;
-typedef UINT8         boolean;
+typedef int8_t          int8;
+typedef int16_t         int16;
+typedef int32_t         int32;
+typedef uint8_t         uint8;
+typedef uint16_t        uint16;
+typedef uint32_t        uint32;
 
 
 /* QUEUE TYPES */
@@ -96,9 +87,9 @@ struct square_t
 {
 		square_t()
 		{
-			for (int i = 0; i < 4; i++)
+			for (auto & elem : regs)
 			{
-				regs[i] = 0;
+				elem = 0;
 			}
 			vbl_length =0;
 			freq = 0;
@@ -120,7 +111,7 @@ struct square_t
 	float sweep_phase;
 	uint8 adder;
 	uint8 env_vol;
-	boolean enabled;
+	bool enabled;
 };
 
 /* Triangle Wave */
@@ -128,9 +119,9 @@ struct triangle_t
 {
 		triangle_t()
 		{
-			for (int i = 0; i < 4; i++)
+			for (auto & elem : regs)
 			{
-				regs[i] = 0;
+				elem = 0;
 			}
 			linear_length =0;
 			vbl_length =0;
@@ -149,8 +140,8 @@ struct triangle_t
 	float phaseacc;
 	float output_vol;
 	uint8 adder;
-	boolean counter_started;
-	boolean enabled;
+	bool counter_started;
+	bool enabled;
 };
 
 /* Noise Wave */
@@ -158,9 +149,9 @@ struct noise_t
 {
 		noise_t()
 		{
-			for (int i = 0; i < 4; i++)
+			for (auto & elem : regs)
 			{
-				regs[i] = 0;
+				elem = 0;
 			}
 			cur_pos =0;
 			vbl_length =0;
@@ -178,7 +169,7 @@ struct noise_t
 	float output_vol;
 	float env_phase;
 	uint8 env_vol;
-	boolean enabled;
+	bool enabled;
 };
 
 /* DPCM Wave */
@@ -186,9 +177,9 @@ struct dpcm_t
 {
 		dpcm_t()
 		{
-		for (int i = 0; i < 4; i++)
+		for (auto & elem : regs)
 		{
-			regs[i] = 0;
+			elem = 0;
 		}
 		address = 0;
 		length = 0;
@@ -198,7 +189,7 @@ struct dpcm_t
 		cur_byte = 0;
 		enabled = false;
 		irq_occurred = false;
-		memory = NULL;
+		memory = nullptr;
 		vol = 0;
 		}
 
@@ -209,8 +200,8 @@ struct dpcm_t
 	float phaseacc;
 	float output_vol;
 	uint8 cur_byte;
-	boolean enabled;
-	boolean irq_occurred;
+	bool enabled;
+	bool irq_occurred;
 	address_space *memory;
 	signed char vol;
 };
@@ -221,7 +212,7 @@ struct apu_t
 		apu_t()
 		{
 		memset(regs, 0, sizeof(regs));
-		buffer = NULL;
+		buffer = nullptr;
 		buf_pos = 0;
 		step_mode = 0;
 		}

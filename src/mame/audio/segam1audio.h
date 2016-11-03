@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Olivier Galibert
+// copyright-holders:R. Belmont
 #pragma once
 
 #ifndef __SEGAM1AUDIO_H__
@@ -26,10 +26,10 @@ class segam1audio_device : public device_t
 {
 public:
 		// construction/destruction
-		segam1audio_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+		segam1audio_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 		// optional information overrides
-		virtual machine_config_constructor device_mconfig_additions() const;
+		virtual machine_config_constructor device_mconfig_additions() const override;
 
 		required_device<cpu_device> m_audiocpu;
 		required_device<multipcm_device> m_multipcm_1;
@@ -45,12 +45,12 @@ public:
 		DECLARE_READ16_MEMBER(ready_r);
 
 		void check_fifo_irq();
-		void write_fifo(UINT8 data);
+		void write_fifo(uint8_t data);
 
 protected:
 		// device-level overrides
-		virtual void device_start();
-		virtual void device_reset();
+		virtual void device_start() override;
+		virtual void device_reset() override;
 
 private:
 	int m_to_68k[8];

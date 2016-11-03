@@ -22,17 +22,17 @@ class pc_kbd_keytronic_pc3270_device :  public device_t,
 {
 public:
 	// construction/destruction
-	pc_kbd_keytronic_pc3270_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	pc_kbd_keytronic_pc3270_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	required_device<cpu_device> m_cpu;
 
 	// optional information overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual ioport_constructor device_input_ports() const;
-	virtual const rom_entry *device_rom_region() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual ioport_constructor device_input_ports() const override;
+	virtual const tiny_rom_entry *device_rom_region() const override;
 
-	virtual DECLARE_WRITE_LINE_MEMBER(clock_write);
-	virtual DECLARE_WRITE_LINE_MEMBER(data_write);
+	virtual DECLARE_WRITE_LINE_MEMBER(clock_write) override;
+	virtual DECLARE_WRITE_LINE_MEMBER(data_write) override;
 
 	DECLARE_READ8_MEMBER( internal_data_read );
 	DECLARE_WRITE8_MEMBER( internal_data_write );
@@ -45,14 +45,14 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
-	UINT8   m_p1;
-	UINT8   m_p1_data;
-	UINT8   m_p2;
-	UINT8   m_p3;
-	UINT16  m_last_write_addr;
+	uint8_t   m_p1;
+	uint8_t   m_p1_data;
+	uint8_t   m_p2;
+	uint8_t   m_p3;
+	uint16_t  m_last_write_addr;
 };
 
 
@@ -60,12 +60,12 @@ class pc_kbd_keytronic_pc3270_at_device : public pc_kbd_keytronic_pc3270_device
 {
 public:
 	// construction/destruction
-	pc_kbd_keytronic_pc3270_at_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock)
+	pc_kbd_keytronic_pc3270_at_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
 		: pc_kbd_keytronic_pc3270_device(mconfig, tag, owner, clock)
 	{
 	}
 
-	virtual ioport_constructor device_input_ports() const;
+	virtual ioport_constructor device_input_ports() const override;
 };
 
 

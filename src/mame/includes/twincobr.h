@@ -25,36 +25,36 @@ public:
 		m_palette(*this, "palette")
 	{ }
 
-	optional_shared_ptr<UINT8> m_sharedram;
+	optional_shared_ptr<uint8_t> m_sharedram;
 	optional_device<buffered_spriteram8_device> m_spriteram8;
 	optional_device<buffered_spriteram16_device> m_spriteram16;
 
 	int m_toaplan_main_cpu;
-	INT32 m_fg_rom_bank;
-	INT32 m_bg_ram_bank;
+	int32_t m_fg_rom_bank;
+	int32_t m_bg_ram_bank;
 	int m_intenable;
 	int m_dsp_on;
 	int m_dsp_BIO;
 	int m_fsharkbt_8741;
 	int m_dsp_execute;
-	UINT32 m_dsp_addr_w;
-	UINT32 m_main_ram_seg;
-	UINT16 *m_bgvideoram16;
-	UINT16 *m_fgvideoram16;
-	UINT16 *m_txvideoram16;
+	uint32_t m_dsp_addr_w;
+	uint32_t m_main_ram_seg;
+	std::unique_ptr<uint16_t[]> m_bgvideoram16;
+	std::unique_ptr<uint16_t[]> m_fgvideoram16;
+	std::unique_ptr<uint16_t[]> m_txvideoram16;
 	size_t m_bgvideoram_size;
 	size_t m_fgvideoram_size;
 	size_t m_txvideoram_size;
-	INT32 m_txscrollx;
-	INT32 m_txscrolly;
-	INT32 m_fgscrollx;
-	INT32 m_fgscrolly;
-	INT32 m_bgscrollx;
-	INT32 m_bgscrolly;
-	INT32 m_txoffs;
-	INT32 m_fgoffs;
-	INT32 m_bgoffs;
-	INT32 m_display_on;
+	int32_t m_txscrollx;
+	int32_t m_txscrolly;
+	int32_t m_fgscrollx;
+	int32_t m_fgscrolly;
+	int32_t m_bgscrollx;
+	int32_t m_bgscrolly;
+	int32_t m_txoffs;
+	int32_t m_fgoffs;
+	int32_t m_bgoffs;
+	int32_t m_display_on;
 	tilemap_t *m_bg_tilemap;
 	tilemap_t *m_fg_tilemap;
 	tilemap_t *m_tx_tilemap;
@@ -68,7 +68,7 @@ public:
 	DECLARE_WRITE16_MEMBER(twincobr_dsp_bio_w);
 	DECLARE_READ16_MEMBER(fsharkbt_dsp_r);
 	DECLARE_WRITE16_MEMBER(fsharkbt_dsp_w);
-	DECLARE_READ16_MEMBER(twincobr_BIO_r);
+	DECLARE_READ_LINE_MEMBER(twincobr_BIO_r);
 	DECLARE_WRITE16_MEMBER(twincobr_control_w);
 	DECLARE_WRITE8_MEMBER(wardner_control_w);
 	DECLARE_READ16_MEMBER(twincobr_sharedram_r);
@@ -106,8 +106,7 @@ public:
 	TILE_GET_INFO_MEMBER(get_tx_tile_info);
 	DECLARE_MACHINE_RESET(twincobr);
 	DECLARE_VIDEO_START(toaplan0);
-	void copy_sprites(bitmap_ind16 &bitmap, const rectangle &cliprect, int priority);
-	UINT32 screen_update_toaplan0(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_toaplan0(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(twincobr_interrupt);
 	INTERRUPT_GEN_MEMBER(wardner_interrupt);
 	void twincobr_restore_dsp();
@@ -115,7 +114,6 @@ public:
 	void twincobr_display(int enable);
 	void twincobr_flipscreen(int flip);
 	void twincobr_log_vram();
-	void draw_sprites(bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void twincobr_dsp(int enable);
 	void toaplan0_control_w(int offset, int data);
 	void toaplan0_coin_dsp_w(address_space &space, int offset, int data);

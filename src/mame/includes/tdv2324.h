@@ -69,18 +69,18 @@ public:
 	required_device<pit8253_device> m_pit1;
 	required_device<tms9927_device> m_tms;
 
-	virtual void video_start();
-	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	virtual void video_start() override;
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 	DECLARE_READ8_MEMBER( tdv2324_main_io_30 );
 	DECLARE_READ8_MEMBER( tdv2324_main_io_e6 );
 	DECLARE_WRITE8_MEMBER( tdv2324_main_io_e2 );
 
-	UINT8 m_sub_status;
-	UINT8 m_sub_data;
+	uint8_t m_sub_status;
+	uint8_t m_sub_data;
 
 	// video state
-	required_shared_ptr<UINT8> m_video_ram;
+	required_shared_ptr<uint8_t> m_video_ram;
 };
 
 

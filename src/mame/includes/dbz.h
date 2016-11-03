@@ -6,6 +6,7 @@
 
 *************************************************************************/
 
+#include "machine/gen_latch.h"
 #include "machine/k053252.h"
 #include "video/k054156_k054157_k056832.h"
 #include "video/k053246_k053247_k055673.h"
@@ -28,11 +29,12 @@ public:
 		m_k056832(*this, "k056832"),
 		m_k053936_1(*this, "k053936_1"),
 		m_k053936_2(*this, "k053936_2"),
-		m_gfxdecode(*this, "gfxdecode") { }
+		m_gfxdecode(*this, "gfxdecode"),
+		m_soundlatch(*this, "soundlatch") { }
 
 	/* memory pointers */
-	required_shared_ptr<UINT16> m_bg1_videoram;
-	required_shared_ptr<UINT16> m_bg2_videoram;
+	required_shared_ptr<uint16_t> m_bg1_videoram;
+	required_shared_ptr<uint16_t> m_bg2_videoram;
 
 	/* video-related */
 	tilemap_t    *m_bg1_tilemap;
@@ -54,8 +56,8 @@ public:
 	required_device<k053936_device> m_k053936_1;
 	required_device<k053936_device> m_k053936_2;
 	required_device<gfxdecode_device> m_gfxdecode;
+	required_device<generic_latch_8_device> m_soundlatch;
 
-	DECLARE_READ16_MEMBER(dbzcontrol_r);
 	DECLARE_WRITE16_MEMBER(dbzcontrol_w);
 	DECLARE_WRITE16_MEMBER(dbz_sound_command_w);
 	DECLARE_WRITE16_MEMBER(dbz_sound_cause_nmi);
@@ -67,10 +69,10 @@ public:
 	DECLARE_DRIVER_INIT(dbz2);
 	TILE_GET_INFO_MEMBER(get_dbz_bg2_tile_info);
 	TILE_GET_INFO_MEMBER(get_dbz_bg1_tile_info);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
-	UINT32 screen_update_dbz(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
+	uint32_t screen_update_dbz(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	TIMER_DEVICE_CALLBACK_MEMBER(dbz_scanline);
 	K056832_CB_MEMBER(tile_callback);
 	K053246_CB_MEMBER(sprite_callback);

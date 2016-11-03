@@ -1,4 +1,4 @@
-// license:???
+// license:BSD-3-Clause
 // copyright-holders:Frank Palazzolo, Stefan Jokisch
 /*
  *  The schematics don't seem to make a lot of sense when it
@@ -49,10 +49,10 @@ public:
 
 	int m_analog_in_select;
 	int m_attract;
-	required_shared_ptr<UINT8> m_playfield_ram;
-	required_shared_ptr<UINT8> m_hpos_ram;
-	required_shared_ptr<UINT8> m_vpos_ram;
-	required_shared_ptr<UINT8> m_obj_ram;
+	required_shared_ptr<uint8_t> m_playfield_ram;
+	required_shared_ptr<uint8_t> m_hpos_ram;
+	required_shared_ptr<uint8_t> m_vpos_ram;
+	required_shared_ptr<uint8_t> m_obj_ram;
 	int m_ship_explode;
 	int m_ship_picture;
 	int m_ship_hoffset;
@@ -68,7 +68,7 @@ public:
 	int m_starfield_kill;
 	int m_mux;
 	int m_inverse;
-	UINT16 *m_LSFR;
+	std::unique_ptr<uint16_t[]> m_LSFR;
 	bitmap_ind16 m_helper;
 	tilemap_t *m_bg_tilemap;
 	DECLARE_WRITE8_MEMBER(starshp1_collision_reset_w);
@@ -83,9 +83,9 @@ public:
 	DECLARE_WRITE8_MEMBER(starshp1_audio_w);
 	DECLARE_WRITE8_MEMBER(starshp1_analog_out_w);
 	TILE_GET_INFO_MEMBER(get_tile_info);
-	virtual void video_start();
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(starshp1);
-	UINT32 screen_update_starshp1(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_starshp1(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void screen_eof_starshp1(screen_device &screen, bool state);
 	INTERRUPT_GEN_MEMBER(starshp1_interrupt);
 	void set_pens();

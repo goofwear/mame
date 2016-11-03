@@ -29,8 +29,8 @@ public:
 	optional_device<discrete_device> m_discrete;
 	optional_device<redbaron_sound_device> m_redbaronsound;
 
-	UINT8 m_analog_data;
-	UINT8 m_rb_input_select;
+	uint8_t m_analog_data;
+	uint8_t m_rb_input_select;
 	DECLARE_WRITE8_MEMBER(bzone_coin_counter_w);
 	DECLARE_READ8_MEMBER(analog_data_r);
 	DECLARE_WRITE8_MEMBER(analog_select_w);
@@ -38,7 +38,7 @@ public:
 	DECLARE_READ8_MEMBER(redbaron_joy_r);
 	DECLARE_WRITE8_MEMBER(redbaron_joysound_w);
 	DECLARE_DRIVER_INIT(bradley);
-	virtual void machine_start();
+	virtual void machine_start() override;
 	DECLARE_MACHINE_START(redbaron);
 	INTERRUPT_GEN_MEMBER(bzone_interrupt);
 	DECLARE_WRITE8_MEMBER(bzone_sounds_w);

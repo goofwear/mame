@@ -16,8 +16,8 @@
 class ccvf_format : public floppy_image_format_t {
 public:
 	struct format {
-		UINT32 form_factor;      // See floppy_image for possible values
-		UINT32 variant;          // See floppy_image for possible values
+		uint32_t form_factor;      // See floppy_image for possible values
+		uint32_t variant;          // See floppy_image for possible values
 
 		int cell_size;           // See floppy_image_format_t for details
 		int sector_count;
@@ -32,13 +32,13 @@ public:
 	ccvf_format();
 	ccvf_format(const format *formats);
 
-	virtual const char *name() const;
-	virtual const char *description() const;
-	virtual const char *extensions() const;
+	virtual const char *name() const override;
+	virtual const char *description() const override;
+	virtual const char *extensions() const override;
 
-	virtual int identify(io_generic *io, UINT32 form_factor);
-	virtual bool load(io_generic *io, UINT32 form_factor, floppy_image *image);
-	virtual bool supports_save() const;
+	virtual int identify(io_generic *io, uint32_t form_factor) override;
+	virtual bool load(io_generic *io, uint32_t form_factor, floppy_image *image) override;
+	virtual bool supports_save() const override;
 
 protected:
 	const format *formats;

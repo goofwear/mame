@@ -37,8 +37,8 @@
 #define __VIC10_EXPANSION_SLOT__
 
 #include "emu.h"
+#include "softlist_dev.h"
 #include "formats/cbm_crt.h"
-
 
 
 //**************************************************************************
@@ -93,7 +93,7 @@ class vic10_expansion_slot_device : public device_t,
 {
 public:
 	// construction/destruction
-	vic10_expansion_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	vic10_expansion_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _Object> static devcb_base &set_irq_wr_callback(device_t &device, _Object object) { return downcast<vic10_expansion_slot_device &>(device).m_write_irq.set_callback(object); }
 	template<class _Object> static devcb_base &set_res_wr_callback(device_t &device, _Object object) { return downcast<vic10_expansion_slot_device &>(device).m_write_res.set_callback(object); }
@@ -101,8 +101,8 @@ public:
 	template<class _Object> static devcb_base &set_sp_wr_callback(device_t &device, _Object object) { return downcast<vic10_expansion_slot_device &>(device).m_write_sp.set_callback(object); }
 
 	// computer interface
-	UINT8 cd_r(address_space &space, offs_t offset, UINT8 data, int lorom, int uprom, int exram);
-	void cd_w(address_space &space, offs_t offset, UINT8 data, int lorom, int uprom, int exram);
+	uint8_t cd_r(address_space &space, offs_t offset, uint8_t data, int lorom, int uprom, int exram);
+	void cd_w(address_space &space, offs_t offset, uint8_t data, int lorom, int uprom, int exram);
 	DECLARE_READ_LINE_MEMBER( p0_r );
 	DECLARE_WRITE_LINE_MEMBER( p0_w );
 
@@ -114,27 +114,26 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_config_complete() { update_names(); }
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_config_complete() override { update_names(); }
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	// image-level overrides
-	virtual bool call_load();
-	virtual bool call_softlist_load(software_list_device &swlist, const char *swname, const rom_entry *start_entry);
+	virtual image_init_result call_load() override;
+	virtual const software_list_loader &get_software_list_loader() const override { return rom_software_list_loader::instance(); }
 
-	virtual iodevice_t image_type() const { return IO_CARTSLOT; }
+	virtual iodevice_t image_type() const override { return IO_CARTSLOT; }
 
-	virtual bool is_readable()  const { return 1; }
-	virtual bool is_writeable() const { return 0; }
-	virtual bool is_creatable() const { return 0; }
-	virtual bool must_be_loaded() const { return 1; }
-	virtual bool is_reset_on_load() const { return 1; }
-	virtual const char *image_interface() const { return "vic10_cart"; }
-	virtual const char *file_extensions() const { return "80,e0"; }
-	virtual const option_guide *create_option_guide() const { return NULL; }
+	virtual bool is_readable()  const override { return 1; }
+	virtual bool is_writeable() const override { return 0; }
+	virtual bool is_creatable() const override { return 0; }
+	virtual bool must_be_loaded() const override { return 1; }
+	virtual bool is_reset_on_load() const override { return 1; }
+	virtual const char *image_interface() const override { return "vic10_cart"; }
+	virtual const char *file_extensions() const override { return "80,e0"; }
 
 	// slot interface overrides
-	virtual void get_default_card_software(std::string &result);
+	virtual std::string get_default_card_software() override;
 
 	devcb_write_line   m_write_irq;
 	devcb_write_line   m_write_res;
@@ -157,17 +156,17 @@ public:
 	device_vic10_expansion_card_interface(const machine_config &mconfig, device_t &device);
 	virtual ~device_vic10_expansion_card_interface();
 
-	virtual UINT8 vic10_cd_r(address_space &space, offs_t offset, UINT8 data, int lorom, int uprom, int exram) { return data; };
-	virtual void vic10_cd_w(address_space &space, offs_t offset, UINT8 data, int lorom, int uprom, int exram) { };
+	virtual uint8_t vic10_cd_r(address_space &space, offs_t offset, uint8_t data, int lorom, int uprom, int exram) { return data; };
+	virtual void vic10_cd_w(address_space &space, offs_t offset, uint8_t data, int lorom, int uprom, int exram) { };
 	virtual int vic10_p0_r() { return 0; };
 	virtual void vic10_p0_w(int state) { };
 	virtual void vic10_sp_w(int state) { };
 	virtual void vic10_cnt_w(int state) { };
 
 protected:
-	optional_shared_ptr<UINT8> m_lorom;
-	optional_shared_ptr<UINT8> m_exram;
-	optional_shared_ptr<UINT8> m_uprom;
+	optional_shared_ptr<uint8_t> m_lorom;
+	optional_shared_ptr<uint8_t> m_exram;
+	optional_shared_ptr<uint8_t> m_uprom;
 
 	vic10_expansion_slot_device *m_slot;
 };

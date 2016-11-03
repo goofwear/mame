@@ -19,7 +19,7 @@
 class decodmd_type3_device : public device_t
 {
 public:
-	decodmd_type3_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	decodmd_type3_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 	required_device<cpu_device> m_cpu;
 	required_device<mc6845_device> m_mc6845;
 	required_device<ram_device> m_ram;
@@ -43,18 +43,18 @@ public:
 	memory_region* m_rom;
 
 protected:
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual void device_start();
-	virtual void device_reset();
+	virtual machine_config_constructor device_mconfig_additions() const override;
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 private:
-	UINT8 m_status;
-	UINT8 m_crtc_index;
-	UINT8 m_crtc_reg[0x100];
-	UINT8 m_latch;
-	UINT8 m_ctrl;
-	UINT8 m_busy;
-	UINT8 m_command;
+	uint8_t m_status;
+	uint8_t m_crtc_index;
+	uint8_t m_crtc_reg[0x100];
+	uint8_t m_latch;
+	uint8_t m_ctrl;
+	uint8_t m_busy;
+	uint8_t m_command;
 
 	const char* m_gfxtag;
 };

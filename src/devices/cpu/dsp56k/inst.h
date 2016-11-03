@@ -30,7 +30,7 @@ public:
 										m_destination(iINVALID) { }
 	virtual ~Instruction() {}
 
-	virtual bool decode(const UINT16 word0, const UINT16 word1) = 0;
+	virtual bool decode(const uint16_t word0, const uint16_t word1) = 0;
 	virtual void disassemble(std::string& retString) const = 0;
 	virtual void evaluate(dsp56k_core* cpustate) = 0;
 
@@ -39,9 +39,9 @@ public:
 	virtual size_t accumulatorBitsModified() const = 0;   // Potentially make this always return ALL (like flags)
 	virtual size_t flags() const { return 0; }
 
-	static Instruction* decodeInstruction(const Opcode* opc,
-											const UINT16 word0,
-											const UINT16 word1,
+	static std::unique_ptr<Instruction> decodeInstruction(const Opcode* opc,
+											const uint16_t word0,
+											const uint16_t word1,
 											bool shifted=false);
 
 	bool valid() const { return m_valid; }
@@ -70,68 +70,68 @@ protected:
 class Abs: public Instruction
 {
 public:
-	Abs(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Abs(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "abs " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ADC : 0001 0101 0000 F01J : A-20 ////////////////////////////////////////////
 class Adc: public Instruction
 {
 public:
-	Adc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Adc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JF_table(BITSn(word0,0x0001), BITSn(word0,0x0008),
 						m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "adc " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ADD : .... .... 0000 FJJJ : A-22 ////////////////////////////////////////////
 class Add: public Instruction
 {
 public:
-	Add(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Add(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JJJF_table(BITSn(word0,0x07), BITSn(word0,0x08),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "add " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ??? Odd that i should put the 011m mKKK everywhere ???  TODO
@@ -139,26 +139,26 @@ public:
 class Add_2: public Instruction
 {
 public:
-	Add_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Add_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_arg = "";
 		m_opcode = "";
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_uuuuF_table(BITSn(word0,0x17), BITSn(word0,0x08),
 							m_opcode, m_source, m_destination);
 		// TODO: m_opcode = "add";
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = m_opcode + " " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	std::string m_opcode;
@@ -169,163 +169,163 @@ private:
 class And: public Instruction
 {
 public:
-	And(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	And(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JJF_table(BITSn(word0,0x03),BITSn(word0,0x08),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "and " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // ANDI : 0001 1EE0 iiii iiii : A-26 ///////////////////////////////////////////
 class Andi: public Instruction
 {
 public:
-	Andi(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Andi(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_immediate = BITSn(word0,0x00ff);
 		decode_EE_table(BITSn(word0,0x0600), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "#$%x,%s", m_immediate, regIdAsString(m_destination).c_str());
 		retString = "andi " + std::string(temp);
 		// NEW // sprintf(opcode_str, "and(i)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT8 m_immediate;
+	uint8_t m_immediate;
 };
 
 // ASL : .... .... 0011 F001 : A-28 ////////////////////////////////////////////
 class Asl: public Instruction
 {
 public:
-	Asl(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Asl(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "asl " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ASL4 : 0001 0101 0011 F001 : A-30 ///////////////////////////////////////////
 class Asl4: public Instruction
 {
 public:
-	Asl4(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Asl4(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "asl4 " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ASR : .... .... 0011 F000 : A-32 ////////////////////////////////////////////
 class Asr: public Instruction
 {
 public:
-	Asr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Asr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "asr " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ASR4 : 0001 0101 0011 F000 : A-34 ///////////////////////////////////////////
 class Asr4: public Instruction
 {
 public:
-	Asr4(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Asr4(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "asr4 " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ASR16 : 0001 0101 0111 F000 : A-36 //////////////////////////////////////////
 class Asr16: public Instruction
 {
 public:
-	Asr16(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Asr16(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "asr16 " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 /* BFCHG  : 0001 0100 11Pp pppp BBB1 0010 iiii iiii : A-38 */
@@ -336,14 +336,14 @@ public:
 class BfInstruction: public Instruction
 {
 public:
-	BfInstruction(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	BfInstruction(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		dString = "";
 		m_opcode = "";
 		m_iVal = 0x0000;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* Decode the common parts */
 		m_iVal = BITSn(word1,0x00ff);
@@ -373,18 +373,18 @@ public:
 		}
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "#$%x", m_iVal);
 		retString = m_opcode + " " + std::string(temp) + "," + dString;
 		// NEW // sprintf(temp, "#$%04x", iVal);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 private:
-	UINT16 m_iVal;
+	uint16_t m_iVal;
 	std::string m_opcode;
 	std::string dString;
 };
@@ -397,14 +397,14 @@ private:
 class BfInstruction_2: public Instruction
 {
 public:
-	BfInstruction_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	BfInstruction_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_opcode = "";
 		m_r = iINVALID;
 		m_iVal = 0x0000;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* Decode the common parts */
 		m_iVal = BITSn(word1,0x00ff);
@@ -434,7 +434,7 @@ public:
 		}
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "#$%x", m_iVal);
@@ -446,13 +446,13 @@ public:
 		retString = m_opcode + " " + source + "," + destination;
 		// NEW // sprintf(temp, "#$%04x", m_iVal);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_r;
-	UINT16 m_iVal;
+	uint16_t m_iVal;
 	std::string m_opcode;
 };
 
@@ -464,13 +464,13 @@ private:
 class BfInstruction_3: public Instruction
 {
 public:
-	BfInstruction_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	BfInstruction_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_opcode = "";
 		m_iVal = 0x0000;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* Decode the common parts */
 		m_iVal = BITSn(word1,0x00ff);
@@ -500,7 +500,7 @@ public:
 		}
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "#$%x", m_iVal);
@@ -509,12 +509,12 @@ public:
 		retString = m_opcode + " " + source + "," + regIdAsString(m_destination);
 		// NEW // sprintf(temp, "#$%04x", m_iVal);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT16 m_iVal;
+	uint16_t m_iVal;
 	std::string m_opcode;
 };
 
@@ -522,54 +522,54 @@ private:
 class Bcc: public Instruction
 {
 public:
-	Bcc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bcc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		m_immediate = (INT16)word1;
+		m_immediate = (int16_t)word1;
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "b" + opMnemonicAsString(m_mnem);
 		// NEW // sprintf(opcode_str, "b.%s", M);
 
 		char temp[32];
 		sprintf(temp, ">*+$%x", 2 + m_immediate);
-		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + (INT16)word1, (INT16)word1);
+		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + (int16_t)word1, (int16_t)word1);
 		retString = opcode + " " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
-	INT16 m_immediate;
+	int16_t m_immediate;
 };
 
 // Bcc : 0010 11cc ccee eeee : A-48 ////////////////////////////////////////////
 class Bcc_2: public Instruction
 {
 public:
-	Bcc_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bcc_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_cccc_table(BITSn(word0,0x3c0), m_mnem);
 		m_immediate = get_6_bit_signed_value(BITSn(word0,0x003f));
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "b" + opMnemonicAsString(m_mnem);
 		// NEW // sprintf(opcode_str, "b.%s", M);
@@ -581,39 +581,39 @@ public:
 
 		retString = opcode + " " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
-	INT8 m_immediate;
+	int8_t m_immediate;
 };
 
 // Bcc : 0000 0111 RR10 cccc : A-48 ////////////////////////////////////////////
 class Bcc_3: public Instruction
 {
 public:
-	Bcc_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bcc_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x00c0), m_destination);
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "b" + opMnemonicAsString(m_mnem);
 		retString = opcode + " " + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "b.%s", M);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -623,46 +623,46 @@ private:
 class Bra: public Instruction
 {
 public:
-	Bra(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bra(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		m_immediate = (INT16)word1;
+		m_immediate = (int16_t)word1;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, ">*+$%x", 2 + m_immediate);
-		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + word1, (INT16)word1);
+		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + word1, (int16_t)word1);
 		retString = "bra " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT16 m_immediate;
+	int16_t m_immediate;
 };
 
 // BRA : 0000 1011 aaaa aaaa : A-50 ////////////////////////////////////////////
 class Bra_2: public Instruction
 {
 public:
-	Bra_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bra_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		m_immediate = (INT8)BITSn(word0,0x00ff);
+		m_immediate = (int8_t)BITSn(word0,0x00ff);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		if (m_immediate >= 0) sprintf(temp, "<*+$%x", 1 + m_immediate);
@@ -670,59 +670,59 @@ public:
 		// NEW // sprintf(temp, "$%04x (%d)", pc + 1 + iVal, iVal);
 		retString = "bra " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_immediate;
+	int8_t m_immediate;
 };
 
 // BRA : 0000 0001 0010 11RR : A-50 ////////////////////////////////////////////
 class Bra_3: public Instruction
 {
 public:
-	Bra_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bra_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x0003), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "bra " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // BRKcc : 0000 0001 0001 cccc : A-52 //////////////////////////////////////////
 class Brkcc: public Instruction
 {
 public:
-	Brkcc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Brkcc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "brk" + opMnemonicAsString(m_mnem);
 		retString = opcode;
 		// NEW // sprintf(opcode_str, "brk.%s", M);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -732,19 +732,19 @@ private:
 class Bscc: public Instruction
 {
 public:
-	Bscc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bscc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		m_immediate = (INT16)word1;
+		m_immediate = (int16_t)word1;
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "bs" + opMnemonicAsString(m_mnem);
 		// NEW // sprintf(opcode_str, "bs.%s", M);
@@ -753,44 +753,44 @@ public:
 		if (m_immediate >= 0) sprintf(temp, ">*+$%x", 2 + m_immediate);
 		else                  sprintf(temp, ">*-$%x", 1 - m_immediate - 1 - 2);
 		//sprintf(temp, ">*+$%x", 2 + m_immediate);
-		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + (INT16)word1, (INT16)word1);
+		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + (int16_t)word1, (int16_t)word1);
 		retString = opcode + " " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 
 private:
 	op_mnem m_mnem;
-	INT16 m_immediate;
+	int16_t m_immediate;
 };
 
 // BScc : 0000 0111 RR00 cccc : A-54 ///////////////////////////////////////////
 class Bscc_2: public Instruction
 {
 public:
-	Bscc_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bscc_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x00c0), m_destination);
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "bs" + opMnemonicAsString(m_mnem);
 		retString = opcode + " " + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "bs.%s", M);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 
 private:
 	op_mnem m_mnem;
@@ -800,130 +800,130 @@ private:
 class Bsr: public Instruction
 {
 public:
-	Bsr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bsr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		m_immediate = (INT16)word1;
+		m_immediate = (int16_t)word1;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		if (m_immediate >= 0) sprintf(temp, ">*+$%x", 2 + m_immediate);
 		else                  sprintf(temp, ">*-$%x", 1 - m_immediate - 1 - 2);
-		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + (INT16)word1, (INT16)word1);
+		// NEW // sprintf(temp, "$%04x (%d)", pc + 2 + (int16_t)word1, (int16_t)word1);
 		retString = "bsr " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 
 private:
-	INT16 m_immediate;
+	int16_t m_immediate;
 };
 
 // BSR : 0000 0001 0010 10RR : A-56 ////////////////////////////////////////////
 class Bsr_2: public Instruction
 {
 public:
-	Bsr_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Bsr_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x0003), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "bsr " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 };
 
 // CHKAAU : 0000 0000 0000 0100 : A-58 /////////////////////////////////////////
 class Chkaau: public Instruction
 {
 public:
-	Chkaau(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Chkaau(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "chkaau";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // CLR : .... .... 0000 F001 : A-60 ////////////////////////////////////////////
 class Clr: public Instruction
 {
 public:
-	Clr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Clr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "clr " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // CLR24 : .... .... 0101 F001 : A-62 //////////////////////////////////////////
 class Clr24: public Instruction
 {
 public:
-	Clr24(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Clr24(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "clr24 " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // CMP : .... .... 0101 FJJJ : A-64 ////////////////////////////////////////////
 class Cmp: public Instruction
 {
 public:
-	Cmp(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Cmp(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* Note: This is a JJJF limited in the docs, but other opcodes sneak
 		         in before cmp, so the same decode function can be used. */
@@ -931,24 +931,24 @@ public:
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "cmp " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_NONE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_NONE; }
 };
 
 // CMPM : .... .... 0111 FJJJ : A-66 ///////////////////////////////////////////
 class Cmpm: public Instruction
 {
 public:
-	Cmpm(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Cmpm(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* Note: This is a JJJF limited in the docs, but other opcodes sneak
 		         in before cmp, so the same decode function can be used. */
@@ -956,59 +956,59 @@ public:
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "cmpm " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_NONE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_NONE; }
 };
 
 // DEBUG : 0000 0000 0000 0001 : A-68 //////////////////////////////////////////
 class Debug: public Instruction
 {
 public:
-	Debug(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Debug(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "debug";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // DEBUGcc : 0000 0000 0101 cccc : A-70 ////////////////////////////////////////
 class Debugcc: public Instruction
 {
 public:
-	Debugcc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Debugcc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "debug" + opMnemonicAsString(m_mnem);
 		retString = opcode;
 		// NEW // sprintf(opcode_str, "debug.%s", M);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -1018,80 +1018,80 @@ private:
 class Dec: public Instruction
 {
 public:
-	Dec(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Dec(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "dec " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // DEC24 : .... .... 0110 F011 : A-74 //////////////////////////////////////////
 class Dec24: public Instruction
 {
 public:
-	Dec24(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Dec24(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "dec24 " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // DIV : 0001 0101 0--0 F1DD : A-76 ////////////////////////////////////////////
 class Div: public Instruction
 {
 public:
-	Div(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Div(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_DDF_table(BITSn(word0,0x0003), BITSn(word0,0x0008),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "div " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // DMAC : 0001 0101 10s1 FsQQ : A-80 ///////////////////////////////////////////
 class Dmac: public Instruction
 {
 public:
-	Dmac(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Dmac(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQF_special_table(BITSn(word0,0x0003), BITSn(word0,0x0008),
 									m_source, m_source2, m_destination);
@@ -1100,7 +1100,7 @@ public:
 		if (m_mnem == oINVALID) return false;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "dmac" + opMnemonicAsString(m_mnem);
 
@@ -1109,9 +1109,9 @@ public:
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "dmac(%s)", A);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -1122,18 +1122,18 @@ private:
 class Do: public Instruction
 {
 public:
-	Do(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Do(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_immediate = word1;
 		decode_RR_table(BITSn(word0,0x0003), m_source);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "*+$%x", 2 + m_immediate);
@@ -1145,56 +1145,56 @@ public:
 
 		retString = "do " + source + "," + destination;
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT16 m_immediate;
+	uint16_t m_immediate;
 };
 
 // DO : 0000 1110 iiii iiii xxxx xxxx xxxx xxxx : A-82 /////////////////////////
 class Do_2: public Instruction
 {
 public:
-	Do_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Do_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_displacement = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_immediate = BITSn(word0,0x00ff);
 		m_displacement = word1;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "#<$%x,*+$%x", m_immediate, 2 + m_displacement);
 		// NEW // sprintf(temp, "#$%02x,$%04x", BITSn(word0,0x00ff), pc + 2 + word1);
 		retString = "do " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT8 m_immediate;
-	UINT16 m_displacement;
+	uint8_t m_immediate;
+	uint16_t m_displacement;
 };
 
 // DO : 0000 0100 000D DDDD xxxx xxxx xxxx xxxx : A-82 /////////////////////////
 class Do_3: public Instruction
 {
 public:
-	Do_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Do_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_displacement = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_displacement = word1;
 
@@ -1203,36 +1203,36 @@ public:
 		if (m_source == iINVALID) return false;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "*+$%x", 2 + m_displacement);
 		// NEW // sprintf(temp, "%s,$%04x", S1, pc + 2 + word1);
 		retString = "do " + regIdAsString(m_source) + "," + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT16 m_displacement;
+	uint16_t m_displacement;
 };
 
 // DO FOREVER : 0000 0000 0000 0010 xxxx xxxx xxxx xxxx : A-88 /////////////////
 class DoForever: public Instruction
 {
 public:
-	DoForever(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	DoForever(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_displacement = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_displacement = word1;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "*+$%x", m_displacement + 2);
@@ -1240,125 +1240,125 @@ public:
 		// NEW // sprintf(temp, "$%04x", pc + 2 + word1);
 		retString = "do forever, " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT16 m_displacement;
+	uint16_t m_displacement;
 };
 
 // ENDDO : 0000 0000 0000 1001 : A-92 //////////////////////////////////////////
 class Enddo: public Instruction
 {
 public:
-	Enddo(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Enddo(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "enddo";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // EOR : .... .... 0011 F1JJ : A-94 ////////////////////////////////////////////
 class Eor: public Instruction
 {
 public:
-	Eor(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Eor(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JJF_table(BITSn(word0,0x03),BITSn(word0,0x08),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "eor " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // EXT : 0001 0101 0101 F010 : A-96 ////////////////////////////////////////////
 class Ext: public Instruction
 {
 public:
-	Ext(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Ext(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "ext " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ILLEGAL : 0000 0000 0000 1111 : A-98 ////////////////////////////////////////
 class Illegal: public Instruction
 {
 public:
-	Illegal(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Illegal(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "illegal";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // IMAC : 0001 0101 1010 FQQQ : A-100 //////////////////////////////////////////
 class Imac: public Instruction
 {
 public:
-	Imac(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Imac(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x0007), BITSn(word0,0x0008),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "imac " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -1368,26 +1368,26 @@ private:
 class Impy: public Instruction
 {
 public:
-	Impy(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Impy(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x0007), BITSn(word0,0x0008),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "impy " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -1397,63 +1397,63 @@ private:
 class Inc: public Instruction
 {
 public:
-	Inc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Inc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "inc " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // INC24 : .... .... 0010 F011 : A-106 /////////////////////////////////////////
 class Inc24: public Instruction
 {
 public:
-	Inc24(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Inc24(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "inc24 " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // Jcc : 0000 0110 --11 cccc xxxx xxxx xxxx xxxx : A-108 ///////////////////////
 class Jcc: public Instruction
 {
 public:
-	Jcc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jcc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_displacement = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_displacement = word1;
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "j" + opMnemonicAsString(m_mnem);
 		// NEW // sprintf(opcode_str, "j.%s", M);
@@ -1463,39 +1463,39 @@ public:
 		// NEW // sprintf(temp, "$%04x", word1);
 		retString = opcode + " " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
-	UINT16 m_displacement;
+	uint16_t m_displacement;
 };
 
 // Jcc : 0000 0110 RR10 cccc : A-108 ///////////////////////////////////////////
 class Jcc_2: public Instruction
 {
 public:
-	Jcc_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jcc_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x00c0), m_destination);
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "j" + opMnemonicAsString(m_mnem);
 		retString = opcode + " " + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "j.%s", M);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -1505,88 +1505,86 @@ private:
 class Jmp: public Instruction
 {
 public:
-	Jmp(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jmp(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_displacement = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_displacement = word1;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, ">$%x", m_displacement);
 		// NEW // sprintf(temp, "$%04x", word1);
 		retString = "jmp " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate)
+	void evaluate(dsp56k_core* cpustate) override
 	{
-		cpustate->ppc = PC;
 		PC = m_displacement;
 
 		/* S L E U N Z V C */
 		/* - - - - - - - - */
 	}
-	size_t size() const { return 2; }
-	size_t evalSize() const { return 0; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t size() const override { return 2; }
+	size_t evalSize() const override { return 0; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT16 m_displacement;
+	uint16_t m_displacement;
 };
 
 // JMP : 0000 0001 0010 01RR : A-110 ///////////////////////////////////////////
 class Jmp_2: public Instruction
 {
 public:
-	Jmp_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jmp_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x0003), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "jmp " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate)
+	void evaluate(dsp56k_core* cpustate) override
 	{
-		cpustate->ppc = PC;
 		PC = regValue16(cpustate, m_destination);
 
 		/* S L E U N Z V C */
 		/* - - - - - - - - */
 	}
-	size_t size() const { return 1; }
-	size_t evalSize() const { return 0; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t size() const override { return 1; }
+	size_t evalSize() const override { return 0; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
-//static Jmp_2* JMP2 = new Jmp_2(NULL, 0x0000, 0x0000);
+//static Jmp_2* JMP2 = new Jmp_2(nullptr, 0x0000, 0x0000);
 
 // JScc : 0000 0110 --01 cccc xxxx xxxx xxxx xxxx : A-112 //////////////////////
 class Jscc: public Instruction
 {
 public:
-	Jscc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jscc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_displacement = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_displacement = word1;
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "js" + opMnemonicAsString(m_mnem);
 		// NEW // sprintf(opcode_str, "js.%s", M);
@@ -1596,41 +1594,41 @@ public:
 		// NEW // sprintf(temp, "$%04x", word1);
 		retString = opcode + " " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 
 private:
 	op_mnem m_mnem;
-	UINT16 m_displacement;
+	uint16_t m_displacement;
 };
 
 // JScc : 0000 0110 RR00 cccc : A-112 //////////////////////////////////////////
 class Jscc_2: public Instruction
 {
 public:
-	Jscc_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jscc_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x00c0), m_destination);
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "js" + opMnemonicAsString(m_mnem);
 		retString = opcode + " " + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "js.%s", M);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 
 private:
 	op_mnem m_mnem;
@@ -1640,113 +1638,113 @@ private:
 class Jsr: public Instruction
 {
 public:
-	Jsr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jsr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_displacement = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_displacement = word1;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, ">$%x", m_displacement);
 		// NEW // sprintf(temp, "$%04x", word1);
 		retString = "jsr " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 
 private:
-	UINT16 m_displacement;
+	uint16_t m_displacement;
 };
 
 // JSR : 0000 1010 AAAA AAAA : A-114 ///////////////////////////////////////////
 class Jsr_2: public Instruction
 {
 public:
-	Jsr_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jsr_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_bAddr = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_bAddr = BITSn(word0,0x00ff);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "<$%x", m_bAddr);
 		// NEW // sprintf(temp, "#$%02x", BITSn(word0,0x00ff));
 		retString = "jsr " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 
 private:
-	UINT8 m_bAddr;
+	uint8_t m_bAddr;
 };
 
 // JSR : 0000 0001 0010 00RR : A-114 ///////////////////////////////////////////
 class Jsr_3: public Instruction
 {
 public:
-	Jsr_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Jsr_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x0003), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "jsr " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OVER; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OVER; }
 };
 
 // LEA : 0000 0001 11TT MMRR : A-116 ///////////////////////////////////////////
 class Lea: public Instruction
 {
 public:
-	Lea(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Lea(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_ea = "";
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		if ((word0 & 0x000c) == 0) return false;  // NEW TODO //
 
 		decode_TT_table(BITSn(word0,0x0030), m_destination);
 
-		INT8 rNum = BITSn(word0,0x0003);
+		int8_t rNum = BITSn(word0,0x0003);
 		assemble_ea_from_MM_table(BITSn(word0,0x000c), rNum, m_ea);
 
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		// HACK
 		retString = "lea " + m_ea + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	std::string m_ea;
@@ -1756,29 +1754,29 @@ private:
 class Lea_2: public Instruction
 {
 public:
-	Lea_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Lea_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		if ((word0 & 0x000c) == 0) return false;  // NEW TODO //
 
 		decode_NN_table(BITSn(word0,0x0030), m_destination);
 
-		INT8 rNum = BITSn(word0,0x0003);
+		int8_t rNum = BITSn(word0,0x0003);
 		assemble_ea_from_MM_table(BITSn(word0,0x000c), rNum, m_ea);
 
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		// HACK
 		retString = "lea " + m_ea + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	std::string m_ea;
@@ -1788,57 +1786,57 @@ private:
 class Lsl: public Instruction
 {
 public:
-	Lsl(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Lsl(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "lsl " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // LSR : .... .... 0011 F010 : A-120 ///////////////////////////////////////////
 class Lsr: public Instruction
 {
 public:
-	Lsr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Lsr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "lsr " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // MAC : .... .... 1k10 FQQQ : A-122 ///////////////////////////////////////////
 class Mac: public Instruction
 {
 public:
-	Mac(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mac(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_sign = "";
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x07), BITSn(word0,0x08),
 							m_source, m_source2, m_destination);
@@ -1846,7 +1844,7 @@ public:
 		decode_kSign_table(BITSn(word0,0x40), m_sign);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string ts = m_sign;
 		if (ts.compare("-") != 0) ts = "";
@@ -1855,9 +1853,9 @@ public:
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -1868,26 +1866,26 @@ private:
 class Mac_2: public Instruction
 {
 public:
-	Mac_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mac_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQF_table(BITSn(word0,0x03), BITSn(word0,0x08),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "mac " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -1897,26 +1895,26 @@ private:
 class Mac_3: public Instruction
 {
 public:
-	Mac_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mac_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x0007), BITSn(word0,0x0008),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "mac " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -1926,13 +1924,13 @@ private:
 class Macr: public Instruction
 {
 public:
-	Macr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Macr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_sign = "";
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x07), BITSn(word0,0x08),
 							m_source, m_source2, m_destination);
@@ -1940,7 +1938,7 @@ public:
 		decode_kSign_table(BITSn(word0,0x40), m_sign);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string ts = m_sign;
 		if (ts.compare("-") != 0) ts = "";
@@ -1949,9 +1947,9 @@ public:
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	std::string m_sign;
@@ -1962,26 +1960,26 @@ private:
 class Macr_2: public Instruction
 {
 public:
-	Macr_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Macr_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQF_table(BITSn(word0,0x03), BITSn(word0,0x08),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "macr " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -1991,13 +1989,13 @@ private:
 class Macsuuu: public Instruction
 {
 public:
-	Macsuuu(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Macsuuu(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		// Special QQF
 		decode_QQF_special_table(BITSn(word0,0x0003), BITSn(word0,0x0008),
@@ -2006,7 +2004,7 @@ public:
 		decode_s_table(BITSn(word0,0x0004), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "mac" + opMnemonicAsString(m_mnem);
 
@@ -2015,9 +2013,9 @@ public:
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "mac(%s)", A);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -2028,12 +2026,12 @@ private:
 class Move: public Instruction
 {
 public:
-	Move(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Move(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_isNop = false;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		// Equivalent to a NOP (+ parallel move)
 
@@ -2045,22 +2043,22 @@ public:
 			m_destination = iB;
 
 		// Hack to match reference disassembler
-		UINT8 BITSn = (word0 & 0xff00) >> 8;
+		uint8_t BITSn = (word0 & 0xff00) >> 8;
 		if (BITSn == 0x4a || BITSn == 0x4b)
 			m_isNop = true;
 
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		if (m_isNop)
 			retString = "nop";
 		else
 			retString = "move";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_NONE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_NONE; }
 
 private:
 	bool m_isNop;
@@ -2070,11 +2068,11 @@ private:
 class Move_2: public Instruction
 {
 public:
-	Move_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Move_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		// Amounts to a nop with two parallel moves.
 		// This insures the debugger matches the reference disassembler
@@ -2085,47 +2083,47 @@ public:
 
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "move";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // MOVE : 0000 0101 BBBB BBBB ---- HHHW 0001 0001 : A-128 //////////////////////
 class Move_3: public Instruction
 {
 public:
-	Move_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Move_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_b = 0;
 		m_SD = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_b = BITSn(word0,0x00ff);
 		m_W = BITSn(word1,0x0100);
 		decode_HHH_table(BITSn(word1,0x0e00), m_SD);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
 		assemble_reg_from_W_table(m_W, 'X', m_SD, m_b, source, destination);
 		retString = "move " + source + "," + destination;
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_b;
-	UINT8 m_W;
+	int8_t m_b;
+	uint8_t m_W;
 	reg_id m_SD;
 };
 
@@ -2133,16 +2131,16 @@ private:
 class Movec: public Instruction
 {
 public:
-	Movec(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movec(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_SD = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		INT8 rNum = BITSn(word0,0x0003);
+		int8_t rNum = BITSn(word0,0x0003);
 		assemble_ea_from_MM_table(BITSn(word0,0x000c), rNum, m_ea);
 
 		m_W = BITSn(word0,0x0400);
@@ -2150,7 +2148,7 @@ public:
 		if (m_SD == iINVALID) return false;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2158,12 +2156,12 @@ public:
 		retString = "move " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(c)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	reg_id m_SD;
 	std::string m_ea;
 };
@@ -2172,16 +2170,16 @@ private:
 class Movec_2: public Instruction
 {
 public:
-	Movec_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movec_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_SD = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		INT8 rNum = BITSn(word0,0x0003);
+		int8_t rNum = BITSn(word0,0x0003);
 		assemble_ea_from_q_table(BITSn(word0,0x0008), rNum, m_ea);
 
 		decode_DDDDD_table(BITSn(word0,0x03e0), m_SD);
@@ -2189,7 +2187,7 @@ public:
 		if (m_SD == iINVALID) return false;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2197,12 +2195,12 @@ public:
 		retString = "move " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(c)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	reg_id m_SD;
 	std::string m_ea;
 };
@@ -2211,14 +2209,14 @@ private:
 class Movec_3: public Instruction
 {
 public:
-	Movec_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movec_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_SD = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_Z_table(BITSn(word0,0x0008), m_ea);
 
@@ -2227,7 +2225,7 @@ public:
 		if (m_SD == iINVALID) return false;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2235,12 +2233,12 @@ public:
 		retString = "move " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(c)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	reg_id m_SD;
 	std::string m_ea;
 };
@@ -2249,14 +2247,14 @@ private:
 class Movec_4: public Instruction
 {
 public:
-	Movec_4(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movec_4(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_t = 0;
 		m_W = 0;
 		m_sd = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_value = word1;
 		m_t = BITSn(word0,0x0008);
@@ -2271,7 +2269,7 @@ public:
 
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string ea;
 		assemble_ea_from_t_table(m_t, m_value, ea);
@@ -2281,7 +2279,7 @@ public:
 		else     retString += regIdAsString(m_sd) + "," + ea;
 		// NEW // sprintf(opcode_str, "move(c)");
 	}
-	void evaluate(dsp56k_core* cpustate)
+	void evaluate(dsp56k_core* cpustate) override
 	{
 		if (m_W)
 		{
@@ -2291,7 +2289,7 @@ public:
 			}
 			else
 			{
-				//UINT16 memValue = memory_read_word_16le(cpustate->data, ADDRESS(m_value));
+				//uint16_t memValue = memory_read_word_16le(cpustate->data, ADDRESS(m_value));
 				//setReg16(cpustate, memValue, m_sd);
 			}
 		}
@@ -2299,11 +2297,11 @@ public:
 		{
 			if (m_t)
 			{
-				logerror("DSP561xx|Movec_4: This sure seems like it can't happen.");
+				osd_printf_error("DSP561xx|Movec_4: This sure seems like it can't happen.");
 			}
 			else
 			{
-				//UINT16 regValue = regValue16(cpustate, m_sd);
+				//uint16_t regValue = regValue16(cpustate, m_sd);
 				//memory_write_word_16le(cpustate->data, m_value, regValue);
 			}
 		}
@@ -2314,13 +2312,13 @@ public:
 		// bit of the source operand. If SR is not specified as a destination operand, L is set if data
 		// limiting occurred. All ? bits are not affected otherwise.
 	}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT8 m_t;
-	UINT8 m_W;
-	UINT16 m_value;
+	uint8_t m_t;
+	uint8_t m_W;
+	uint16_t m_value;
 	reg_id m_sd;
 };
 
@@ -2328,11 +2326,11 @@ private:
 class Movec_5: public Instruction
 {
 public:
-	Movec_5(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movec_5(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_DDDDD_table(BITSn(word0,0x03e0), m_source);
 		decode_DDDDD_table(BITSn(word0,0x001f), m_destination);
@@ -2341,21 +2339,21 @@ public:
 		if (m_source == iSSH && m_destination == iSSH) return false;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "move " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "move(c)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // MOVE(C) : 0000 0101 BBBB BBBB 0011 1WDD DDD0 ---- : A-144 ///////////////////
 class Movec_6: public Instruction
 {
 public:
-	Movec_6(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movec_6(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_b = 0;
@@ -2363,14 +2361,14 @@ public:
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_b = BITSn(word0,0x00ff);
 		m_W = BITSn(word1,0x0400);
 		decode_DDDDD_table(BITSn(word1,0x03e0), m_SD);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2378,13 +2376,13 @@ public:
 		retString = "move " + source + "," + destination;
 		// NEW // opcode = "move(c)";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_b;
-	UINT8 m_W;
+	int8_t m_b;
+	uint8_t m_W;
 	reg_id m_SD;
 	op_mnem m_mnem;
 };
@@ -2393,18 +2391,18 @@ private:
 class Movei: public Instruction
 {
 public:
-	Movei(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movei(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		m_immediate = (INT8)BITSn(word0,0x00ff);
+		m_immediate = (int8_t)BITSn(word0,0x00ff);
 		decode_DD_table(BITSn(word0,0x0300), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		if (m_immediate >= 0) sprintf(temp, "#<+$%x", m_immediate);
@@ -2415,35 +2413,35 @@ public:
 			std::string(temp) + "," + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "move(i)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_immediate;
+	int8_t m_immediate;
 };
 
 // MOVE(M) : 0000 001W RR0M MHHH : A-152 ///////////////////////////////////////
 class Movem: public Instruction
 {
 public:
-	Movem(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movem(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_SD = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		INT8 rNum = BITSn(word0,0x00c0);
+		int8_t rNum = BITSn(word0,0x00c0);
 
 		decode_HHH_table(BITSn(word0,0x0007), m_SD);
 		assemble_ea_from_MM_table(BITSn(word0,0x0018), rNum, m_ea);
 		m_W = BITSn(word0,0x0100);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2451,12 +2449,12 @@ public:
 		retString = "move " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(m)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	reg_id m_SD;
 	std::string m_ea;
 };
@@ -2465,20 +2463,20 @@ private:
 class Movem_2: public Instruction
 {
 public:
-	Movem_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movem_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_ea2 = "";
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_W = BITSn(word0,0x0100);
 		assemble_eas_from_mm_table(BITSn(word0,0x000c), BITSn(word0,0x00c0), BITSn(word0,0x0003), m_ea, m_ea2);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2495,12 +2493,12 @@ public:
 		retString = "move " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(m)*");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT8 m_W;
+	uint8_t m_W;
 	std::string m_ea;
 	std::string m_ea2;
 };
@@ -2509,21 +2507,21 @@ private:
 class Movem_3: public Instruction
 {
 public:
-	Movem_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movem_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_b = 0;
 		m_SD = iINVALID;
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_b = BITSn(word0,0x00ff);
 		m_W = BITSn(word1,0x0100);
 		decode_HHH_table(BITSn(word1,0x0007), m_SD);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2531,13 +2529,13 @@ public:
 		retString = "move " + source + "," + destination;
 		// NEW // opcode = "move(m)";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 2; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 2; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_b;
-	UINT8 m_W;
+	int8_t m_b;
+	uint8_t m_W;
 	reg_id m_SD;
 	op_mnem m_mnem;
 };
@@ -2546,14 +2544,14 @@ private:
 class Movep: public Instruction
 {
 public:
-	Movep(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movep(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_SD = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_HH_table(BITSn(word0,0x00c0), m_SD);
 
@@ -2563,7 +2561,7 @@ public:
 		m_W = BITSn(word0,0x0100);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2571,12 +2569,12 @@ public:
 		retString = "movep " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(p)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	reg_id m_SD;
 	std::string m_ea;
 };
@@ -2585,16 +2583,16 @@ private:
 class Movep_2: public Instruction
 {
 public:
-	Movep_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Movep_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_SD = "";
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
-		INT8 rNum = BITSn(word0,0x00c0);
+		int8_t rNum = BITSn(word0,0x00c0);
 
 		assemble_ea_from_m_table(BITSn(word0,0x0020), rNum, m_ea);
 
@@ -2606,7 +2604,7 @@ public:
 		// NEW // sprintf(SD, "X:$%s", fullAddy);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2614,12 +2612,12 @@ public:
 		retString = "movep " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(p)*");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	std::string m_SD;
 	std::string m_ea;
 };
@@ -2628,14 +2626,14 @@ private:
 class Moves: public Instruction
 {
 public:
-	Moves(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Moves(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
 		m_SD = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_HH_table(BITSn(word0,0x00c0), m_SD);
 
@@ -2646,7 +2644,7 @@ public:
 		m_W = BITSn(word0,0x0100);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source;
 		std::string destination;
@@ -2654,12 +2652,12 @@ public:
 		retString = "moves " + source + "," + destination;
 		// NEW // sprintf(opcode_str, "move(s)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	reg_id m_SD;
 	std::string m_ea;
 };
@@ -2668,13 +2666,13 @@ private:
 class Mpy: public Instruction
 {
 public:
-	Mpy(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mpy(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_sign = "";
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* There are inconsistencies with the S1 & S2 operand ordering in the docs,
 		   but since it's a multiply it doesn't matter */
@@ -2684,7 +2682,7 @@ public:
 		decode_kSign_table(BITSn(word0,0x40), m_sign);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string ts = m_sign;
 		if (ts.compare("-")!=0) ts = "";
@@ -2693,9 +2691,9 @@ public:
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	std::string m_sign;
@@ -2706,26 +2704,26 @@ private:
 class Mpy_2: public Instruction
 {
 public:
-	Mpy_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mpy_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQF_table(BITSn(word0,0x03), BITSn(word0,0x08),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "mpy " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -2735,26 +2733,26 @@ private:
 class Mpy_3: public Instruction
 {
 public:
-	Mpy_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mpy_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x0007), BITSn(word0,0x0008),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "mpy " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -2764,13 +2762,13 @@ private:
 class Mpyr: public Instruction
 {
 public:
-	Mpyr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mpyr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_sign = "-";
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* There are inconsistencies with the S1 & S2 operand ordering in the docs,
 		   but since it's a multiply it doesn't matter */
@@ -2780,7 +2778,7 @@ public:
 		decode_kSign_table(BITSn(word0,0x40), m_sign);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string ts = m_sign;
 		if (ts.compare("-") != 0) ts = "";
@@ -2789,9 +2787,9 @@ public:
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	std::string m_sign;
@@ -2802,26 +2800,26 @@ private:
 class Mpyr_2: public Instruction
 {
 public:
-	Mpyr_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mpyr_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQF_table(BITSn(word0,0x03), BITSn(word0,0x08),
 							m_source, m_source2, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "mpyr " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -2831,13 +2829,13 @@ private:
 class Mpysuuu: public Instruction
 {
 public:
-	Mpysuuu(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Mpysuuu(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQF_special_table(BITSn(word0,0x0003), BITSn(word0,0x0008),
 									m_source, m_source2, m_destination);
@@ -2845,7 +2843,7 @@ public:
 		decode_s_table(BITSn(word0,0x0004), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "mpy" + opMnemonicAsString(m_mnem);
 
@@ -2854,9 +2852,9 @@ public:
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "mpy(%s)", A);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -2867,152 +2865,152 @@ private:
 class Neg: public Instruction
 {
 public:
-	Neg(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Neg(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "neg " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // NEGC : 0001 0101 0110 F000 : A-168 //////////////////////////////////////////
 class Negc: public Instruction
 {
 public:
-	Negc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Negc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "negc " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // NOP : 0000 0000 0000 0000 : A-170 ///////////////////////////////////////////
 class Nop: public Instruction
 {
 public:
-	Nop(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Nop(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "nop";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // NORM : 0001 0101 0010 F0RR : A-172 //////////////////////////////////////////
 class Norm: public Instruction
 {
 public:
-	Norm(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Norm(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 
 		decode_RR_table(BITSn(word0,0x0003), m_source);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "norm " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // NOT : .... .... 0110 F001 : A-174 ///////////////////////////////////////////
 class Not: public Instruction
 {
 public:
-	Not(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Not(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "not " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // OR : .... .... 0010 F1JJ : A-176 ////////////////////////////////////////////
 class Or: public Instruction
 {
 public:
-	Or(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Or(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JJF_table(BITSn(word0,0x03),BITSn(word0,0x08),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "or " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // ORI : 0001 1EE1 iiii iiii : A-178 ///////////////////////////////////////////
 class Ori: public Instruction
 {
 public:
-	Ori(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Ori(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_immediate = BITSn(word0,0x00ff);
 		decode_EE_table(BITSn(word0,0x0600), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "#$%x", m_immediate);
@@ -3020,113 +3018,113 @@ public:
 		retString = "ori " + std::string(temp) + "," + regIdAsString(m_destination);
 		// NEW // sprintf(opcode_str, "or(i)");
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT8 m_immediate;
+	uint8_t m_immediate;
 };
 
 // REP : 0000 0000 111- --RR : A-180 ///////////////////////////////////////////
 class Rep: public Instruction
 {
 public:
-	Rep(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Rep(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_RR_table(BITSn(word0,0x0003), m_source);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "X:(%s)", regIdAsString(m_source).c_str());
 		retString = "rep " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // REP : 0000 1111 iiii iiii : A-180 ///////////////////////////////////////////
 class Rep_2: public Instruction
 {
 public:
-	Rep_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Rep_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_immediate = 0;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		m_immediate = BITSn(word0,0x00ff);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		char temp[32];
 		sprintf(temp, "#$%x", m_immediate);
 		// NEW // sprintf(temp, "#$%02x (%d)", BITSn(word0,0x00ff), BITSn(word0,0x00ff));
 		retString = "rep " + std::string(temp);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	UINT8 m_immediate;
+	uint8_t m_immediate;
 };
 
 // REP : 0000 0100 001D DDDD : A-180 ///////////////////////////////////////////
 class Rep_3: public Instruction
 {
 public:
-	Rep_3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Rep_3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_DDDDD_table(BITSn(word0,0x001f), m_source);
 		if (m_source == iINVALID) return false;
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "rep " + regIdAsString(m_source);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // REPcc : 0000 0001 0101 cccc : A-184 /////////////////////////////////////////
 class Repcc: public Instruction
 {
 public:
-	Repcc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Repcc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_cccc_table(BITSn(word0,0x000f), m_mnem);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "rep" + opMnemonicAsString(m_mnem);
 		retString = opcode;
 		// NEW // sprintf(opcode_str, "rep.%s", M);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -3136,210 +3134,210 @@ private:
 class Reset: public Instruction
 {
 public:
-	Reset(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Reset(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "reset";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // RND : .... .... 0010 F000 : A-188 ///////////////////////////////////////////
 class Rnd: public Instruction
 {
 public:
-	Rnd(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Rnd(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "rnd " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ROL : .... .... 0111 F011 : A-190 ///////////////////////////////////////////
 class Rol: public Instruction
 {
 public:
-	Rol(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Rol(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "rol " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // ROR : .... .... 0111 F010 : A-192 ///////////////////////////////////////////
 class Ror: public Instruction
 {
 public:
-	Ror(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Ror(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "ror " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE; }
 };
 
 // RTI : 0000 0000 0000 0111 : A-194 ///////////////////////////////////////////
 class Rti: public Instruction
 {
 public:
-	Rti(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Rti(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "rti";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OUT; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OUT; }
 };
 
 // RTS : 0000 0000 0000 0110 : A-196 ///////////////////////////////////////////
 class Rts: public Instruction
 {
 public:
-	Rts(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Rts(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "rts";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
-	size_t flags() const { return DASMFLAG_STEP_OUT; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	size_t flags() const override { return DASMFLAG_STEP_OUT; }
 };
 
 // SBC : .... .... 0101 F01J : A-198 ///////////////////////////////////////////
 class Sbc: public Instruction
 {
 public:
-	Sbc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Sbc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JF_table(BITSn(word0,0x01), BITSn(word0,0x08),
 						m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "sbc " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // STOP : 0000 0000 0000 1010 : A-200 //////////////////////////////////////////
 class Stop: public Instruction
 {
 public:
-	Stop(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Stop(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "stop";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // SUB : .... .... 0100 FJJJ : A-202 ///////////////////////////////////////////
 class Sub: public Instruction
 {
 public:
-	Sub(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Sub(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JJJF_table(BITSn(word0,0x07), BITSn(word0,0x08),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "sub " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // SUB : 011m mKKK 0rru Fuuu : A-202 ///////////////////////////////////////////
 class Sub_2: public Instruction
 {
 public:
-	Sub_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Sub_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_opcode = "";
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_uuuuF_table(BITSn(word0,0x17), BITSn(word0,0x08),
 							m_opcode, m_source, m_destination);
@@ -3347,13 +3345,13 @@ public:
 		// TODO // m_opcode = "sub";
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = m_opcode + " " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	std::string m_opcode;
@@ -3363,11 +3361,11 @@ private:
 class Subl: public Instruction
 {
 public:
-	Subl(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Subl(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		/* There is only one option for the F table.  This is a very strange opcode. */
 		if (!BITSn(word0,0x0008))
@@ -3382,69 +3380,69 @@ public:
 		}
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "subl " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // SWAP : 0001 0101 0111 F001 : A-206 //////////////////////////////////////////
 class Swap: public Instruction
 {
 public:
-	Swap(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Swap(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "swap " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // SWI : 0000 0000 0000 0101 : A-208 ///////////////////////////////////////////
 class Swi: public Instruction
 {
 public:
-	Swi(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Swi(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "swi";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // Tcc : 0001 00cc ccTT Fh0h : A-210 ///////////////////////////////////////////
 class Tcc: public Instruction
 {
 public:
-	Tcc(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Tcc(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_mnem = oINVALID;
 		m_destination2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_h0hF_table(BITSn(word0,0x0007),BITSn(word0,0x0008),
 							m_source, m_destination);
@@ -3459,7 +3457,7 @@ public:
 
 		return false;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string opcode = "t" + opMnemonicAsString(m_mnem);
 		// NEW // sprintf(opcode_str, "t.%s", M);
@@ -3471,9 +3469,9 @@ public:
 		if (m_destination2 != iR0)
 			retString += std::string(" R0,") + regIdAsString(m_destination2);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	op_mnem m_mnem;
@@ -3484,76 +3482,76 @@ private:
 class Tfr: public Instruction
 {
 public:
-	Tfr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Tfr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JJJF_table(BITSn(word0,0x07), BITSn(word0,0x08),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "tfr " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // TFR : 011m mKKK 0rr1 F0DD : A-212 ///////////////////////////////////////////
 class Tfr_2: public Instruction
 {
 public:
-	Tfr_2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Tfr_2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_DDF_table(BITSn(word0,0x03), BITSn(word0,0x08),
 							m_source, m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "tfr " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // TFR(2) : 0001 0101 0000 F00J : A-214 ////////////////////////////////////////
 class Tfr2: public Instruction
 {
 public:
-	Tfr2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Tfr2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_JF_table(BITSn(word0,0x0001),BITSn(word0,0x0008),
 						m_destination, m_source);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "tfr2 " + regIdAsString(m_source) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // TFR(3) : 0010 01mW RRDD FHHH : A-216 ////////////////////////////////////////
 class Tfr3: public Instruction
 {
 public:
-	Tfr3(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Tfr3(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_W = 0;
 		m_ea = "";
@@ -3562,7 +3560,7 @@ public:
 		m_destination2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_DDF_table(BITSn(word0,0x0030), BITSn(word0,0x0008),
 							m_destination, m_source);
@@ -3571,13 +3569,13 @@ public:
 		// If the destination of the second move is the same as the first, you're invalid
 		if (m_SD == m_destination && BITSn(word0,0x0100)) return false;
 
-		INT8 rNum = BITSn(word0,0x00c0);
+		int8_t rNum = BITSn(word0,0x00c0);
 		assemble_ea_from_m_table(BITSn(word0,0x0200), rNum, m_ea);
 
 		m_W = BITSn(word0,0x0100);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		std::string source2;
 		std::string destination2;
@@ -3586,12 +3584,12 @@ public:
 					regIdAsString(m_source) + "," + regIdAsString(m_destination) + " " +
 					source2 + "," + destination2;
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
-	INT8 m_W;
+	int8_t m_W;
 	reg_id m_SD;
 	std::string m_ea;
 	reg_id m_source2;
@@ -3602,99 +3600,99 @@ private:
 class Tst: public Instruction
 {
 public:
-	Tst(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Tst(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x08), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "tst " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_NONE; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_NONE; }
 };
 
 // TST(2) : 0001 0101 0001 -1DD : A-220 ////////////////////////////////////////
 class Tst2: public Instruction
 {
 public:
-	Tst2(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Tst2(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_DD_table(BITSn(word0,0x0003), m_source);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "tst2 " + regIdAsString(m_source);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // WAIT : 0000 0000 0000 1011 : A-222 //////////////////////////////////////////
 class Wait: public Instruction
 {
 public:
-	Wait(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Wait(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "wait";
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // ZERO : 0001 0101 0101 F000 : A-224 //////////////////////////////////////////
 class Zero: public Instruction
 {
 public:
-	Zero(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Zero(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_F_table(BITSn(word0,0x0008), m_destination);
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "zero " + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 };
 
 // SHFL : 0001 0101 1101 FQQQ : !!UNDOCUMENTED!! ///////////////////////////////
 class Shfl: public Instruction
 {
 public:
-	Shfl(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Shfl(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x0007), BITSn(word0,0x0008),
 							m_source, m_source2, m_destination);
@@ -3715,15 +3713,15 @@ public:
 		}
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "shfl " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;
@@ -3733,12 +3731,12 @@ private:
 class Shfr: public Instruction
 {
 public:
-	Shfr(const Opcode* oco, const UINT16 word0, const UINT16 word1) : Instruction(oco)
+	Shfr(const Opcode* oco, const uint16_t word0, const uint16_t word1) : Instruction(oco)
 	{
 		m_source2 = iINVALID;
 		m_valid = decode(word0, word1);
 	}
-	bool decode(const UINT16 word0, const UINT16 word1)
+	bool decode(const uint16_t word0, const uint16_t word1) override
 	{
 		decode_QQQF_table(BITSn(word0,0x0007), BITSn(word0,0x0008),
 							m_source, m_source2, m_destination);
@@ -3759,15 +3757,15 @@ public:
 		}
 		return true;
 	}
-	void disassemble(std::string& retString) const
+	void disassemble(std::string& retString) const override
 	{
 		retString = "shfr " +
 					regIdAsString(m_source) + "," +
 					regIdAsString(m_source2) + "," + regIdAsString(m_destination);
 	}
-	void evaluate(dsp56k_core* cpustate) {}
-	size_t size() const { return 1; }
-	size_t accumulatorBitsModified() const { return BM_HIGH | BM_MIDDLE | BM_LOW; }
+	void evaluate(dsp56k_core* cpustate) override {}
+	size_t size() const override { return 1; }
+	size_t accumulatorBitsModified() const override { return BM_HIGH | BM_MIDDLE | BM_LOW; }
 
 private:
 	reg_id m_source2;

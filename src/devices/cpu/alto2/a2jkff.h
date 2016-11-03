@@ -55,7 +55,7 @@ typedef enum {
  * @param s1 is the next state
  * @return returns the next state and probably modified Q output
  */
-static inline jkff_t update_jkff(UINT8 s0, UINT8 s1, const char* jkff_name)
+static inline jkff_t update_jkff(uint8_t s0, uint8_t s1, const char* jkff_name)
 {
 	switch (s1 & (JKFF_C | JKFF_S))
 	{
@@ -68,7 +68,7 @@ static inline jkff_t update_jkff(UINT8 s0, UINT8 s1, const char* jkff_name)
 				/* both J and K' are 0: set Q to 0, Q' to 1 */
 				s1 = (s1 & ~JKFF_Q) | JKFF_Q0;
 				if (s0 & JKFF_Q) {
-					LOG((LOG_DISK,9,"\t\t%s J:0 K':0 -> Q:0\n", jkff_name));
+					LOG((this,LOG_DISK,9,"\t\t%s J:0 K':0 -> Q:0\n", jkff_name));
 				}
 				break;
 			case JKFF_J:
@@ -77,11 +77,11 @@ static inline jkff_t update_jkff(UINT8 s0, UINT8 s1, const char* jkff_name)
 					s1 = (s1 & ~JKFF_Q) | JKFF_Q0;
 				else
 					s1 = (s1 | JKFF_Q) & ~JKFF_Q0;
-				LOG((LOG_DISK,9,"\t\t%s J:0 K':1 flip-flop Q:%d\n", jkff_name, (s1 & JKFF_Q) ? 1 : 0));
+				LOG((this,LOG_DISK,9,"\t\t%s J:0 K':1 flip-flop Q:%d\n", jkff_name, (s1 & JKFF_Q) ? 1 : 0));
 				break;
 			case JKFF_K:
 				if ((s0 ^ s1) & JKFF_Q) {
-					LOG((LOG_DISK,9,"\t\t%s J:0 K':1 keep Q:%d\n", jkff_name, (s1 & JKFF_Q) ? 1 : 0));
+					LOG((this,LOG_DISK,9,"\t\t%s J:0 K':1 keep Q:%d\n", jkff_name, (s1 & JKFF_Q) ? 1 : 0));
 				}
 				/* J is 0, and K' is 1: keep Q as is */
 				if (s0 & JKFF_Q)
@@ -93,7 +93,7 @@ static inline jkff_t update_jkff(UINT8 s0, UINT8 s1, const char* jkff_name)
 				/* both J and K' are 1: set Q to 1 */
 				s1 = (s1 | JKFF_Q) & ~JKFF_Q0;
 				if (!(s0 & JKFF_Q)) {
-					LOG((LOG_DISK,9,"\t\t%s J:1 K':1 -> Q:1\n", jkff_name));
+					LOG((this,LOG_DISK,9,"\t\t%s J:1 K':1 -> Q:1\n", jkff_name));
 				}
 				break;
 			}
@@ -106,21 +106,21 @@ static inline jkff_t update_jkff(UINT8 s0, UINT8 s1, const char* jkff_name)
 		/* S' is 1, C' is 0: set Q to 0, Q' to 1 */
 		s1 = (s1 & ~JKFF_Q) | JKFF_Q0;
 		if (s0 & JKFF_Q) {
-			LOG((LOG_DISK,9,"\t\t%s C':0 -> Q:0\n", jkff_name));
+			LOG((this,LOG_DISK,9,"\t\t%s C':0 -> Q:0\n", jkff_name));
 		}
 		break;
 	case JKFF_C:
 		/* S' is 0, C' is 1: set Q to 1, Q' to 0 */
 		s1 = (s1 | JKFF_Q) & ~JKFF_Q0;
 		if (!(s0 & JKFF_Q)) {
-			LOG((LOG_DISK,9,"\t\t%s S':0 -> Q:1\n", jkff_name));
+			LOG((this,LOG_DISK,9,"\t\t%s S':0 -> Q:1\n", jkff_name));
 		}
 		break;
 	case 0:
 	default:
 		/* unstable state (what to do?) */
 		s1 = s1 | JKFF_Q | JKFF_Q0;
-		LOG((LOG_DISK,9,"\t\t%s C':0 S':0 -> Q:1 and Q':1 <unstable>\n", jkff_name));
+		LOG((this,LOG_DISK,9,"\t\t%s C':0 S':0 -> Q:1 and Q':1 <unstable>\n", jkff_name));
 		break;
 	}
 	return static_cast<jkff_t>(s1);
@@ -133,7 +133,7 @@ static inline jkff_t update_jkff(UINT8 s0, UINT8 s1, const char* jkff_name)
  * @param s1 is the next state
  * @return returns the next state and probably modified Q output
  */
-static inline jkff_t update_jkff(UINT8 s0, UINT8 s1, const char*)
+static inline jkff_t update_jkff(uint8_t s0, uint8_t s1, const char*)
 {
 	switch (s1 & (JKFF_C | JKFF_S))
 	{

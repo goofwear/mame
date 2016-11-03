@@ -1,10 +1,12 @@
 // license:BSD-3-Clause
 // copyright-holders:Luca Elia, Mirko Buffoni, Takahiro Nogi
+
 #include "sound/dac.h"
 #include "sound/samples.h"
 #include "video/seta001.h"
 #include "cpu/mcs48/mcs48.h"
 #include "machine/bankdev.h"
+#include "machine/gen_latch.h"
 
 #define MAX_SAMPLES 0x2f        /* max samples */
 
@@ -32,9 +34,9 @@ public:
 		m_subcpu(*this, "sub"),
 		m_mcu(*this, "mcu"),
 		m_seta001(*this, "spritegen"),
-		m_dac(*this, "dac"),
 		m_samples(*this, "samples"),
 		m_palette(*this, "palette"),
+		m_soundlatch(*this, "soundlatch"),
 		m_mainbank(*this, "mainbank"),
 		m_subbank(*this, "subbank"),
 		m_audiobank(*this, "audiobank"),
@@ -55,9 +57,9 @@ public:
 	optional_device<cpu_device> m_subcpu;
 	optional_device<upi41_cpu_device> m_mcu;
 	optional_device<seta001_device> m_seta001;
-	optional_device<dac_device> m_dac;
 	optional_device<samples_device> m_samples;
 	required_device<palette_device> m_palette;
+	optional_device<generic_latch_8_device> m_soundlatch;
 	optional_device<address_map_bank_device> m_mainbank;
 	optional_memory_bank m_subbank; /* optional because of reuse from cchance.c */
 	optional_memory_bank m_audiobank;
@@ -72,7 +74,7 @@ public:
 	optional_ioport m_an2;
 
 	/* sound-related */
-	INT16    *m_sampledata[MAX_SAMPLES];
+	std::unique_ptr<int16_t[]>    m_sampledata[MAX_SAMPLES];
 	int      m_samplesize[MAX_SAMPLES];
 
 	/* misc / mcu */
@@ -85,10 +87,10 @@ public:
 	int      m_mcu_readcredits;
 	int      m_mcu_reportcoin;
 	int      m_insertcoin;
-	UINT8    m_mcu_coinage[4];
-	UINT8    m_mcu_coins_a;
-	UINT8    m_mcu_coins_b;
-	UINT8    m_mcu_credits;
+	uint8_t    m_mcu_coinage[4];
+	uint8_t    m_mcu_coins_a;
+	uint8_t    m_mcu_coins_b;
+	uint8_t    m_mcu_credits;
 	int      m_bank2;
 
 	DECLARE_WRITE8_MEMBER(tnzsb_sound_command_w);
@@ -107,11 +109,9 @@ public:
 	DECLARE_WRITE8_MEMBER(mcu_arknoid2_w);
 	DECLARE_READ8_MEMBER(mcu_extrmatn_r);
 	DECLARE_WRITE8_MEMBER(mcu_extrmatn_w);
-	DECLARE_WRITE8_MEMBER(tnzs_sync_kludge_w);
 	DECLARE_READ8_MEMBER(kageki_csport_r);
 	DECLARE_WRITE8_MEMBER(kageki_csport_w);
 	DECLARE_WRITE8_MEMBER(kabukiz_sound_bank_w);
-	DECLARE_WRITE8_MEMBER(kabukiz_sample_w);
 	DECLARE_WRITE_LINE_MEMBER(irqhandler);
 
 	SAMPLES_START_CB_MEMBER(kageki_init_samples);
@@ -132,13 +132,11 @@ public:
 	DECLARE_MACHINE_START(tnzs_common);
 	DECLARE_MACHINE_RESET(jpopnics);
 
-	UINT32 screen_update_tnzs(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_tnzs(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void screen_eof_tnzs(screen_device &screen, bool state);
 
 	INTERRUPT_GEN_MEMBER(arknoid2_interrupt);
-	TIMER_CALLBACK_MEMBER(kludge_callback);
 
-	void tnzs_postload();
 	void mcu_reset();
 	void mcu_handle_coins(int coin);
 };

@@ -56,7 +56,7 @@ class dave_device : public device_t,
 					public device_sound_interface
 {
 public:
-	dave_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	dave_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
 	template<class _Object> static devcb_base &set_irq_wr_callback(device_t &device, _Object object) { return downcast<dave_device &>(device).m_write_irq.set_callback(object); }
 	template<class _Object> static devcb_base &set_lh_wr_callback(device_t &device, _Object object) { return downcast<dave_device &>(device).m_write_lh.set_callback(object); }
@@ -70,15 +70,15 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_start();
-	virtual void device_reset();
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_start() override;
+	virtual void device_reset() override;
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 	// device_memory_interface overrides
-	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const;
+	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const override;
 
 	// sound stream update overrides
-	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
+	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples) override;
 
 	DECLARE_READ8_MEMBER( program_r );
 	DECLARE_WRITE8_MEMBER( program_w );
@@ -115,16 +115,16 @@ private:
 	devcb_write8 m_write_lh;
 	devcb_write8 m_write_rh;
 
-	UINT8 m_segment[4];
+	uint8_t m_segment[4];
 
-	UINT8 m_irq_status;
-	UINT8 m_irq_enable;
+	uint8_t m_irq_status;
+	uint8_t m_irq_enable;
 
 	emu_timer *m_timer_1hz;
 	emu_timer *m_timer_50hz;
 
 	/* SOUND SYNTHESIS */
-	UINT8 m_regs[32];
+	uint8_t m_regs[32];
 	int m_period[4];
 	int m_count[4];
 	int m_level[4];

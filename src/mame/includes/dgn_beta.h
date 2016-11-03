@@ -74,7 +74,7 @@ enum BETA_VID_MODES
 struct PageReg
 {
 	int     value;          /* Value of the page register */
-	UINT8   *memory;        /* The memory it actually points to */
+	uint8_t   *memory;        /* The memory it actually points to */
 };
 
 
@@ -97,9 +97,9 @@ public:
 	DECLARE_FLOPPY_FORMATS(floppy_formats);
 
 	required_device<mc6845_device> m_mc6845;
-	required_shared_ptr<UINT8> m_videoram;
+	required_shared_ptr<uint8_t> m_videoram;
 
-	UINT8 *m_system_rom;
+	uint8_t *m_system_rom;
 	int m_LogDatWrites;
 	int m_Keyboard[NoKeyrows];
 	int m_RowShifter;
@@ -149,8 +149,8 @@ public:
 	int m_ColourRAM[4];
 	int m_Field;
 	int m_DrawInterlace;
-	virtual void machine_start();
-	virtual void machine_reset();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 	DECLARE_PALETTE_INIT(dgn);
 	DECLARE_WRITE8_MEMBER(dgnbeta_ram_b0_w);
 	DECLARE_WRITE8_MEMBER(dgnbeta_ram_b1_w);
@@ -213,7 +213,6 @@ public:
 	void cpu1_recalc_firq(int state);
 	void ScanInKeyboard(void);
 	void dgn_beta_frame_interrupt (int data);
-	void dgn_beta_line_interrupt (int data);
 	required_device<ram_device> m_ram;
 	required_device<wd2797_t> m_fdc;
 	required_device<floppy_connector> m_floppy0;
@@ -221,6 +220,12 @@ public:
 	required_device<floppy_connector> m_floppy2;
 	required_device<floppy_connector> m_floppy3;
 	required_device<palette_device> m_palette;
+
+	offs_t dgnbeta_dasm_override(device_t &device, std::ostream &stream, offs_t pc, const uint8_t *oprom, const uint8_t *opram, int options);
+
+private:
+	void execute_beta_key_dump(int ref, int params, const char *param[]);
+	void execute_beta_dat_log(int ref, int params, const char *param[]);
 };
 
 #endif /* DGN_BETA_H_ */

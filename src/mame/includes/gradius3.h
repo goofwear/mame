@@ -25,8 +25,8 @@ public:
 		m_k051960(*this, "k051960") { }
 
 	/* memory pointers */
-	required_shared_ptr<UINT16> m_gfxram;
-	required_region_ptr<UINT8> m_gfxrom;
+	required_shared_ptr<uint16_t> m_gfxram;
+	required_region_ptr<uint8_t> m_gfxrom;
 
 	/* misc */
 	int         m_priority;
@@ -54,10 +54,10 @@ public:
 	DECLARE_READ16_MEMBER(gradius3_gfxrom_r);
 	DECLARE_WRITE16_MEMBER(gradius3_gfxram_w);
 	DECLARE_WRITE8_MEMBER(sound_bank_w);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
-	UINT32 screen_update_gradius3(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
+	uint32_t screen_update_gradius3(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(cpuA_interrupt);
 	TIMER_DEVICE_CALLBACK_MEMBER(gradius3_sub_scanline);
 	void gradius3_postload();

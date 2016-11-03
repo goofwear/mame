@@ -23,8 +23,8 @@ public:
 	required_device<palette_device> m_palette;
 
 	/* memory pointers */
-	required_shared_ptr<UINT8> m_videoram;
-	required_shared_ptr<UINT8> m_s2636_0_ram;
+	required_shared_ptr<uint8_t> m_videoram;
+	required_shared_ptr<uint8_t> m_s2636_0_ram;
 
 	bitmap_ind16 m_bitmap;
 	bitmap_ind16 m_spritebitmap;
@@ -38,9 +38,9 @@ public:
 	DECLARE_WRITE8_MEMBER(zac_s2636_w);
 	DECLARE_READ8_MEMBER(tinvader_port_0_r);
 	TILE_GET_INFO_MEMBER(get_bg_tile_info);
-	virtual void video_start();
+	virtual void video_start() override;
 	DECLARE_PALETTE_INIT(zac2650);
-	UINT32 screen_update_tinvader(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_tinvader(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	int SpriteCollision(int first,int second);
 	void draw_sprites(bitmap_ind16 &bitmap, const rectangle &cliprect);
 };

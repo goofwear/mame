@@ -272,6 +272,19 @@
 		</part>
 	</software>
 
+	<software name="supertol">
+		<description>SUPER*TOOL</description>
+		<year>1981</year>
+		<publisher>PDATA</publisher>
+		<info name="usage" value="Requires BASIC 2 (works on pet2001n).  Enter 'SYS 37000' to run"/>
+
+		<part name="rom" interface="pet_9000_rom">
+			<dataarea name="rom" size="0x1000">
+				<rom name="supertool-9000.bin" size="0x1000" crc="69c8c549" sha1="5093f117981edd1cb5c5214359c266838acc3a13" offset="0" />
+			</dataarea>
+		</part>
+	</software>
+
 	<software name="suo9000">
 		<description>SUO 001024</description>
 		<year>198?</year>
@@ -408,6 +421,19 @@
 		<part name="rom" interface="pet_a000_rom">
 			<dataarea name="rom" size="0x1000">
 				<rom name="edex_4.4_fr_91d9.ud11" size="0x1000" crc="82993411" sha1="d4bf02217e6b589bf0985ae81a9000119ac781c4" offset="0" />
+			</dataarea>
+		</part>
+	</software>
+
+	<software name="monjana1">
+		<description>MONJANA/1</description>
+		<year>1980</year>
+		<publisher>Elcomp Publishing</publisher>
+		<info name="usage" value="SYS38000"/>
+
+		<part name="rom" interface="pet_9000_rom">
+			<dataarea name="rom" size="0x800">
+				<rom name="mon 697b.ud3" size="0x800" crc="4b34723a" sha1="b9b27a989e2ac059d84a23a64345e75dbcd5fa14" offset="0" />
 			</dataarea>
 		</part>
 	</software>

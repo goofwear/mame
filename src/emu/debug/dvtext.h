@@ -31,14 +31,14 @@ protected:
 
 protected:
 	// view overrides
-	virtual void view_update();
-	virtual void view_notify(debug_view_notification type);
+	virtual void view_update() override;
+	virtual void view_notify(debug_view_notification type) override;
 
 private:
 	// internal state
 	text_buffer &       m_textbuf;              /* pointer to the text buffer */
 	bool                m_at_bottom;                /* are we tracking new stuff being added? */
-	UINT32              m_topseq;                   /* sequence number of the top line */
+	uint32_t              m_topseq;                   /* sequence number of the top line */
 };
 
 

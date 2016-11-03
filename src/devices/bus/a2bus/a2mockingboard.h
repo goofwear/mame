@@ -27,10 +27,10 @@ class a2bus_ayboard_device:
 {
 public:
 	// construction/destruction
-	a2bus_ayboard_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+	a2bus_ayboard_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, uint32_t clock, const char *shortname, const char *source);
 
 	// optional information overrides
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 	DECLARE_WRITE_LINE_MEMBER( via1_irq_w );
 	DECLARE_WRITE_LINE_MEMBER( via2_irq_w );
@@ -40,14 +40,14 @@ public:
 	DECLARE_WRITE8_MEMBER(via2_out_b);
 
 protected:
-	virtual void device_start();
-	virtual void device_reset();
+	virtual void device_start() override;
+	virtual void device_reset() override;
 
 	// overrides of standard a2bus slot functions
-	virtual UINT8 read_c0nx(address_space &space, UINT8 offset);
-	virtual void write_c0nx(address_space &space, UINT8 offset, UINT8 data);
-	virtual UINT8 read_cnxx(address_space &space, UINT8 offset);
-	virtual void write_cnxx(address_space &space, UINT8 offset, UINT8 data);
+	virtual uint8_t read_c0nx(address_space &space, uint8_t offset) override;
+	virtual void write_c0nx(address_space &space, uint8_t offset, uint8_t data) override;
+	virtual uint8_t read_cnxx(address_space &space, uint8_t offset) override;
+	virtual void write_cnxx(address_space &space, uint8_t offset, uint8_t data) override;
 
 	required_device<via6522_device> m_via1;
 	required_device<via6522_device> m_via2;
@@ -59,34 +59,34 @@ protected:
 	bool m_isPhasor, m_PhasorNative;
 
 private:
-	UINT8 m_porta1, m_porta2;
+	uint8_t m_porta1, m_porta2;
 };
 
 class a2bus_mockingboard_device : public a2bus_ayboard_device
 {
 public:
-	a2bus_mockingboard_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	a2bus_mockingboard_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 };
 
 class a2bus_phasor_device : public a2bus_ayboard_device
 {
 public:
-	a2bus_phasor_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	a2bus_phasor_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 };
 
 class a2bus_echoplus_device : public a2bus_ayboard_device
 {
 public:
-	a2bus_echoplus_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	a2bus_echoplus_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	virtual UINT8 read_c0nx(address_space &space, UINT8 offset);
-	virtual void write_c0nx(address_space &space, UINT8 offset, UINT8 data);
+	virtual uint8_t read_c0nx(address_space &space, uint8_t offset) override;
+	virtual void write_c0nx(address_space &space, uint8_t offset, uint8_t data) override;
 
 	required_device<tms5220_device> m_tms;
 
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 };
 
 // device type definition

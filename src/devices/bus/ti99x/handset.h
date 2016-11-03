@@ -27,19 +27,19 @@ extern const device_type HANDSET;
 class ti99_handset_device : public joyport_attached_device
 {
 public:
-	ti99_handset_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
+	ti99_handset_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	UINT8 read_dev();
-	void  write_dev(UINT8 data);
+	uint8_t read_dev() override;
+	void  write_dev(uint8_t data) override;
 
-	void pulse_clock();
+	void pulse_clock() override;
 
 protected:
-	virtual void device_start(void);
-	virtual void device_reset(void);
-	virtual ioport_constructor device_input_ports() const;
+	virtual void device_start(void) override;
+	virtual void device_reset(void) override;
+	virtual ioport_constructor device_input_ports() const override;
 
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
+	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr) override;
 
 private:
 	void do_task();
@@ -52,18 +52,11 @@ private:
 	bool    m_clock_high;
 	int     m_buf;
 	int     m_buflen;
-	UINT8   previous_joy[MAX_HANDSETS];
-	UINT8   previous_key[MAX_HANDSETS];
+	uint8_t   previous_joy[MAX_HANDSETS];
+	uint8_t   previous_key[MAX_HANDSETS];
 
 	emu_timer *m_delay_timer;
 };
-
-#define MCFG_HANDSET_ADD(_tag, _intf, _clock )  \
-	MCFG_DEVICE_ADD(_tag, HANDSET, _clock)  \
-	MCFG_DEVICE_CONFIG(_intf)
-
-#define TI99_HANDSET_INTERFACE(name)    \
-	const ti99_handset_intf(name) =
 
 /****************************************************************************/
 
@@ -72,15 +65,14 @@ extern const device_type TI99_JOYSTICK;
 class ti99_twin_joystick : public joyport_attached_device
 {
 public:
-	ti99_twin_joystick(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	DECLARE_READ8_MEMBER( read );
-	virtual void device_start(void);
+	ti99_twin_joystick(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	virtual void device_start(void) override;
 
-	UINT8 read_dev();
-	void  write_dev(UINT8 data);
+	uint8_t read_dev() override;
+	void  write_dev(uint8_t data) override;
 
 protected:
-	virtual ioport_constructor device_input_ports() const;
+	virtual ioport_constructor device_input_ports() const override;
 
 private:
 	// Which joystick is selected?

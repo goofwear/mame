@@ -28,18 +28,18 @@ public:
 	required_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
 
-	required_shared_ptr<UINT16> m_spriteram;
-	required_shared_ptr<UINT16> m_vram_0;
-	required_shared_ptr<UINT16> m_vram_1;
-	required_shared_ptr<UINT16> m_vram_2;
-	required_shared_ptr<UINT16> m_vregs;
-	optional_shared_ptr<UINT16> m_dsw_select;
-	optional_shared_ptr<UINT16> m_backup_ram;
-	optional_shared_ptr<UINT16> m_vram_0ras;
-	optional_shared_ptr<UINT16> m_vram_1ras;
+	required_shared_ptr<uint16_t> m_spriteram;
+	required_shared_ptr<uint16_t> m_vram_0;
+	required_shared_ptr<uint16_t> m_vram_1;
+	required_shared_ptr<uint16_t> m_vram_2;
+	required_shared_ptr<uint16_t> m_vregs;
+	optional_shared_ptr<uint16_t> m_dsw_select;
+	optional_shared_ptr<uint16_t> m_backup_ram;
+	optional_shared_ptr<uint16_t> m_vram_0ras;
+	optional_shared_ptr<uint16_t> m_vram_1ras;
 
-	bitmap_ind16 *m_tmpbitmap0;
-	bitmap_ind16 *m_tmpbitmap1;
+	std::unique_ptr<bitmap_ind16> m_tmpbitmap0;
+	std::unique_ptr<bitmap_ind16> m_tmpbitmap1;
 	int m_disable_video;
 	tilemap_t *m_tilemap_0;
 	tilemap_t *m_tilemap_1;
@@ -67,10 +67,10 @@ public:
 	TILE_GET_INFO_MEMBER(get_tile_info_1);
 	TILE_GET_INFO_MEMBER(get_tile_info_2);
 
-	virtual void video_start();
+	virtual void video_start() override;
 
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_dai2kaku(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_dai2kaku(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void draw_sprites(bitmap_ind16 &bitmap,const rectangle &cliprect);
 	void dai2kaku_draw_sprites(bitmap_ind16 &bitmap,const rectangle &cliprect, int layer);
 

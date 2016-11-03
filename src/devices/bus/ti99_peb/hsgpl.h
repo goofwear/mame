@@ -5,7 +5,7 @@
     SNUG HSGPL card emulation.
     See hsgpl.c for documentation
 
-    Raphael Nabet, 2003.
+    Original code by Raphael Nabet, 2003.
 
     Michael Zapf
     October 2010: Rewritten as device
@@ -19,43 +19,43 @@
 #include "emu.h"
 #include "peribox.h"
 #include "machine/at29x.h"
+#include "machine/ram.h"
 
 extern const device_type TI99_HSGPL;
 
 class snug_high_speed_gpl_device : public ti_expansion_card_device
 {
 public:
-	snug_high_speed_gpl_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	DECLARE_READ8Z_MEMBER(readz);
-	DECLARE_WRITE8_MEMBER(write);
+	snug_high_speed_gpl_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+	DECLARE_READ8Z_MEMBER(readz) override;
+	DECLARE_WRITE8_MEMBER(write) override;
 
-	DECLARE_READ8Z_MEMBER(crureadz);
-	DECLARE_WRITE8_MEMBER(cruwrite);
+	DECLARE_READ8Z_MEMBER(crureadz) override;
+	DECLARE_WRITE8_MEMBER(cruwrite) override;
 
 protected:
-	virtual void device_start(void);
-	virtual void device_reset(void);
-	virtual void device_stop(void);
-	virtual void device_config_complete(void);
-	virtual ioport_constructor device_input_ports() const;
+	virtual void device_start(void) override;
+	virtual void device_reset(void) override;
+	virtual void device_stop(void) override;
+	virtual ioport_constructor device_input_ports() const override;
 
-	virtual machine_config_constructor device_mconfig_additions() const;
+	virtual machine_config_constructor device_mconfig_additions() const override;
 
 private:
-	at29c040a_device* m_dsr_eeprom;
-	at29c040a_device* m_rom6_eeprom;
-	at29c040a_device* m_grom_a_eeprom;
-	at29c040a_device* m_grom_b_eeprom;
+	required_device<at29c040a_device> m_dsr_eeprom;
+	required_device<at29c040a_device> m_rom6_eeprom;
+	required_device<at29c040a_device> m_grom_a_eeprom;
+	required_device<at29c040a_device> m_grom_b_eeprom;
 
-	UINT8*          m_ram6_memory;
-	UINT8*          m_gram_memory;
+	required_device<ram_device>      m_ram6_memory;
+	required_device<ram_device>      m_gram_memory;
 
-	void            dsrspace_readz(address_space& space, offs_t offset, UINT8* value, UINT8 mem_mask);
-	void            cartspace_readz(address_space& space, offs_t offset, UINT8* value, UINT8 mem_mask);
-	void            grom_readz(address_space& space, offs_t offset, UINT8* value, UINT8 mem_mask);
+	void            dsrspace_readz(address_space& space, offs_t offset, uint8_t* value, uint8_t mem_mask);
+	void            cartspace_readz(address_space& space, offs_t offset, uint8_t* value, uint8_t mem_mask);
+	void            grom_readz(address_space& space, offs_t offset, uint8_t* value, uint8_t mem_mask);
 
-	void            cartspace_write(address_space& space, offs_t offset, UINT8 data, UINT8 mem_mask);
-	void            grom_write(address_space& space, offs_t offset, UINT8 data, UINT8 mem_mask);
+	void            cartspace_write(address_space& space, offs_t offset, uint8_t data, uint8_t mem_mask);
+	void            grom_write(address_space& space, offs_t offset, uint8_t data, uint8_t mem_mask);
 
 	bool            m_dsr_enabled;
 	bool            m_gram_enabled;

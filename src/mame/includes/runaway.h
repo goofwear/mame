@@ -13,8 +13,8 @@ public:
 		m_palette(*this, "palette") { }
 
 	emu_timer *m_interrupt_timer;
-	required_shared_ptr<UINT8> m_video_ram;
-	required_shared_ptr<UINT8> m_sprite_ram;
+	required_shared_ptr<uint8_t> m_video_ram;
+	required_shared_ptr<uint8_t> m_sprite_ram;
 	tilemap_t *m_bg_tilemap;
 	int m_tile_bank;
 	DECLARE_READ8_MEMBER(runaway_input_r);
@@ -26,12 +26,12 @@ public:
 	DECLARE_READ8_MEMBER(runaway_pot_r);
 	TILE_GET_INFO_MEMBER(runaway_get_tile_info);
 	TILE_GET_INFO_MEMBER(qwak_get_tile_info);
-	virtual void machine_start();
-	virtual void machine_reset();
-	virtual void video_start();
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+	virtual void video_start() override;
 	DECLARE_VIDEO_START(qwak);
-	UINT32 screen_update_runaway(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	UINT32 screen_update_qwak(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_runaway(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_qwak(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	TIMER_CALLBACK_MEMBER(interrupt_callback);
 	required_device<cpu_device> m_maincpu;
 	required_device<gfxdecode_device> m_gfxdecode;
